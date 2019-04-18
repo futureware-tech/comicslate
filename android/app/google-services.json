@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "950375134756",
+    "firebase_url": "https://comicslate-prod.firebaseio.com",
+    "project_id": "comicslate-prod",
+    "storage_bucket": "comicslate-prod.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:950375134756:android:6bb29ebe39e93d78",
+        "android_client_info": {
+          "package_name": "org.dasfoo.comicslate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "950375134756-m9ahbc3u2k9uai8nj6ilu6p9dhg88kpg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXTBX88-ds0YOgp9p_0h39dxva4tJhAKo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "950375134756-m9ahbc3u2k9uai8nj6ilu6p9dhg88kpg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
