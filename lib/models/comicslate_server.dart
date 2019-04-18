@@ -48,7 +48,7 @@ class ComicslateServer {
                 'https://comicslate.org/$language/tlk/a-traitor-to-the-king/index'),
             thumbnailURL: null,
             id: 'tlk:a-traitor-to-the-king',
-            name: 'Commander Kitty',
+            name: 'The Lion King',
             numberOfStrips: 125,
             rating: 3,
             updatedAt: DateTime.now().subtract(const Duration(days: 400)),

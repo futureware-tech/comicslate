@@ -1,3 +1,4 @@
+import 'package:comicslate/view/comics_list.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
@@ -32,23 +33,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Text(
-                'You have pushed the button this many times:',
-              ),
-              Text(
-                'Text',
-                style: Theme.of(context).textTheme.display1,
-              ),
-            ],
-          ),
-        ),
+  Widget build(BuildContext context) => ComicsList(
+        title: widget.title,
       );
 }
