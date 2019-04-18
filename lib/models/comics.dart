@@ -14,7 +14,7 @@ class Comics {
   final int rating;
   final DateTime updatedAt;
 
-  Comics({
+  const Comics({
     @required this.id,
     @required this.name,
     @required this.numberOfStrips,

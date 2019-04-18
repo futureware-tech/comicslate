@@ -5,22 +5,20 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Comicslate',
-      theme: ThemeData(
-          fontFamily: 'DatFestComic',
-          primaryColorDark: const Color(0xFF00796B),
-          primaryColor: const Color(0xFF009688),
-          accentColor: const Color(0xFFFFEB3B),
-          primaryColorLight: const Color(0xFFB2DFDB),
-          dividerColor: const Color(0xFFBDBDBD),
-          textTheme: Theme.of(context).textTheme.apply(
-              displayColor: Color(0xFF212121),
-              decorationColor: Color(0xFF757575))),
-      home: MyHomePage(title: 'Comicslate'),
-    );
-  }
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'Comicslate',
+        theme: ThemeData(
+            fontFamily: 'DatFestComic',
+            primaryColorDark: const Color(0xFF00796B),
+            primaryColor: const Color(0xFF009688),
+            accentColor: const Color(0xFFFFEB3B),
+            primaryColorLight: const Color(0xFFB2DFDB),
+            dividerColor: const Color(0xFFBDBDBD),
+            textTheme: Theme.of(context).textTheme.apply(
+                displayColor: const Color(0xFF212121),
+                decorationColor: const Color(0xFF757575))),
+        home: MyHomePage(title: 'Comicslate'),
+      );
 }
 
 class MyHomePage extends StatefulWidget {
@@ -34,25 +32,23 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              'Text',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
         ),
-      ),
-    );
-  }
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const Text(
+                'You have pushed the button this many times:',
+              ),
+              Text(
+                'Text',
+                style: Theme.of(context).textTheme.display1,
+              ),
+            ],
+          ),
+        ),
+      );
 }
