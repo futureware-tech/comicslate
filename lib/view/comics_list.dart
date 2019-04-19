@@ -1,6 +1,6 @@
 import 'package:comicslate/models/comics.dart';
 import 'package:comicslate/models/comics_category.dart';
-import 'package:comicslate/models/comicslate_server.dart';
+import 'package:comicslate/models/comicslate_client.dart';
 import 'package:comicslate/view/comics_page.dart';
 import 'package:comicslate/view/helpers/comics_card.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,7 @@ class ComicsList extends StatelessWidget {
           title: Text(title),
         ),
         body: FutureBuilder<List<ComicsCategory>>(
-          future: ComicslateServer(language: 'ru').getComicsList(),
+          future: ComicslateClient(language: 'ru').getComicsList(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               final allComics = <Comics>[];

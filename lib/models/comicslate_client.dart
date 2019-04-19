@@ -4,10 +4,10 @@ import 'package:meta/meta.dart';
 
 // TODO(dotdoom): return real data instead of mocks.
 @immutable
-class ComicslateServer {
+class ComicslateClient {
   final String language;
 
-  ComicslateServer({@required this.language});
+  ComicslateClient({@required this.language});
 
   Future<List<ComicsCategory>> getComicsList() async {
     return [
@@ -48,7 +48,7 @@ class ComicslateServer {
                 'https://comicslate.org/$language/tlk/a-traitor-to-the-king/index'),
             thumbnailURL: null,
             id: 'tlk:a-traitor-to-the-king',
-            name: 'The Lion King',
+            name: 'A Traitor To The King',
             numberOfStrips: 125,
             rating: 3,
             updatedAt: DateTime.now().subtract(const Duration(days: 400)),

@@ -41,6 +41,7 @@ class Comics {
     final stripResponse = (await (await HttpClient().getUrl(
             Uri.parse('https://app.comicslate.org/strips/$id:$stripId/render')))
         .close());
+
     final stripData = <int>[];
     await for (final chunk in stripResponse) {
       stripData.addAll(chunk);
