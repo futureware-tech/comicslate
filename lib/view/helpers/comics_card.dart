@@ -24,11 +24,16 @@ class ComicsCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Expanded(
-                child: FadeInImage.assetNetwork(
-                  fit: BoxFit.cover,
-                  image: imageUrl,
-                  placeholder: 'images/logo2.png',
-                ),
+                child: imageUrl == 'null'
+                    ? Image.asset(
+                        'images/logo2.png',
+                        fit: BoxFit.cover,
+                      )
+                    : FadeInImage.assetNetwork(
+                        fit: BoxFit.cover,
+                        image: imageUrl,
+                        placeholder: 'images/logo2.png',
+                      ),
               ),
               Container(
                   padding:

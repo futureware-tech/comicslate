@@ -31,7 +31,6 @@ class ComicsList extends StatelessWidget {
                       imageUrl: allComics[i].thumbnailURL.toString(),
                       title: allComics[i].name,
                       callback: () {
-                        print('image $i');
                         _openComics(context, allComics[i]);
                       },
                     ),
