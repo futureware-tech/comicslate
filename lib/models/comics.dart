@@ -28,7 +28,9 @@ class Comics {
     switch (id) {
       case 'sci-fi:freefall':
         final format4digits = NumberFormat('0000');
-        return Iterable.generate(3500).map(format4digits.format);
+        return Iterable.generate(3500)
+            .map(format4digits.format)
+            .where((x) => x != '0000');
       case 'sci-fi:commander-kitty':
         return Iterable.generate(115).map((x) => x.toString());
     }
@@ -36,8 +38,8 @@ class Comics {
   }
 
   Future<ComicsStrip> getComicsStrip(String stripId) async {
-    final stripResponse = (await (await HttpClient().getUrl(Uri.parse(
-            'http://pix.academ.info/images/img/2016/02/04/d6a8ce6c13151c9c3b7c8e782d400806.png')))
+    final stripResponse = (await (await HttpClient().getUrl(
+            Uri.parse('https://app.comicslate.org/strips/$id:$stripId/render')))
         .close());
     final stripData = <int>[];
     await for (final chunk in stripResponse) {

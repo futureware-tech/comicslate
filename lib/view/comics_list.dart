@@ -1,6 +1,7 @@
 import 'package:comicslate/models/comics.dart';
 import 'package:comicslate/models/comics_category.dart';
 import 'package:comicslate/models/comicslate_server.dart';
+import 'package:comicslate/view/comics_page.dart';
 import 'package:comicslate/view/helpers/comics_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -34,6 +35,7 @@ class ComicsList extends StatelessWidget {
                       title: allComics[i].name,
                       callback: () {
                         print('image $i');
+                        _openComics(context, allComics[i]);
                       },
                     ),
               );
@@ -45,4 +47,12 @@ class ComicsList extends StatelessWidget {
           },
         ),
       );
+
+  void _openComics(BuildContext context, Comics comics) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            settings: const RouteSettings(name: '/read-comics'),
+            builder: (context) => ComicsPage(comics: comics)));
+  }
 }
