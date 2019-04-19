@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:comicslate/models/comic.dart';
-import 'package:comicslate/models/comics_strip.dart';
+import 'package:comicslate/models/comic_strip.dart';
 import 'package:flutter/material.dart';
 
 class ComicsPage extends StatelessWidget {
@@ -18,7 +18,7 @@ class ComicsPage extends StatelessWidget {
           builder: (context, stripListSnapshot) {
             if (stripListSnapshot.hasData) {
               // Load image
-              return FutureBuilder<ComicsStrip>(
+              return FutureBuilder<ComicStrip>(
                   future: comics
                       .getComicsStrip(stripListSnapshot.data.elementAt(0)),
                   builder: (context, stripSnapshot) {

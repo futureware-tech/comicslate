@@ -1,4 +1,4 @@
-import 'package:comicslate/models/comics_strip.dart';
+import 'package:comicslate/models/comic_strip.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
@@ -36,10 +36,10 @@ class Comic {
     return [];
   }
 
-  Future<ComicsStrip> getComicsStrip(String stripId) async {
+  Future<ComicStrip> getComicsStrip(String stripId) async {
     final stripResponse =
         await http.get('https://app.comicslate.org/strips/$id:$stripId/render');
-    return ComicsStrip(
+    return ComicStrip(
       url: Uri.parse('https://comicslate.org/ru/sci-fi/freefall/0002'),
       imageBytes: stripResponse.bodyBytes,
     );
