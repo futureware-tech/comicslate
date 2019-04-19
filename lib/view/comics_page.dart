@@ -1,11 +1,11 @@
 import 'dart:typed_data';
 
-import 'package:comicslate/models/comics.dart';
+import 'package:comicslate/models/comic.dart';
 import 'package:comicslate/models/comics_strip.dart';
 import 'package:flutter/material.dart';
 
 class ComicsPage extends StatelessWidget {
-  final Comics comics;
+  final Comic comics;
 
   ComicsPage({@required this.comics}) : assert(comics != null);
 

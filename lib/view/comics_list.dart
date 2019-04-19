@@ -1,5 +1,4 @@
-import 'package:comicslate/models/comics.dart';
-import 'package:comicslate/models/comics_category.dart';
+import 'package:comicslate/models/comic.dart';
 import 'package:comicslate/models/comicslate_client.dart';
 import 'package:comicslate/view/comics_page.dart';
 import 'package:comicslate/view/helpers/comics_card.dart';
@@ -16,13 +15,11 @@ class ComicsList extends StatelessWidget {
         appBar: AppBar(
           title: Text(title),
         ),
-        body: FutureBuilder<List<ComicsCategory>>(
-          future: ComicslateClient(language: 'ru').getComicsList(),
+        body: FutureBuilder<List<Comic>>(
+          future: const ComicslateClient(language: 'ru').getComicsList(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              final allComics = <Comics>[];
-              snapshot.data.forEach((comicsCategory) =>
-                  allComics.addAll(comicsCategory.comicses));
+              final allComics = snapshot.data;
               return GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: MediaQuery.of(context).orientation ==
@@ -48,7 +45,7 @@ class ComicsList extends StatelessWidget {
         ),
       );
 
-  void _openComics(BuildContext context, Comics comics) {
+  void _openComics(BuildContext context, Comic comics) {
     Navigator.push(
         context,
         MaterialPageRoute(

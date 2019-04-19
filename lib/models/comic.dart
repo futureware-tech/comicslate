@@ -5,21 +5,23 @@ import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 
 @immutable
-class Comics {
+class Comic {
   final String id;
   final String name;
+  final String category;
   final int numberOfStrips;
   final Uri homePageURL;
   final Uri thumbnailURL;
-  final int rating;
   final DateTime updatedAt;
+  final bool isActive;
 
-  const Comics({
+  const Comic({
     @required this.id,
     @required this.name,
+    @required this.category,
     @required this.numberOfStrips,
     @required this.homePageURL,
-    @required this.rating,
+    @required this.isActive,
     @required this.updatedAt,
     @required this.thumbnailURL,
   });
@@ -43,12 +45,9 @@ class Comics {
         .close());
 
     final stripData = <int>[];
-    await for (final chunk in stripResponse) {
-      stripData.addAll(chunk);
-    }
+    stripResponse.forEach(stripData.addAll);
     return ComicsStrip(
       url: Uri.parse('https://comicslate.org/ru/sci-fi/freefall/0002'),
-      imageFormat: ImageFormat.PNG,
       imageBytes: stripData,
     );
   }
