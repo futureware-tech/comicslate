@@ -1,6 +1,7 @@
+import 'dart:convert';
+
 import 'package:comicslate/models/comic_strip.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 
 @immutable
@@ -24,21 +25,14 @@ class Comic {
   });
 
   Future<Iterable<String>> getStoryStripsList() async {
-    switch (id) {
-      case 'sci-fi:freefall':
-        final format4digits = NumberFormat('0000');
-        return Iterable.generate(3500)
-            .map(format4digits.format)
-            .where((x) => x != '0000');
-      case 'sci-fi:commander-kitty':
-        return Iterable.generate(115).map((x) => x.toString());
-    }
-    return [];
+    final Map<String, dynamic> json = jsonDecode(
+        (await http.get('https://app.comicslate.org/comics/$id/strips')).body);
+    return List<String>.from(json['storyStrips']);
   }
 
   Future<ComicStrip> getComicsStrip(String stripId) async {
-    final stripResponse =
-        await http.get('https://app.comicslate.org/strips/$id:$stripId/render');
+    final stripResponse = await http
+        .get('https://app.comicslate.org/comics/$id/strips/$stripId/render');
     return ComicStrip(
       url: Uri.parse('https://comicslate.org/ru/sci-fi/freefall/0002'),
       imageBytes: stripResponse.bodyBytes,
