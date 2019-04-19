@@ -50,6 +50,6 @@ class ComicsList extends StatelessWidget {
         context,
         MaterialPageRoute(
             settings: const RouteSettings(name: '/read-comics'),
-            builder: (context) => ComicsPage(comics: comics)));
+            builder: (context) => ComicsPage(comic: comics)));
   }
 }
