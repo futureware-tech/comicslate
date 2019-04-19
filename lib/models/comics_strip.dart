@@ -1,9 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:meta/meta.dart';
 
 @immutable
 class ComicsStrip {
   final Uri url;
-  final List<int> imageBytes;
+  final Uint8List imageBytes;
 
   const ComicsStrip({
     @required this.url,

@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:comicslate/models/comics_strip.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 
@@ -12,7 +11,6 @@ class Comic {
   final int numberOfStrips;
   final Uri homePageURL;
   final Uri thumbnailURL;
-  final DateTime updatedAt;
   final bool isActive;
 
   const Comic({
@@ -22,7 +20,6 @@ class Comic {
     @required this.numberOfStrips,
     @required this.homePageURL,
     @required this.isActive,
-    @required this.updatedAt,
     @required this.thumbnailURL,
   });
 
@@ -40,15 +37,11 @@ class Comic {
   }
 
   Future<ComicsStrip> getComicsStrip(String stripId) async {
-    final stripResponse = (await (await HttpClient().getUrl(
-            Uri.parse('https://app.comicslate.org/strips/$id:$stripId/render')))
-        .close());
-
-    final stripData = <int>[];
-    stripResponse.forEach(stripData.addAll);
+    final stripResponse =
+        await http.get('https://app.comicslate.org/strips/$id:$stripId/render');
     return ComicsStrip(
       url: Uri.parse('https://comicslate.org/ru/sci-fi/freefall/0002'),
-      imageBytes: stripData,
+      imageBytes: stripResponse.bodyBytes,
     );
   }
 }
