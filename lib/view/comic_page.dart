@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_advanced_networkimage/zoomable.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class ComicPage extends StatelessWidget {
   final Comic comic;
@@ -75,11 +76,18 @@ class _StripPageState extends State<StripPage> {
                       .getStrip(widget.comic, widget.stripIds.elementAt(i)),
                   builder: (context, stripSnapshot) {
                     if (stripSnapshot.hasData) {
-                      if (!_isOrientationSetup) {
-                        setUpOrientation(stripSnapshot.data.imageBytes);
+                      if (stripSnapshot.data.imageBytes == null) {
+                        return WebView(
+                          initialUrl: stripSnapshot.data.url.toString(),
+                          javascriptMode: JavascriptMode.unrestricted,
+                        );
+                      } else {
+                        if (!_isOrientationSetup) {
+                          setUpOrientation(stripSnapshot.data.imageBytes);
+                        }
+                        return StripImage(
+                            imageBytes: stripSnapshot.data.imageBytes);
                       }
-                      return StripImage(
-                          imageBytes: stripSnapshot.data.imageBytes);
                       // TODO(ksheremet): Zoomable widget doesn't work in Column
                       /*return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
