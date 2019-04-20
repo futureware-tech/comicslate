@@ -16,7 +16,9 @@ class ComicslateClient {
   const ComicslateClient({@required this.language});
 
   Future<http.Response> request(String path) =>
-      http.get(_baseUri.replace(path: path).toString());
+      http.get(_baseUri.replace(path: path).toString(), headers: {
+        'Accept-Language': language,
+      });
 
   Future<dynamic> requestJson(String path) async {
     final response = await request(path);
