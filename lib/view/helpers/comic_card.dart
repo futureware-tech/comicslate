@@ -1,12 +1,78 @@
+import 'package:comicslate/models/comic.dart';
 import 'package:flutter/material.dart';
 
+@immutable
+class ComicsRatingWidget extends StatefulWidget {
+  final ComicRatingColor ratingColor;
+  final bool isActive;
+
+  const ComicsRatingWidget({
+    @required this.ratingColor,
+    @required this.isActive,
+  });
+
+  @override
+  _ComicsRatingWidgetState createState() => _ComicsRatingWidgetState();
+}
+
+class _ComicsRatingWidgetState extends State<ComicsRatingWidget>
+    with SingleTickerProviderStateMixin {
+  AnimationController _starController;
+
+  @override
+  void initState() {
+    super.initState();
+    _starController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat();
+  }
+
+  static const ratingColorMap = {
+    ComicRatingColor.empty: Color.fromARGB(0xFF, 0xEA, 0xEA, 0xEA),
+    ComicRatingColor.bronze: Color.fromARGB(0xFF, 0xCD, 0x7F, 0x32),
+    ComicRatingColor.silver: Color.fromARGB(0xFF, 0xC0, 0xC0, 0xC0),
+    ComicRatingColor.gold: Color.fromARGB(0xFF, 0xFF, 0xDF, 0x00),
+  };
+
+  Icon _buildStar() => Icon(
+        Icons.star,
+        color: ratingColorMap[widget.ratingColor],
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.ratingColor == null) {
+      return Container();
+    }
+    if (widget.isActive == true) {
+      return RotationTransition(child: _buildStar(), turns: _starController);
+    } else {
+      return _buildStar();
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _starController.dispose();
+  }
+}
+
+@immutable
 class ComicCard extends StatelessWidget {
   final Uri imageUrl;
   final String title;
+  final ComicRatingColor ratingColor;
+  final bool isActive;
   final Function callback;
 
-  ComicCard(
-      {@required this.imageUrl, @required this.title, @required this.callback})
+  const ComicCard(
+      {@required this.imageUrl,
+      @required this.title,
+      @required this.callback,
+      @required this.isActive,
+      @required this.ratingColor})
       : assert(title != null),
         assert(callback != null);
 
@@ -21,28 +87,49 @@ class ComicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cover = imageUrl == null
-        ? FittedBox(
-            child: Text(splitInTheMiddle(title), textAlign: TextAlign.center))
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Expanded(
-                child: FadeInImage.assetNetwork(
-                  fit: BoxFit.cover,
-                  image: imageUrl.toString(),
-                  placeholder: 'images/favicon.png',
-                ),
+    Widget cover;
+    if (imageUrl == null) {
+      cover = Column(children: [
+        Expanded(
+            child: FittedBox(
+                child: Container(
+          padding: const EdgeInsets.all(5),
+          child: Text(splitInTheMiddle(title), textAlign: TextAlign.center),
+        ))),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+          child: Row(children: [
+            ComicsRatingWidget(
+              isActive: isActive,
+              ratingColor: ratingColor,
+            )
+          ]),
+        ),
+      ]);
+    } else {
+      cover = Column(children: [
+        Expanded(
+          child: FadeInImage.assetNetwork(
+            fit: BoxFit.cover,
+            image: imageUrl.toString(),
+            placeholder: 'images/favicon.png',
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: ListTile(
+              trailing: ComicsRatingWidget(
+                isActive: isActive,
+                ratingColor: ratingColor,
               ),
-              Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-                  child: Text(
-                    title,
-                    textAlign: TextAlign.center,
-                  ))
-            ],
-          );
+              dense: true,
+              leading: Text(
+                title,
+                textAlign: TextAlign.center,
+              )),
+        )
+      ]);
+    }
 
     return Card(
       clipBehavior: Clip.antiAlias,

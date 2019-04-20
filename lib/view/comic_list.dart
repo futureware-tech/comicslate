@@ -67,6 +67,8 @@ class ComicList extends StatelessWidget {
             (context, i) => ComicCard(
                   imageUrl: comicList[i].thumbnailURL,
                   title: comicList[i].name,
+                  ratingColor: comicList[i].ratingColor,
+                  isActive: comicList[i].isActive,
                   callback: () {
                     _openComics(context, comicList[i]);
                   },
