@@ -12,9 +12,6 @@ abstract class ComicStrip implements Built<ComicStrip, ComicStripBuilder> {
   String get title;
 
   @nullable
-  String get name;
-
-  @nullable
   DateTime get lastModified;
 
   @nullable
