@@ -33,6 +33,7 @@ class ComicsPage extends StatelessWidget {
       );
 }
 
+// TODO(ksheremet): Rename
 class ImagePageViewWidget extends StatefulWidget {
   final Iterable<String> stripIds;
   final Comic comic;
@@ -73,8 +74,14 @@ class _ImagePageViewWidgetState extends State<ImagePageViewWidget> {
                       .getStrip(widget.comic, widget.stripIds.elementAt(i)),
                   builder: (context, stripSnapshot) {
                     if (stripSnapshot.hasData) {
-                      return Image.memory(
-                          Uint8List.fromList(stripSnapshot.data.imageBytes));
+                      return Column(
+                        children: <Widget>[
+                          Text(
+                              '${widget.stripIds.elementAt(i)}/${widget.comic.numberOfStrips} ${stripSnapshot.data.title}'),
+                          Image.memory(Uint8List.fromList(
+                              stripSnapshot.data.imageBytes)),
+                        ],
+                      );
                     } else {
                       return Center(child: const CircularProgressIndicator());
                     }
