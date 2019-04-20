@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class ComicsCard extends StatelessWidget {
-  final String imageUrl;
+class ComicCard extends StatelessWidget {
+  final Uri imageUrl;
   final String title;
   final Function callback;
 
-  ComicsCard(
+  ComicCard(
       {@required this.imageUrl, @required this.title, @required this.callback})
       : assert(imageUrl != null),
         assert(title != null),
@@ -24,14 +24,14 @@ class ComicsCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Expanded(
-                child: imageUrl == 'null'
+                child: imageUrl == null
                     ? Image.asset(
                         'images/logo2.png',
                         fit: BoxFit.cover,
                       )
                     : FadeInImage.assetNetwork(
                         fit: BoxFit.cover,
-                        image: imageUrl,
+                        image: imageUrl.toString(),
                         placeholder: 'images/logo2.png',
                       ),
               ),

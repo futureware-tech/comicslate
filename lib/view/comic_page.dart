@@ -112,8 +112,6 @@ class _StripPageState extends State<StripPage> {
     image
         .resolve(createLocalImageConfiguration(context))
         .addListener((imageInfo, error) {
-      print('height: ${imageInfo.image.height}; '
-          'width = ${imageInfo.image.width}');
       _isOrientationSetup = true;
       if (imageInfo.image.width > imageInfo.image.height) {
         SystemChrome.setPreferredOrientations([

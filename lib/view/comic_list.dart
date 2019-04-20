@@ -1,6 +1,6 @@
 import 'package:comicslate/models/comic.dart';
 import 'package:comicslate/view/comic_page.dart';
-import 'package:comicslate/view/helpers/comics_card.dart';
+import 'package:comicslate/view/helpers/comic_card.dart';
 import 'package:comicslate/view_model/comic_list_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -64,8 +64,8 @@ class ComicList extends StatelessWidget {
       ))
       ..add(SliverGrid(
         delegate: SliverChildBuilderDelegate(
-            (context, i) => ComicsCard(
-                  imageUrl: comicList[i].thumbnailURL.toString(),
+            (context, i) => ComicCard(
+                  imageUrl: comicList[i].thumbnailURL,
                   title: comicList[i].name,
                   callback: () {
                     _openComics(context, comicList[i]);
