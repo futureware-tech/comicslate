@@ -3,6 +3,7 @@ import 'package:comicslate/view/comic_page.dart';
 import 'package:comicslate/view/helpers/comics_card.dart';
 import 'package:comicslate/view_model/comic_list_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 class ComicList extends StatelessWidget {
@@ -13,26 +14,35 @@ class ComicList extends StatelessWidget {
   ComicList({@required this.title}) : assert(title != null);
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-        ),
-        body: StreamBuilder<Map<String, List<Comic>>>(
-          stream: _bloc.doComicListByCategory,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return CustomScrollView(
-                primary: true,
-                slivers: _buildComicList(snapshot.data, context),
-              );
-            } else {
-              return Center(
-                child: const CircularProgressIndicator(),
-              );
-            }
-          },
-        ),
-      );
+  Widget build(BuildContext context) {
+    print('Build list was called');
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: StreamBuilder<Map<String, List<Comic>>>(
+        stream: _bloc.doComicListByCategory,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return CustomScrollView(
+              primary: true,
+              slivers: _buildComicList(snapshot.data, context),
+            );
+          } else {
+            return Center(
+              child: const CircularProgressIndicator(),
+            );
+          }
+        },
+      ),
+    );
+  }
 
   List<Widget> _buildComicList(
       Map<String, List<Comic>> comicMap, BuildContext context) {

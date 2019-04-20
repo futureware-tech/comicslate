@@ -1,8 +1,12 @@
+import 'dart:typed_data';
+
 import 'package:comicslate/models/comic.dart';
 import 'package:comicslate/models/comic_strip.dart';
 import 'package:comicslate/models/comicslate_client.dart';
 import 'package:comicslate/view_model/comic_page_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 
 class ComicPage extends StatelessWidget {
   final Comic comic;
@@ -47,6 +51,7 @@ class ImagePageViewWidget extends StatefulWidget {
 class _ImagePageViewWidgetState extends State<ImagePageViewWidget> {
   PageController _controller;
   ComicPageViewModel _viewModel;
+  bool _isOrientationSetup = false;
 
   @override
   void initState() {
@@ -55,7 +60,6 @@ class _ImagePageViewWidgetState extends State<ImagePageViewWidget> {
   }
 
   // TODO(ksheremet): Cache images
-  // TODO(ksheremet): Rotate screen in landscape on wide image
   // TODO(ksheremet): ZoomIn ZoomOut images
   @override
   Widget build(BuildContext context) => FutureBuilder<int>(
@@ -72,11 +76,18 @@ class _ImagePageViewWidgetState extends State<ImagePageViewWidget> {
                       .getStrip(widget.comic, widget.stripIds.elementAt(i)),
                   builder: (context, stripSnapshot) {
                     if (stripSnapshot.hasData) {
+                      if (!_isOrientationSetup) {
+                        setUpOrientation(stripSnapshot.data.imageBytes);
+                      }
                       return Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text('${widget.stripIds.elementAt(i)} '
                               '${stripSnapshot.data.title}'),
                           Image.memory(stripSnapshot.data.imageBytes),
+                          Text('${stripSnapshot.data.author}: '
+                              '${stripSnapshot.data.lastModified}'),
                         ],
                       );
                     } else {
@@ -92,4 +103,25 @@ class _ImagePageViewWidgetState extends State<ImagePageViewWidget> {
           }
         },
       );
+
+  // TODO(ksheremet): Consider more elegant solution
+  void setUpOrientation(Uint8List imageBytes) {
+    final image = MemoryImage(imageBytes);
+    image
+        .resolve(createLocalImageConfiguration(context))
+        .addListener((imageInfo, error) {
+      print('height: ${imageInfo.image.height}; '
+          'width = ${imageInfo.image.width}');
+      _isOrientationSetup = true;
+      if (imageInfo.image.width > imageInfo.image.height) {
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight
+        ]);
+      } else {
+        SystemChrome.setPreferredOrientations(
+            [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+      }
+    });
+  }
 }
