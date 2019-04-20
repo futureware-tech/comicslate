@@ -23,7 +23,7 @@ class ComicListBloc {
 
     Map<String, List<Comic>> comics;
     comics = comicList.fold<Map<String, List<Comic>>>({}, (map, comic) {
-      (map[comic.category] ??= []).add(comic);
+      (map[comic.categoryName] ??= []).add(comic);
       return map;
     });
     _doComicListByCategoryController.add(comics);

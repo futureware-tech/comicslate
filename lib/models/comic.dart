@@ -12,7 +12,7 @@ abstract class Comic implements Built<Comic, ComicBuilder> {
   String get name;
 
   @nullable
-  String get category;
+  String get categoryName;
 
   @nullable
   Uri get thumbnailURL;

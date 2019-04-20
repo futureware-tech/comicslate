@@ -30,10 +30,10 @@ class _$ComicSerializer implements StructuredSerializer<Comic> {
         ..add(serializers.serialize(object.name,
             specifiedType: const FullType(String)));
     }
-    if (object.category != null) {
+    if (object.categoryName != null) {
       result
-        ..add('category')
-        ..add(serializers.serialize(object.category,
+        ..add('categoryName')
+        ..add(serializers.serialize(object.categoryName,
             specifiedType: const FullType(String)));
     }
     if (object.thumbnailURL != null) {
@@ -75,8 +75,8 @@ class _$ComicSerializer implements StructuredSerializer<Comic> {
           result.name = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String;
           break;
-        case 'category':
-          result.category = serializers.deserialize(value,
+        case 'categoryName':
+          result.categoryName = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String;
           break;
         case 'thumbnailURL':
@@ -102,7 +102,7 @@ class _$Comic extends Comic {
   @override
   final String name;
   @override
-  final String category;
+  final String categoryName;
   @override
   final Uri thumbnailURL;
   @override
@@ -115,7 +115,7 @@ class _$Comic extends Comic {
       {this.id,
       this.homePageURL,
       this.name,
-      this.category,
+      this.categoryName,
       this.thumbnailURL,
       this.isActive})
       : super._() {
@@ -141,7 +141,7 @@ class _$Comic extends Comic {
         id == other.id &&
         homePageURL == other.homePageURL &&
         name == other.name &&
-        category == other.category &&
+        categoryName == other.categoryName &&
         thumbnailURL == other.thumbnailURL &&
         isActive == other.isActive;
   }
@@ -153,7 +153,7 @@ class _$Comic extends Comic {
             $jc(
                 $jc($jc($jc(0, id.hashCode), homePageURL.hashCode),
                     name.hashCode),
-                category.hashCode),
+                categoryName.hashCode),
             thumbnailURL.hashCode),
         isActive.hashCode));
   }
@@ -164,7 +164,7 @@ class _$Comic extends Comic {
           ..add('id', id)
           ..add('homePageURL', homePageURL)
           ..add('name', name)
-          ..add('category', category)
+          ..add('categoryName', categoryName)
           ..add('thumbnailURL', thumbnailURL)
           ..add('isActive', isActive))
         .toString();
@@ -186,9 +186,9 @@ class ComicBuilder implements Builder<Comic, ComicBuilder> {
   String get name => _$this._name;
   set name(String name) => _$this._name = name;
 
-  String _category;
-  String get category => _$this._category;
-  set category(String category) => _$this._category = category;
+  String _categoryName;
+  String get categoryName => _$this._categoryName;
+  set categoryName(String categoryName) => _$this._categoryName = categoryName;
 
   Uri _thumbnailURL;
   Uri get thumbnailURL => _$this._thumbnailURL;
@@ -205,7 +205,7 @@ class ComicBuilder implements Builder<Comic, ComicBuilder> {
       _id = _$v.id;
       _homePageURL = _$v.homePageURL;
       _name = _$v.name;
-      _category = _$v.category;
+      _categoryName = _$v.categoryName;
       _thumbnailURL = _$v.thumbnailURL;
       _isActive = _$v.isActive;
       _$v = null;
@@ -233,7 +233,7 @@ class ComicBuilder implements Builder<Comic, ComicBuilder> {
             id: id,
             homePageURL: homePageURL,
             name: name,
-            category: category,
+            categoryName: categoryName,
             thumbnailURL: thumbnailURL,
             isActive: isActive);
     replace(_$result);
