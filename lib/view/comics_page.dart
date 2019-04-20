@@ -70,7 +70,7 @@ class _ImagePageViewWidgetState extends State<ImagePageViewWidget> {
               itemCount: widget.stripIds.length,
               itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
                   future: const ComicslateClient(language: 'ru')
-                      .renderStrip(widget.comic, widget.stripIds.elementAt(i)),
+                      .getStrip(widget.comic, widget.stripIds.elementAt(i)),
                   builder: (context, stripSnapshot) {
                     if (stripSnapshot.hasData) {
                       return Image.memory(

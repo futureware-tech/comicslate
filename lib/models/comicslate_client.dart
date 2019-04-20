@@ -42,16 +42,18 @@ class ComicslateClient {
       List<String>.from(
           (await requestJson('comics/${comic.id}/strips'))['storyStrips']);
 
-  Future<ComicStrip> renderStrip(Comic comic, String stripId) async {
-    final stripResponse =
-        await request('comics/${comic.id}/strips/$stripId/render');
-    if (stripResponse.statusCode == 200) {
-      return serializers
-          .deserializeWith(ComicStrip.serializer,
-              await requestJson('comics/${comic.id}/strips/$stripId'))
-          .rebuild((b) => b.imageBytes = stripResponse.bodyBytes);
-    } else {
-      throw Exception(json.decode(stripResponse.body));
+  Future<ComicStrip> getStrip(Comic comic, String stripId) async {
+    var strip = serializers.deserializeWith(ComicStrip.serializer,
+        await requestJson('comics/${comic.id}/strips/$stripId'));
+    try {
+      final imageBytes =
+          (await request('comics/${comic.id}/strips/$stripId/render'))
+              .bodyBytes;
+      strip = strip.rebuild((b) => b.imageBytes = imageBytes);
+    } catch (e) {
+      print(e);
     }
+
+    return strip;
   }
 }
