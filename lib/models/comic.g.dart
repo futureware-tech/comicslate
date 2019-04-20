@@ -36,12 +36,6 @@ class _$ComicSerializer implements StructuredSerializer<Comic> {
         ..add(serializers.serialize(object.category,
             specifiedType: const FullType(String)));
     }
-    if (object.numberOfStrips != null) {
-      result
-        ..add('numberOfStrips')
-        ..add(serializers.serialize(object.numberOfStrips,
-            specifiedType: const FullType(int)));
-    }
     if (object.thumbnailURL != null) {
       result
         ..add('thumbnailURL')
@@ -85,10 +79,6 @@ class _$ComicSerializer implements StructuredSerializer<Comic> {
           result.category = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String;
           break;
-        case 'numberOfStrips':
-          result.numberOfStrips = serializers.deserialize(value,
-              specifiedType: const FullType(int)) as int;
-          break;
         case 'thumbnailURL':
           result.thumbnailURL = serializers.deserialize(value,
               specifiedType: const FullType(Uri)) as Uri;
@@ -114,8 +104,6 @@ class _$Comic extends Comic {
   @override
   final String category;
   @override
-  final int numberOfStrips;
-  @override
   final Uri thumbnailURL;
   @override
   final bool isActive;
@@ -128,7 +116,6 @@ class _$Comic extends Comic {
       this.homePageURL,
       this.name,
       this.category,
-      this.numberOfStrips,
       this.thumbnailURL,
       this.isActive})
       : super._() {
@@ -155,7 +142,6 @@ class _$Comic extends Comic {
         homePageURL == other.homePageURL &&
         name == other.name &&
         category == other.category &&
-        numberOfStrips == other.numberOfStrips &&
         thumbnailURL == other.thumbnailURL &&
         isActive == other.isActive;
   }
@@ -165,11 +151,9 @@ class _$Comic extends Comic {
     return $jf($jc(
         $jc(
             $jc(
-                $jc(
-                    $jc($jc($jc(0, id.hashCode), homePageURL.hashCode),
-                        name.hashCode),
-                    category.hashCode),
-                numberOfStrips.hashCode),
+                $jc($jc($jc(0, id.hashCode), homePageURL.hashCode),
+                    name.hashCode),
+                category.hashCode),
             thumbnailURL.hashCode),
         isActive.hashCode));
   }
@@ -181,7 +165,6 @@ class _$Comic extends Comic {
           ..add('homePageURL', homePageURL)
           ..add('name', name)
           ..add('category', category)
-          ..add('numberOfStrips', numberOfStrips)
           ..add('thumbnailURL', thumbnailURL)
           ..add('isActive', isActive))
         .toString();
@@ -207,11 +190,6 @@ class ComicBuilder implements Builder<Comic, ComicBuilder> {
   String get category => _$this._category;
   set category(String category) => _$this._category = category;
 
-  int _numberOfStrips;
-  int get numberOfStrips => _$this._numberOfStrips;
-  set numberOfStrips(int numberOfStrips) =>
-      _$this._numberOfStrips = numberOfStrips;
-
   Uri _thumbnailURL;
   Uri get thumbnailURL => _$this._thumbnailURL;
   set thumbnailURL(Uri thumbnailURL) => _$this._thumbnailURL = thumbnailURL;
@@ -228,7 +206,6 @@ class ComicBuilder implements Builder<Comic, ComicBuilder> {
       _homePageURL = _$v.homePageURL;
       _name = _$v.name;
       _category = _$v.category;
-      _numberOfStrips = _$v.numberOfStrips;
       _thumbnailURL = _$v.thumbnailURL;
       _isActive = _$v.isActive;
       _$v = null;
@@ -257,7 +234,6 @@ class ComicBuilder implements Builder<Comic, ComicBuilder> {
             homePageURL: homePageURL,
             name: name,
             category: category,
-            numberOfStrips: numberOfStrips,
             thumbnailURL: thumbnailURL,
             isActive: isActive);
     replace(_$result);

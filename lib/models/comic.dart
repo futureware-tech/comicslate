@@ -15,9 +15,6 @@ abstract class Comic implements Built<Comic, ComicBuilder> {
   String get category;
 
   @nullable
-  int get numberOfStrips;
-
-  @nullable
   Uri get thumbnailURL;
 
   @nullable

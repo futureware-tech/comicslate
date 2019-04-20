@@ -7,7 +7,6 @@ import 'package:meta/meta.dart';
 
 import 'serializers.dart';
 
-// TODO(dotdoom): return real data instead of mocks.
 @immutable
 class ComicslateClient {
   final String language;

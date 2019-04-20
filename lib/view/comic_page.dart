@@ -74,8 +74,8 @@ class _ImagePageViewWidgetState extends State<ImagePageViewWidget> {
                     if (stripSnapshot.hasData) {
                       return Column(
                         children: <Widget>[
-                          Text(
-                              '${widget.stripIds.elementAt(i)}/${widget.comic.numberOfStrips} ${stripSnapshot.data.title}'),
+                          Text('${widget.stripIds.elementAt(i)} '
+                              '${stripSnapshot.data.title}'),
                           Image.memory(stripSnapshot.data.imageBytes),
                         ],
                       );
