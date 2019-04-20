@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+// TODO(ksheremet): Refresh Indicator
 class ComicList extends StatelessWidget {
   final String title;
 

@@ -7,6 +7,7 @@ import 'package:comicslate/view_model/comic_page_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_advanced_networkimage/zoomable.dart';
 
 class ComicPage extends StatelessWidget {
   final Comic comic;
@@ -23,7 +24,7 @@ class ComicPage extends StatelessWidget {
           builder: (context, stripListSnapshot) {
             if (stripListSnapshot.hasData) {
               // Load image
-              return ImagePageViewWidget(
+              return StripPage(
                 comic: comic,
                 stripIds: stripListSnapshot.data,
               );
@@ -35,20 +36,19 @@ class ComicPage extends StatelessWidget {
       );
 }
 
-// TODO(ksheremet): Rename
-class ImagePageViewWidget extends StatefulWidget {
+class StripPage extends StatefulWidget {
   final Iterable<String> stripIds;
   final Comic comic;
 
-  ImagePageViewWidget({@required this.comic, @required this.stripIds})
+  StripPage({@required this.comic, @required this.stripIds})
       : assert(stripIds != null && stripIds.isNotEmpty),
         assert(comic != null);
 
   @override
-  _ImagePageViewWidgetState createState() => _ImagePageViewWidgetState();
+  _StripPageState createState() => _StripPageState();
 }
 
-class _ImagePageViewWidgetState extends State<ImagePageViewWidget> {
+class _StripPageState extends State<StripPage> {
   PageController _controller;
   ComicPageViewModel _viewModel;
   bool _isOrientationSetup = false;
@@ -60,7 +60,6 @@ class _ImagePageViewWidgetState extends State<ImagePageViewWidget> {
   }
 
   // TODO(ksheremet): Cache images
-  // TODO(ksheremet): ZoomIn ZoomOut images
   @override
   Widget build(BuildContext context) => FutureBuilder<int>(
         future: _viewModel.getLastSeenPage(),
@@ -79,17 +78,20 @@ class _ImagePageViewWidgetState extends State<ImagePageViewWidget> {
                       if (!_isOrientationSetup) {
                         setUpOrientation(stripSnapshot.data.imageBytes);
                       }
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      return StripImage(
+                          imageBytes: stripSnapshot.data.imageBytes);
+                      // TODO(ksheremet): Zoomable widget doesn't work in Column
+                      /*return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text('${widget.stripIds.elementAt(i)} '
+                          Text('${widget.stripIds.elementAt(i)}/'
+                              '${widget.stripIds.length}'
                               '${stripSnapshot.data.title}'),
-                          Image.memory(stripSnapshot.data.imageBytes),
+                          StripImage(imageBytes: stripSnapshot.data.imageBytes),
                           Text('${stripSnapshot.data.author}: '
                               '${stripSnapshot.data.lastModified}'),
                         ],
-                      );
+                      );*/
                     } else {
                       return Center(child: const CircularProgressIndicator());
                     }
@@ -124,4 +126,25 @@ class _ImagePageViewWidgetState extends State<ImagePageViewWidget> {
       }
     });
   }
+}
+
+class StripImage extends StatefulWidget {
+  final Uint8List imageBytes;
+
+  StripImage({@required this.imageBytes}) : assert(imageBytes != null);
+
+  @override
+  _StripImageState createState() => _StripImageState();
+}
+
+class _StripImageState extends State<StripImage> {
+  @override
+  Widget build(BuildContext context) => ZoomableWidget(
+      enableRotate: false,
+      maxScale: 3,
+      zoomSteps: 2,
+      multiFingersPan: true,
+      singleFingerPan: false,
+      minScale: 1,
+      child: Image.memory(widget.imageBytes));
 }
