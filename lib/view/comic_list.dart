@@ -1,7 +1,7 @@
 import 'package:comicslate/models/comic.dart';
 import 'package:comicslate/view/comics_page.dart';
 import 'package:comicslate/view/helpers/comics_card.dart';
-import 'package:comicslate/view_model/comic_list_view_model.dart';
+import 'package:comicslate/view_model/comic_list_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
