@@ -15,13 +15,11 @@ class ComicslateClient {
 
   const ComicslateClient({@required this.language});
 
-  Future<http.Response> request(String path) =>
-      http.get(_baseUri.replace(path: path).toString(), headers: {
-        'Accept-Language': language,
-      });
-
-  Future<dynamic> requestJson(String path) async {
-    final response = await request(path);
+  Future<http.Response> request(String path) async {
+    final response =
+        await http.get(_baseUri.replace(path: path).toString(), headers: {
+      'Accept-Language': language,
+    });
     if (response.statusCode != 200) {
       try {
         throw Exception('$path: ${json.decode(response.body)}');
@@ -29,8 +27,11 @@ class ComicslateClient {
         throw Exception('$path: $e: ${response.body}');
       }
     }
-    return json.decode(response.body);
+    return response;
   }
+
+  Future<dynamic> requestJson(String path) async =>
+      json.decode((await request(path)).body);
 
   Future<List<Comic>> getComicsList([String filter = '']) async {
     final List comics = await requestJson('comics/$filter');
