@@ -8,6 +8,7 @@ part of 'serializers.dart';
 
 Serializers _$serializers = (new Serializers().toBuilder()
       ..add(Comic.serializer)
+      ..add(ComicRatingColor.serializer)
       ..add(ComicStrip.serializer))
     .build();
 

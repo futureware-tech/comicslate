@@ -10,6 +10,7 @@ part 'serializers.g.dart';
 @SerializersFor([
   Comic,
   ComicStrip,
+  ComicRatingColor,
 ])
 final Serializers serializers = (_$serializers.toBuilder()
       ..addPlugin(StandardJsonPlugin())

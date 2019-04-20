@@ -6,7 +6,67 @@ part of 'comic.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
+const ComicRatingColor _$empty = const ComicRatingColor._('empty');
+const ComicRatingColor _$bronze = const ComicRatingColor._('bronze');
+const ComicRatingColor _$silver = const ComicRatingColor._('silver');
+const ComicRatingColor _$gold = const ComicRatingColor._('gold');
+
+ComicRatingColor _$valueOf(String name) {
+  switch (name) {
+    case 'empty':
+      return _$empty;
+    case 'bronze':
+      return _$bronze;
+    case 'silver':
+      return _$silver;
+    case 'gold':
+      return _$gold;
+    default:
+      throw new ArgumentError(name);
+  }
+}
+
+final BuiltSet<ComicRatingColor> _$values =
+    new BuiltSet<ComicRatingColor>(const <ComicRatingColor>[
+  _$empty,
+  _$bronze,
+  _$silver,
+  _$gold,
+]);
+
+Serializer<ComicRatingColor> _$comicRatingSerializer =
+    new _$ComicRatingSerializer();
 Serializer<Comic> _$comicSerializer = new _$ComicSerializer();
+
+class _$ComicRatingSerializer implements PrimitiveSerializer<ComicRatingColor> {
+  static const Map<String, String> _toWire = const <String, String>{
+    'empty': 'PUST',
+    'bronze': 'BRNZ',
+    'silver': 'SILV',
+    'gold': 'GOLD',
+  };
+  static const Map<String, String> _fromWire = const <String, String>{
+    'PUST': 'empty',
+    'BRNZ': 'bronze',
+    'SILV': 'silver',
+    'GOLD': 'gold',
+  };
+
+  @override
+  final Iterable<Type> types = const <Type>[ComicRatingColor];
+  @override
+  final String wireName = 'ComicRating';
+
+  @override
+  Object serialize(Serializers serializers, ComicRatingColor object,
+          {FullType specifiedType = FullType.unspecified}) =>
+      _toWire[object.name] ?? object.name;
+
+  @override
+  ComicRatingColor deserialize(Serializers serializers, Object serialized,
+          {FullType specifiedType = FullType.unspecified}) =>
+      ComicRatingColor.valueOf(_fromWire[serialized] ?? serialized as String);
+}
 
 class _$ComicSerializer implements StructuredSerializer<Comic> {
   @override
@@ -48,6 +108,12 @@ class _$ComicSerializer implements StructuredSerializer<Comic> {
         ..add(serializers.serialize(object.isActive,
             specifiedType: const FullType(bool)));
     }
+    if (object.ratingColor != null) {
+      result
+        ..add('ratingColor')
+        ..add(serializers.serialize(object.ratingColor,
+            specifiedType: const FullType(ComicRatingColor)));
+    }
 
     return result;
   }
@@ -87,6 +153,11 @@ class _$ComicSerializer implements StructuredSerializer<Comic> {
           result.isActive = serializers.deserialize(value,
               specifiedType: const FullType(bool)) as bool;
           break;
+        case 'ratingColor':
+          result.ratingColor = serializers.deserialize(value,
+                  specifiedType: const FullType(ComicRatingColor))
+              as ComicRatingColor;
+          break;
       }
     }
 
@@ -107,6 +178,8 @@ class _$Comic extends Comic {
   final Uri thumbnailURL;
   @override
   final bool isActive;
+  @override
+  final ComicRatingColor ratingColor;
 
   factory _$Comic([void Function(ComicBuilder) updates]) =>
       (new ComicBuilder()..update(updates)).build();
@@ -117,7 +190,8 @@ class _$Comic extends Comic {
       this.name,
       this.categoryName,
       this.thumbnailURL,
-      this.isActive})
+      this.isActive,
+      this.ratingColor})
       : super._() {
     if (id == null) {
       throw new BuiltValueNullFieldError('Comic', 'id');
@@ -143,7 +217,8 @@ class _$Comic extends Comic {
         name == other.name &&
         categoryName == other.categoryName &&
         thumbnailURL == other.thumbnailURL &&
-        isActive == other.isActive;
+        isActive == other.isActive &&
+        ratingColor == other.ratingColor;
   }
 
   @override
@@ -151,11 +226,13 @@ class _$Comic extends Comic {
     return $jf($jc(
         $jc(
             $jc(
-                $jc($jc($jc(0, id.hashCode), homePageURL.hashCode),
-                    name.hashCode),
-                categoryName.hashCode),
-            thumbnailURL.hashCode),
-        isActive.hashCode));
+                $jc(
+                    $jc($jc($jc(0, id.hashCode), homePageURL.hashCode),
+                        name.hashCode),
+                    categoryName.hashCode),
+                thumbnailURL.hashCode),
+            isActive.hashCode),
+        ratingColor.hashCode));
   }
 
   @override
@@ -166,7 +243,8 @@ class _$Comic extends Comic {
           ..add('name', name)
           ..add('categoryName', categoryName)
           ..add('thumbnailURL', thumbnailURL)
-          ..add('isActive', isActive))
+          ..add('isActive', isActive)
+          ..add('ratingColor', ratingColor))
         .toString();
   }
 }
@@ -198,6 +276,11 @@ class ComicBuilder implements Builder<Comic, ComicBuilder> {
   bool get isActive => _$this._isActive;
   set isActive(bool isActive) => _$this._isActive = isActive;
 
+  ComicRatingColor _ratingColor;
+  ComicRatingColor get ratingColor => _$this._ratingColor;
+  set ratingColor(ComicRatingColor ratingColor) =>
+      _$this._ratingColor = ratingColor;
+
   ComicBuilder();
 
   ComicBuilder get _$this {
@@ -208,6 +291,7 @@ class ComicBuilder implements Builder<Comic, ComicBuilder> {
       _categoryName = _$v.categoryName;
       _thumbnailURL = _$v.thumbnailURL;
       _isActive = _$v.isActive;
+      _ratingColor = _$v.ratingColor;
       _$v = null;
     }
     return this;
@@ -235,7 +319,8 @@ class ComicBuilder implements Builder<Comic, ComicBuilder> {
             name: name,
             categoryName: categoryName,
             thumbnailURL: thumbnailURL,
-            isActive: isActive);
+            isActive: isActive,
+            ratingColor: ratingColor);
     replace(_$result);
     return _$result;
   }
