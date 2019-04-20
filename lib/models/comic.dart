@@ -1,41 +1,29 @@
-import 'dart:convert';
+import 'package:built_value/built_value.dart';
+import 'package:built_value/serializer.dart';
 
-import 'package:comicslate/models/comic_strip.dart';
-import 'package:http/http.dart' as http;
-import 'package:meta/meta.dart';
+part 'comic.g.dart';
 
-@immutable
-class Comic {
-  final String id;
-  final String name;
-  final String category;
-  final int numberOfStrips;
-  final Uri homePageURL;
-  final Uri thumbnailURL;
-  final bool isActive;
+abstract class Comic implements Built<Comic, ComicBuilder> {
+  String get id;
 
-  const Comic({
-    @required this.id,
-    @required this.name,
-    @required this.category,
-    @required this.numberOfStrips,
-    @required this.homePageURL,
-    @required this.isActive,
-    @required this.thumbnailURL,
-  });
+  Uri get homePageURL;
 
-  Future<Iterable<String>> getStoryStripsList() async {
-    final Map<String, dynamic> json = jsonDecode(
-        (await http.get('https://app.comicslate.org/comics/$id/strips')).body);
-    return List<String>.from(json['storyStrips']);
-  }
+  @nullable
+  String get name;
 
-  Future<ComicStrip> getComicsStrip(String stripId) async {
-    final stripResponse = await http
-        .get('https://app.comicslate.org/comics/$id/strips/$stripId/render');
-    return ComicStrip(
-      url: Uri.parse('https://comicslate.org/ru/sci-fi/freefall/0002'),
-      imageBytes: stripResponse.bodyBytes,
-    );
-  }
+  @nullable
+  String get category;
+
+  @nullable
+  int get numberOfStrips;
+
+  @nullable
+  Uri get thumbnailURL;
+
+  @nullable
+  bool get isActive;
+
+  static Serializer<Comic> get serializer => _$comicSerializer;
+  factory Comic([void Function(ComicBuilder) updates]) = _$Comic;
+  Comic._();
 }

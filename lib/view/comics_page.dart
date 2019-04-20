@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:comicslate/models/comic.dart';
 import 'package:comicslate/models/comic_strip.dart';
+import 'package:comicslate/models/comicslate_client.dart';
 import 'package:comicslate/view_model/comic_page_view_model.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +16,8 @@ class ComicsPage extends StatelessWidget {
         appBar: AppBar(title: Text(comic.name)),
         // Get a list of stripsId
         body: FutureBuilder<Iterable<String>>(
-          future: comic.getStoryStripsList(),
+          future:
+              const ComicslateClient(language: 'ru').getStoryStripsList(comic),
           builder: (context, stripListSnapshot) {
             if (stripListSnapshot.hasData) {
               // Load image
@@ -67,8 +69,8 @@ class _ImagePageViewWidgetState extends State<ImagePageViewWidget> {
               controller: _controller,
               itemCount: widget.stripIds.length,
               itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
-                  future:
-                      widget.comic.getComicsStrip(widget.stripIds.elementAt(i)),
+                  future: const ComicslateClient(language: 'ru')
+                      .renderStrip(widget.comic, widget.stripIds.elementAt(i)),
                   builder: (context, stripSnapshot) {
                     if (stripSnapshot.hasData) {
                       return Image.memory(

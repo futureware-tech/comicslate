@@ -1,14 +1,32 @@
 import 'dart:typed_data';
 
-import 'package:meta/meta.dart';
+import 'package:built_value/built_value.dart';
+import 'package:built_value/serializer.dart';
 
-@immutable
-class ComicStrip {
-  final Uri url;
-  final Uint8List imageBytes;
+part 'comic_strip.g.dart';
 
-  const ComicStrip({
-    @required this.url,
-    @required this.imageBytes,
-  });
+abstract class ComicStrip implements Built<ComicStrip, ComicStripBuilder> {
+  Uri get url;
+
+  @nullable
+  String get title;
+
+  @nullable
+  String get name;
+
+  @nullable
+  DateTime get lastModified;
+
+  @nullable
+  String get author;
+
+  @nullable
+  int get version;
+
+  @nullable
+  Uint8List get imageBytes;
+
+  static Serializer<ComicStrip> get serializer => _$comicStripSerializer;
+  factory ComicStrip([void Function(ComicStripBuilder) updates]) = _$ComicStrip;
+  ComicStrip._();
 }
