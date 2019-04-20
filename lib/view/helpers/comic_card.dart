@@ -7,33 +7,32 @@ class ComicCard extends StatelessWidget {
 
   ComicCard(
       {@required this.imageUrl, @required this.title, @required this.callback})
-      : assert(imageUrl != null),
-        assert(title != null),
+      : assert(title != null),
         assert(callback != null);
 
+  static String splitInTheMiddle(String input) {
+    final parts = input.split(' ');
+    final partsToJoin = parts.length ~/ 2;
+    return [
+      parts.sublist(0, partsToJoin).join(' '),
+      parts.sublist(partsToJoin).join(' '),
+    ].join('\n').trim();
+  }
+
   @override
-  Widget build(BuildContext context) => Card(
-        clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: InkWell(
-          onTap: callback,
-          splashColor: Theme.of(context).splashColor,
-          child: Column(
+  Widget build(BuildContext context) {
+    final cover = imageUrl == null
+        ? FittedBox(
+            child: Text(splitInTheMiddle(title), textAlign: TextAlign.center))
+        : Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Expanded(
-                child: imageUrl == null
-                    ? Image.asset(
-                        'images/logo2.png',
-                        fit: BoxFit.cover,
-                      )
-                    : FadeInImage.assetNetwork(
-                        fit: BoxFit.cover,
-                        image: imageUrl.toString(),
-                        placeholder: 'images/logo2.png',
-                      ),
+                child: FadeInImage.assetNetwork(
+                  fit: BoxFit.cover,
+                  image: imageUrl.toString(),
+                  placeholder: 'images/favicon.png',
+                ),
               ),
               Container(
                   padding:
@@ -43,7 +42,18 @@ class ComicCard extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ))
             ],
-          ),
-        ),
-      );
+          );
+
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: InkWell(
+        onTap: callback,
+        splashColor: Theme.of(context).splashColor,
+        child: cover,
+      ),
+    );
+  }
 }
