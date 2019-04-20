@@ -1,15 +1,13 @@
-import 'dart:typed_data';
-
 import 'package:comicslate/models/comic.dart';
 import 'package:comicslate/models/comic_strip.dart';
 import 'package:comicslate/models/comicslate_client.dart';
 import 'package:comicslate/view_model/comic_page_view_model.dart';
 import 'package:flutter/material.dart';
 
-class ComicsPage extends StatelessWidget {
+class ComicPage extends StatelessWidget {
   final Comic comic;
 
-  ComicsPage({@required this.comic}) : assert(comic != null);
+  ComicPage({@required this.comic}) : assert(comic != null);
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -78,8 +76,7 @@ class _ImagePageViewWidgetState extends State<ImagePageViewWidget> {
                         children: <Widget>[
                           Text(
                               '${widget.stripIds.elementAt(i)}/${widget.comic.numberOfStrips} ${stripSnapshot.data.title}'),
-                          Image.memory(Uint8List.fromList(
-                              stripSnapshot.data.imageBytes)),
+                          Image.memory(stripSnapshot.data.imageBytes),
                         ],
                       );
                     } else {

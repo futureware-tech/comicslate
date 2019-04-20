@@ -1,5 +1,5 @@
 import 'package:comicslate/models/comic.dart';
-import 'package:comicslate/view/comics_page.dart';
+import 'package:comicslate/view/comic_page.dart';
 import 'package:comicslate/view/helpers/comics_card.dart';
 import 'package:comicslate/view_model/comic_list_bloc.dart';
 import 'package:flutter/material.dart';
@@ -76,6 +76,6 @@ class ComicList extends StatelessWidget {
         context,
         MaterialPageRoute(
             settings: const RouteSettings(name: '/read-comics'),
-            builder: (context) => ComicsPage(comic: comics)));
+            builder: (context) => ComicPage(comic: comics)));
   }
 }
