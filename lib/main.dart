@@ -1,4 +1,4 @@
-import 'package:comicslate/view/comics_list.dart';
+import 'package:comicslate/view/comic_list.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
@@ -33,7 +33,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   @override
-  Widget build(BuildContext context) => ComicsList(
+  Widget build(BuildContext context) => ComicList(
         title: widget.title,
       );
 }
