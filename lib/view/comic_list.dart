@@ -6,7 +6,7 @@ import 'package:comicslate/view_model/comic_list_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-// TODO(ksheremet): Refresh Indicator
+// TODO(ksheremet): Refresh Indicator, clear cache and get updated comics covers
 class ComicList extends StatelessWidget {
   final String title;
   final ComicslateClient client;
