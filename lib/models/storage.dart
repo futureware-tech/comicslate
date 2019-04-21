@@ -2,15 +2,15 @@ import 'dart:typed_data';
 
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
-abstract class Cache {
+abstract class Storage {
   Future<Uint8List> operator [](String key);
   void operator []=(String key, Uint8List value);
 }
 
-class FlutterCache implements Cache {
+class FlutterCacheStorage implements Storage {
   final BaseCacheManager _manager;
 
-  FlutterCache(this._manager);
+  FlutterCacheStorage(this._manager);
 
   @override
   Future<Uint8List> operator [](String key) async =>

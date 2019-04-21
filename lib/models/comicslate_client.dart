@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:comicslate/models/cache.dart';
 import 'package:comicslate/models/comic.dart';
 import 'package:comicslate/models/comic_strip.dart';
+import 'package:comicslate/models/storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:meta/meta.dart';
 
@@ -12,7 +12,7 @@ import 'serializers.dart';
 @immutable
 class ComicslateClient {
   final String language;
-  final Cache cache;
+  final Storage cache;
 
   static final Uri _baseUri = Uri.parse('https://app.comicslate.org/');
 
