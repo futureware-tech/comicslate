@@ -24,11 +24,15 @@ class ComicslateClient {
     @required this.prefetchCache,
   });
 
-  Future<http.Response> request(String path) async {
-    final response =
-        await http.get(_baseUri.replace(path: path).toString(), headers: {
-      HttpHeaders.acceptLanguageHeader: language,
-    });
+  Future<http.Response> request(String path,
+      [Map<String, dynamic> queryParameters = const {}]) async {
+    final response = await http.get(
+        _baseUri
+            .replace(path: path, queryParameters: queryParameters)
+            .toString(),
+        headers: {
+          HttpHeaders.acceptLanguageHeader: language,
+        });
     if (response.statusCode != 200) {
       try {
         throw Exception('$path: ${json.decode(response.body)}');
@@ -81,7 +85,8 @@ class ComicslateClient {
     }
     if (jsonData == null) {
       jsonData = await requestJson(stripMetaPath);
-      prefetchCache[stripMetaPath] = utf8.encode(json.encode(jsonData));
+      await prefetchCache.store(
+          stripMetaPath, utf8.encode(json.encode(jsonData)));
     }
     final strip = serializers.deserializeWith(ComicStrip.serializer, jsonData);
 
@@ -99,7 +104,7 @@ class ComicslateClient {
         print(e);
       }
       if (imageBytes != null) {
-        prefetchCache[stripRenderPath] = imageBytes;
+        await prefetchCache.store(stripRenderPath, imageBytes);
       }
     }
 
@@ -114,12 +119,13 @@ class ComicslateClient {
   }) async {
     final strip =
         await _fetchStrip(comic, stripId, allowFromCache: allowFromCache);
-    for (final prefetchStripId in prefetch) {
-      if (prefetchStripId != stripId) {
-        // Intentionally do not await to fetch in background.
-        _fetchStrip(comic, prefetchStripId, allowFromCache: true);
+    () async {
+      for (final prefetchStripId in prefetch) {
+        if (prefetchStripId != stripId) {
+          await _fetchStrip(comic, prefetchStripId, allowFromCache: true);
+        }
       }
-    }
+    }();
     return strip;
   }
 }

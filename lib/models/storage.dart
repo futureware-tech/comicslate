@@ -4,6 +4,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 abstract class Storage {
   Future<Uint8List> operator [](String key);
+  Future<void> store(String key, Uint8List value);
   void operator []=(String key, Uint8List value);
 }
 
@@ -23,6 +24,9 @@ class FlutterCacheStorage implements Storage {
   }
 
   @override
-  void operator []=(String key, Uint8List value) =>
+  Future<void> store(String key, Uint8List value) =>
       _manager.putFile(key, value);
+
+  @override
+  void operator []=(String key, Uint8List value) => store(key, value);
 }
