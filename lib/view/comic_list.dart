@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:comicslate/models/comic.dart';
-import 'package:comicslate/models/comicslate_client.dart';
 import 'package:comicslate/view/comic_page.dart';
 import 'package:comicslate/view/helpers/comic_card.dart';
+import 'package:comicslate/view/helpers/comicslate_client.dart';
 import 'package:comicslate/view_model/comic_list_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -21,41 +21,53 @@ class _ComicslateTitleWidget extends StatelessWidget {
       );
 }
 
-// TODO(ksheremet): Refresh Indicator, clear cache and get updated comics covers
 class ComicList extends StatelessWidget {
-  final ComicslateClient client;
-  final ComicListBloc _bloc;
-
-  ComicList({
-    // TODO(ksheremet): get rid of "client" parameter - it's in InheritedWidget
-    @required this.client,
-  }) : _bloc = ComicListBloc(client);
-
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: _ComicslateTitleWidget()),
-        body: StreamBuilder<Map<String, List<Comic>>>(
-          stream: _bloc.doComicListByCategory,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return RefreshIndicator(
-                onRefresh: () async {
-                  if (!await DiskCache().clear()) {
-                    print('report a problem with cleaning cache');
-                  }
-                },
-                child: CustomScrollView(
-                  primary: true,
-                  slivers: _buildComicList(snapshot.data, context),
-                ),
-              );
-            } else {
-              return Center(
-                child: const CircularProgressIndicator(),
-              );
-            }
-          },
-        ),
+        body: _ComicListBody(),
+      );
+}
+
+class _ComicListBody extends StatefulWidget {
+  @override
+  _ComicListBodyState createState() => _ComicListBodyState();
+}
+
+class _ComicListBodyState extends State<_ComicListBody> {
+  ComicListBloc _bloc;
+
+  @override
+  void didChangeDependencies() {
+    _bloc ??= ComicListBloc(ComicslateClientWidget.of(context).client);
+    super.didChangeDependencies();
+  }
+
+  @override
+  Widget build(BuildContext context) => StreamBuilder<Map<String, List<Comic>>>(
+        stream: _bloc.doComicListByCategory,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return RefreshIndicator(
+              onRefresh: () async {
+                if (!await DiskCache().clear()) {
+                  print('report a problem with cleaning cache');
+                }
+                setState(() {
+                  imageCache.clear();
+                });
+              },
+              child: CustomScrollView(
+                primary: true,
+                slivers: _buildComicList(snapshot.data, context),
+              ),
+            );
+          } else {
+            return Center(
+              child: const CircularProgressIndicator(),
+            );
+          }
+        },
       );
 
   List<Widget> _buildComicList(

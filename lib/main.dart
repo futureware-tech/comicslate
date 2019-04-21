@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
               decorationColor: const Color(0xFF757575))),
       builder: (context, child) =>
           ComicslateClientWidget(client: client, child: child),
-      home: ComicList(client: client),
+      home: ComicList(),
     );
   }
 }
