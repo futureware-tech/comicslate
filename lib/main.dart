@@ -10,12 +10,11 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    const title = 'Comicslate';
     final client =
         ComicslateClient(language: 'ru', cache: DefaultCacheManager());
 
     return MaterialApp(
-      title: title,
+      title: 'Comicslate',
       theme: ThemeData(
           fontFamily: 'DatFestComic',
           primaryColorDark: const Color(0xFF00796B),
@@ -28,7 +27,7 @@ class MyApp extends StatelessWidget {
               decorationColor: const Color(0xFF757575))),
       builder: (context, child) =>
           ComicslateClientWidget(client: client, child: child),
-      home: ComicList(title: title, client: client),
+      home: ComicList(client: client),
     );
   }
 }

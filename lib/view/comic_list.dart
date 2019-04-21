@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:comicslate/models/comic.dart';
 import 'package:comicslate/models/comicslate_client.dart';
 import 'package:comicslate/view/comic_page.dart';
@@ -6,24 +8,31 @@ import 'package:comicslate/view_model/comic_list_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+class _ComicslateTitleWidget extends StatelessWidget {
+  static const _numberOfLogos = 9;
+  final _logoId = Random();
+
+  @override
+  Widget build(BuildContext context) => Container(
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Image.asset('images/logo${_logoId.nextInt(_numberOfLogos)}.png'),
+      );
+}
+
 // TODO(ksheremet): Refresh Indicator, clear cache and get updated comics covers
 class ComicList extends StatelessWidget {
-  final String title;
   final ComicslateClient client;
   final ComicListBloc _bloc;
 
   ComicList({
-    @required this.title,
     // TODO(ksheremet): get rid of "client" parameter - it's in InheritedWidget
     @required this.client,
-  })  : assert(title != null),
-        _bloc = ComicListBloc(client);
+  }) : _bloc = ComicListBloc(client);
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-        ),
+        appBar: AppBar(title: _ComicslateTitleWidget()),
         body: StreamBuilder<Map<String, List<Comic>>>(
           stream: _bloc.doComicListByCategory,
           builder: (context, snapshot) {
