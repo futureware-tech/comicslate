@@ -13,8 +13,14 @@ class FlutterCacheStorage implements Storage {
   FlutterCacheStorage(this._manager);
 
   @override
-  Future<Uint8List> operator [](String key) async =>
-      (await _manager.getFileFromCache(key))?.file?.readAsBytesSync();
+  Future<Uint8List> operator [](String key) async {
+    final list =
+        await (await _manager.getFileFromCache(key))?.file?.readAsBytes();
+    if (list == null) {
+      return null;
+    }
+    return Uint8List.fromList(list);
+  }
 
   @override
   void operator []=(String key, Uint8List value) =>

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:comicslate/models/comic.dart';
@@ -28,7 +29,7 @@ class ComicPage extends StatelessWidget {
               // Load image
               return StripPage(
                 comic: comic,
-                stripIds: stripListSnapshot.data,
+                stripIds: stripListSnapshot.data.toList(),
               );
             } else {
               return Center(child: const CircularProgressIndicator());
@@ -39,7 +40,7 @@ class ComicPage extends StatelessWidget {
 }
 
 class StripPage extends StatefulWidget {
-  final Iterable<String> stripIds;
+  final List<String> stripIds;
   final Comic comic;
 
   StripPage({@required this.comic, @required this.stripIds})
@@ -73,9 +74,14 @@ class _StripPageState extends State<StripPage> {
               controller: _controller,
               itemCount: widget.stripIds.length,
               itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
-                  future: ComicslateClientWidget.of(context)
-                      .client
-                      .getStrip(widget.comic, widget.stripIds.elementAt(i)),
+                  future: ComicslateClientWidget.of(context).client.getStrip(
+                        widget.comic,
+                        widget.stripIds.elementAt(i),
+                        prefetch: widget.stripIds.sublist(
+                          max(0, i - 2),
+                          min(widget.stripIds.length - 1, i + 5),
+                        ),
+                      ),
                   builder: (context, stripSnapshot) {
                     if (stripSnapshot.hasData) {
                       if (stripSnapshot.data.imageBytes == null) {

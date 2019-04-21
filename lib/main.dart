@@ -12,7 +12,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final client = ComicslateClient(
-        language: 'ru', cache: FlutterCacheStorage(DefaultCacheManager()));
+      language: 'ru',
+      offlineStorage: FlutterCacheStorage(DefaultCacheManager()),
+      prefetchCache: FlutterCacheStorage(DefaultCacheManager()),
+    );
 
     return MaterialApp(
       title: 'Comicslate',

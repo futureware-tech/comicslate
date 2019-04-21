@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:comicslate/models/comic.dart';
 import 'package:comicslate/models/comic_strip.dart';
@@ -12,13 +13,15 @@ import 'serializers.dart';
 @immutable
 class ComicslateClient {
   final String language;
-  final Storage cache;
+  final Storage offlineStorage;
+  final Storage prefetchCache;
 
   static final Uri _baseUri = Uri.parse('https://app.comicslate.org/');
 
   const ComicslateClient({
     @required this.language,
-    @required this.cache,
+    @required this.offlineStorage,
+    @required this.prefetchCache,
   });
 
   Future<http.Response> request(String path) async {
@@ -40,13 +43,13 @@ class ComicslateClient {
     String body;
     try {
       body = (await request(path)).body;
-      cache[path] = utf8.encode(body);
+      offlineStorage[path] = utf8.encode(body);
     } on SocketException {
-      final cacheData = await cache[path];
-      if (cacheData == null) {
+      final offlineData = await offlineStorage[path];
+      if (offlineData == null) {
         rethrow;
       }
-      body = utf8.decode(cacheData);
+      body = utf8.decode(offlineData);
     }
     return json.decode(body);
   }
@@ -62,23 +65,61 @@ class ComicslateClient {
       List<String>.from(
           (await requestJson('comics/${comic.id}/strips'))['storyStrips']);
 
+  Future<ComicStrip> _fetchStrip(
+    Comic comic,
+    String stripId, {
+    @required bool allowFromCache,
+  }) async {
+    final stripMetaPath = 'comics/${comic.id}/strips/$stripId';
+    dynamic jsonData;
+
+    if (allowFromCache) {
+      final cachedBytes = await prefetchCache[stripMetaPath];
+      if (cachedBytes != null) {
+        jsonData = json.decode(utf8.decode(cachedBytes));
+      }
+    }
+    if (jsonData == null) {
+      jsonData = await requestJson(stripMetaPath);
+      prefetchCache[stripMetaPath] = utf8.encode(json.encode(jsonData));
+    }
+    final strip = serializers.deserializeWith(ComicStrip.serializer, jsonData);
+
+    final stripRenderPath = '$stripMetaPath/render';
+    Uint8List imageBytes;
+    if (allowFromCache) {
+      imageBytes = await prefetchCache[stripRenderPath];
+    }
+    if (imageBytes == null) {
+      try {
+        imageBytes =
+            (await request('comics/${comic.id}/strips/$stripId/render'))
+                .bodyBytes;
+      } catch (e) {
+        print(e);
+      }
+      if (imageBytes != null) {
+        prefetchCache[stripRenderPath] = imageBytes;
+      }
+    }
+
+    return strip.rebuild((b) => b.imageBytes = imageBytes);
+  }
+
   Future<ComicStrip> getStrip(
     Comic comic,
     String stripId, {
-    int prefetchBackwards = 3,
-    int prefetchForward = 3,
+    bool allowFromCache = true,
+    List<String> prefetch = const [],
   }) async {
-    var strip = serializers.deserializeWith(ComicStrip.serializer,
-        await requestJson('comics/${comic.id}/strips/$stripId'));
-    try {
-      final imageBytes =
-          (await request('comics/${comic.id}/strips/$stripId/render'))
-              .bodyBytes;
-      strip = strip.rebuild((b) => b.imageBytes = imageBytes);
-    } catch (e) {
-      print(e);
+    final strip =
+        await _fetchStrip(comic, stripId, allowFromCache: allowFromCache);
+    for (final prefetchStripId in prefetch) {
+      if (prefetchStripId != stripId) {
+        // Intentionally do not await to fetch in background.
+        _fetchStrip(comic, prefetchStripId, allowFromCache: true);
+      }
     }
-
     return strip;
   }
 }
