@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:comicslate/models/comic.dart';
 import 'package:comicslate/models/comic_strip.dart';
@@ -18,7 +19,7 @@ class ComicslateClient {
   Future<http.Response> request(String path) async {
     final response =
         await http.get(_baseUri.replace(path: path).toString(), headers: {
-      'Accept-Language': language,
+      HttpHeaders.acceptLanguageHeader: language,
     });
     if (response.statusCode != 200) {
       try {
