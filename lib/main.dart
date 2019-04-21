@@ -1,3 +1,4 @@
+import 'package:comicslate/models/cache.dart';
 import 'package:comicslate/models/comicslate_client.dart';
 import 'package:comicslate/view/comic_list.dart';
 import 'package:comicslate/view/helpers/comicslate_client.dart';
@@ -10,8 +11,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final client =
-        ComicslateClient(language: 'ru', cache: DefaultCacheManager());
+    final client = ComicslateClient(
+        language: 'ru', cache: FlutterCache(DefaultCacheManager()));
 
     return MaterialApp(
       title: 'Comicslate',
