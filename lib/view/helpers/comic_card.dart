@@ -54,8 +54,10 @@ class _ComicsRatingWidgetState extends State<ComicsRatingWidget>
 
   @override
   void dispose() {
+    _starController
+      ..stop()
+      ..dispose();
     super.dispose();
-    _starController.dispose();
   }
 }
 
@@ -98,12 +100,10 @@ class ComicCard extends StatelessWidget {
         ))),
         Container(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-          child: Row(children: [
-            ComicsRatingWidget(
-              isActive: isActive,
-              ratingColor: ratingColor,
-            )
-          ]),
+          child: ComicsRatingWidget(
+            isActive: isActive,
+            ratingColor: ratingColor,
+          ),
         ),
       ]);
     } else {
@@ -116,17 +116,29 @@ class ComicCard extends StatelessWidget {
           ),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: ListTile(
-              trailing: ComicsRatingWidget(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Flexible(
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(left: 6),
+                      child: Text(
+                        title,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ComicsRatingWidget(
                 isActive: isActive,
                 ratingColor: ratingColor,
               ),
-              dense: true,
-              leading: Text(
-                title,
-                textAlign: TextAlign.center,
-              )),
+            ],
+          ),
         )
       ]);
     }
