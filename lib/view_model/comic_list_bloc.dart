@@ -4,8 +4,8 @@ import 'package:comicslate/models/comic.dart';
 import 'package:comicslate/models/comicslate_client.dart';
 
 class ComicListBloc {
-  ComicListBloc() {
-    _getComicList();
+  ComicListBloc(ComicslateClient client) {
+    _getComicList(client);
   }
 
   final _doComicListByCategoryController =
@@ -17,9 +17,8 @@ class ComicListBloc {
     _doComicListByCategoryController.close();
   }
 
-  Future<void> _getComicList() async {
-    final comicList =
-        await const ComicslateClient(language: 'ru').getComicsList();
+  Future<void> _getComicList(ComicslateClient client) async {
+    final comicList = await client.getComicsList();
 
     Map<String, List<Comic>> comics;
     comics = comicList.fold<Map<String, List<Comic>>>({}, (map, comic) {

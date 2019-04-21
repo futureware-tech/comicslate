@@ -1,4 +1,5 @@
 import 'package:comicslate/models/comic.dart';
+import 'package:comicslate/models/comicslate_client.dart';
 import 'package:comicslate/view/comic_page.dart';
 import 'package:comicslate/view/helpers/comic_card.dart';
 import 'package:comicslate/view_model/comic_list_bloc.dart';
@@ -8,10 +9,15 @@ import 'package:flutter/widgets.dart';
 // TODO(ksheremet): Refresh Indicator
 class ComicList extends StatelessWidget {
   final String title;
+  final ComicslateClient client;
+  final ComicListBloc _bloc;
 
-  final ComicListBloc _bloc = ComicListBloc();
-
-  ComicList({@required this.title}) : assert(title != null);
+  ComicList({
+    @required this.title,
+    // TODO(ksheremet): get rid of "client" parameter - it's in InheritedWidget
+    @required this.client,
+  })  : assert(title != null),
+        _bloc = ComicListBloc(client);
 
   @override
   Widget build(BuildContext context) => Scaffold(
