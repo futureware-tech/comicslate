@@ -2,6 +2,7 @@ import 'package:comicslate/models/comicslate_client.dart';
 import 'package:comicslate/view/comic_list.dart';
 import 'package:comicslate/view/helpers/comicslate_client.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 void main() => runApp(MyApp());
 
@@ -10,7 +11,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const title = 'Comicslate';
-    const client = ComicslateClient(language: 'ru');
+    final client =
+        ComicslateClient(language: 'ru', cache: DefaultCacheManager());
 
     return MaterialApp(
       title: title,

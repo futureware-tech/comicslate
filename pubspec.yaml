@@ -30,6 +30,7 @@ dependencies:
   built_value: ^6.4.0
   flutter_advanced_networkimage: ^0.4.15
   webview_flutter: ^0.3.5+4
+  flutter_cache_manager: ^0.3.2
 
 dev_dependencies:
   flutter_test:
