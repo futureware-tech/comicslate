@@ -51,8 +51,8 @@ class ComicslateClient {
     return json.decode(body);
   }
 
-  Future<List<Comic>> getComicsList([String filter = '']) async {
-    final List comics = await requestJson('comics/$filter');
+  Future<List<Comic>> getComicsList() async {
+    final List comics = await requestJson('comics');
     return comics
         .map((comic) => serializers.deserializeWith(Comic.serializer, comic))
         .toList();
