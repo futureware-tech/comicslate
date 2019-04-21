@@ -34,11 +34,12 @@ final BuiltSet<ComicRatingColor> _$values =
   _$gold,
 ]);
 
-Serializer<ComicRatingColor> _$comicRatingSerializer =
-    new _$ComicRatingSerializer();
+Serializer<ComicRatingColor> _$comicRatingColorSerializer =
+    new _$ComicRatingColorSerializer();
 Serializer<Comic> _$comicSerializer = new _$ComicSerializer();
 
-class _$ComicRatingSerializer implements PrimitiveSerializer<ComicRatingColor> {
+class _$ComicRatingColorSerializer
+    implements PrimitiveSerializer<ComicRatingColor> {
   static const Map<String, String> _toWire = const <String, String>{
     'empty': 'PUST',
     'bronze': 'BRNZ',
@@ -55,7 +56,7 @@ class _$ComicRatingSerializer implements PrimitiveSerializer<ComicRatingColor> {
   @override
   final Iterable<Type> types = const <Type>[ComicRatingColor];
   @override
-  final String wireName = 'ComicRating';
+  final String wireName = 'ComicRatingColor';
 
   @override
   Object serialize(Serializers serializers, ComicRatingColor object,

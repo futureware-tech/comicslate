@@ -17,7 +17,8 @@ class ComicRatingColor extends EnumClass {
   @BuiltValueEnumConst(wireName: 'GOLD')
   static const ComicRatingColor gold = _$gold;
 
-  static Serializer<ComicRatingColor> get serializer => _$comicRatingSerializer;
+  static Serializer<ComicRatingColor> get serializer =>
+      _$comicRatingColorSerializer;
   const ComicRatingColor._(String name) : super(name);
   static BuiltSet<ComicRatingColor> get values => _$values;
   static ComicRatingColor valueOf(String name) => _$valueOf(name);
