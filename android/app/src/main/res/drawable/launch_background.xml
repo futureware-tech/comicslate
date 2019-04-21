@@ -2,12 +2,6 @@
 <!-- Modify this file to customize your launch splash screen -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@android:color/white" />
-    <item>
-        <animation-list>
-            <item android:drawable="@drawable/common_google_signin_btn_text_light"/>
-            <item android:drawable="@drawable/common_full_open_on_phone"/>
-        </animation-list>
-    </item>
 
     <!-- You can insert your own image assets here -->
     <!-- <item>

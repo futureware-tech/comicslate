@@ -114,7 +114,7 @@ class _StripPageState extends State<StripPage> {
         },
       );
 
-  // TODO(ksheremet): Consider more elegant solution
+  // TODO(ksheremet): Consider more elegant solution, doesnt' work on iOS
   void setUpOrientation(Uint8List imageBytes) {
     final image = MemoryImage(imageBytes);
     image
@@ -131,6 +131,18 @@ class _StripPageState extends State<StripPage> {
             [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
       }
     });
+  }
+
+  @override
+  void dispose() {
+    // When we leave the screen enable screen rotation
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+    super.dispose();
   }
 }
 
