@@ -1,9 +1,10 @@
+import 'dart:convert';
+
 import 'package:comicslate/models/comicslate_client.dart';
 import 'package:comicslate/models/storage.dart';
 import 'package:comicslate/view/comic_list.dart';
 import 'package:comicslate/view/helpers/comicslate_client.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
@@ -15,8 +16,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final client = ComicslateClient(
       language: 'ru',
-      offlineStorage: FlutterCacheStorage(DefaultCacheManager()),
-      prefetchCache: FlutterCacheStorage(DefaultCacheManager()),
+      offlineStorage: FlutterCachingAPIClient(
+          cacheName: 'comicslate-client-json',
+          responseParser: (js) => json.decode(utf8.decode(js))),
+      prefetchCache: FlutterCachingAPIClient(
+          cacheName: 'comicslate-client-images',
+          responseParser: (bytes) => bytes),
     );
 
     return MaterialApp(
