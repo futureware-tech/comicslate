@@ -71,8 +71,12 @@ class ComicslateClient {
           serializers.deserializeWith(ComicStrip.serializer, stripJson);
       final stripRenderPath = '$stripMetaPath/render';
       try {
+        final params = {};
+        if (!allowFromCache) {
+          params['refresh'] = '1';
+        }
         await for (final imageBytes in prefetchCache.get(
-            _baseUri.replace(path: stripRenderPath),
+            _baseUri.replace(path: stripRenderPath, queryParameters: params),
             allowFromCache: allowFromCache)) {
           yield strip.rebuild((b) => b.imageBytes = imageBytes);
         }

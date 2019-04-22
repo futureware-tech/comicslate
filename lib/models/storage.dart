@@ -67,10 +67,13 @@ class FlutterCachingAPIClient<T> extends BaseCacheManager
   void prefetch(Iterable<Uri> urls, {Map<String, String> headers}) {
     for (final url in urls) {
       _currentlyPrefetching.putIfAbsent(url, () async {
-        await _get(url, headers: headers)
-            .last
-            .timeout(const Duration(seconds: 5));
-        _currentlyPrefetching.remove(url);
+        try {
+          await _get(url, headers: headers)
+              .last
+              .timeout(const Duration(seconds: 5));
+        } finally {
+          _currentlyPrefetching.remove(url);
+        }
       });
     }
   }
