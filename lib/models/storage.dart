@@ -8,6 +8,14 @@ abstract class Storage {
   void operator []=(String key, Uint8List value);
 }
 
+/*
+Clear cache:
+$ adb shell sqlite3 \
+    /data/data/org.dasfoo.comicslate/databases/libCachedImageData.db \
+    'delete\ from\ cacheObject;'
+$ adb shell rm -rf /data/data/org.dasfoo.comicslate/cache/libCachedImageData
+*/
+
 class FlutterCacheStorage implements Storage {
   final BaseCacheManager _manager;
 
