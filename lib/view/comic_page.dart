@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_advanced_networkimage/zoomable.dart';
 import 'package:intl/intl.dart';
+import 'package:share/share.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class ComicPage extends StatelessWidget {
@@ -25,6 +26,12 @@ class ComicPage extends StatelessWidget {
         appBar: AppBar(
           title: Text(comic.name),
           actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.share),
+              onPressed: () {
+                Share.share(_viewModel.currentStrip.shareUrl.toString());
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.menu),
               onPressed: () {
