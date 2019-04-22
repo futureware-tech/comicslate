@@ -1,58 +1,85 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:comicslate/models/comic.dart';
 import 'package:comicslate/models/comic_strip.dart';
+import 'package:comicslate/view/helpers/comic_page_view_model_iw.dart';
 import 'package:comicslate/view/helpers/comicslate_client.dart';
 import 'package:comicslate/view_model/comic_page_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_advanced_networkimage/zoomable.dart';
-import 'package:intl/intl.dart';
 import 'package:share/share.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class ComicPage extends StatelessWidget {
-  final Comic comic;
-  final ComicPageViewModel _viewModel;
-
-  ComicPage({@required this.comic})
-      : assert(comic != null),
-        _viewModel = ComicPageViewModel(comic: comic);
+  final pageTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) => Scaffold(
+        // When keyboard appears it is breaks layout if it is not scrollable.
+        // This property helps to appear the keyboard above the screen.
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          title: Text(comic.name),
+          title:
+              Text(ComicPageViewModelWidget.of(context).viewModel.comic.name),
           actions: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.share),
+            MaterialButton(
+              padding: const EdgeInsets.all(8),
+              child: const Text(
+                'go to',
+                style: TextStyle(color: Colors.white),
+              ),
               onPressed: () {
-                Share.share(_viewModel.currentStrip.shareUrl.toString());
+                pageTextController.text = ComicPageViewModelWidget.of(context)
+                    .viewModel
+                    .currentStripId;
+                final allStrips = ComicPageViewModelWidget.of(context)
+                    .viewModel
+                    .stripIds
+                    .length;
+                final onGoToPage =
+                    ComicPageViewModelWidget.of(context).viewModel.onGoToPage;
+                showDialog(
+                    context: context,
+                    barrierDismissible: true,
+                    builder: (context) =>
+                        _showGoToPageDialog(context, allStrips, onGoToPage));
               },
             ),
             IconButton(
+              icon: const Icon(Icons.share),
+              onPressed: () {
+                Share.share(ComicPageViewModelWidget.of(context)
+                    .viewModel
+                    .currentStrip
+                    .shareUrl
+                    .toString());
+              },
+            ),
+            /*IconButton(
               icon: const Icon(Icons.menu),
               onPressed: () {
                 showModalBottomSheet(
                     context: context, builder: (context) => _buildComicInfo());
               },
-            )
+            )*/
           ],
         ),
         // Get a list of stripsId
         body: FutureBuilder<Iterable<String>>(
           future: ComicslateClientWidget.of(context)
               .client
-              .getStoryStripsList(comic)
+              .getStoryStripsList(
+                  ComicPageViewModelWidget.of(context).viewModel.comic)
               .first,
           builder: (context, stripListSnapshot) {
             if (stripListSnapshot.hasData) {
               // Load image
-              _viewModel.stripIds = stripListSnapshot.data.toList();
+              ComicPageViewModelWidget.of(context).viewModel.stripIds =
+                  stripListSnapshot.data.toList();
               return StripPage(
-                viewModel: _viewModel,
+                viewModel: ComicPageViewModelWidget.of(context).viewModel,
               );
             } else {
               return Center(child: const CircularProgressIndicator());
@@ -61,7 +88,51 @@ class ComicPage extends StatelessWidget {
         ),
       );
 
-  Widget _buildComicInfo() => Padding(
+  Widget _showGoToPageDialog(
+          BuildContext context, int allStrips, Sink onGoToPage) =>
+      AlertDialog(
+        title: const Text('Перейти на страницу'),
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(
+              width: 100,
+              height: 60,
+              child: TextField(
+                controller: pageTextController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
+                onSubmitted: (page) {
+                  onGoToPage.add(page);
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
+            Text(' / $allStrips'),
+          ],
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          FlatButton(
+            child: const Text(
+              'Перейти',
+              style: TextStyle(color: Colors.teal),
+            ),
+            onPressed: () {
+              onGoToPage.add(pageTextController.text);
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+
+  /*Widget _buildComicInfo() => Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,12 +146,13 @@ class ComicPage extends StatelessWidget {
             ),
             Text(
               'Дата последнего изменения:  '
-              '${DateFormat.yMMMd().add_jm().format(_viewModel.currentStrip.lastModified)}',
+              '${DateFormat.yMMMd().add_jm()
+              .format(_viewModel.currentStrip.lastModified)}',
               style: TextStyle(fontSize: 20),
             ),
           ],
         ),
-      );
+      );*/
 }
 
 class StripPage extends StatefulWidget {
@@ -95,10 +167,21 @@ class StripPage extends StatefulWidget {
 class _StripPageState extends State<StripPage> {
   PageController _controller;
   bool _isOrientationSetup = false;
+  Future<int> _lastSeenStrip;
+
+  @override
+  void initState() {
+    widget.viewModel.doGoToPage.listen((page) {
+      _controller.jumpToPage(page);
+    });
+
+    _lastSeenStrip = widget.viewModel.getLastSeenPage();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) => FutureBuilder<int>(
-        future: widget.viewModel.getLastSeenPage(),
+        future: _lastSeenStrip,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             _controller = PageController(initialPage: snapshot.data);
@@ -134,7 +217,9 @@ class _StripPageState extends State<StripPage> {
                             widget.viewModel.stripIds.elementAt(i);
                         // TODO(ksheremet): Zoomable widget doesn't work
                         //  in Column
-                        return StripImage(viewModel: widget.viewModel);
+                        return StripImage(
+                          viewModel: widget.viewModel,
+                        );
                       }
                     } else {
                       return Center(child: const CircularProgressIndicator());
@@ -182,31 +267,30 @@ class _StripPageState extends State<StripPage> {
   }
 }
 
-class StripImage extends StatefulWidget {
+class StripImage extends StatelessWidget {
   final ComicPageViewModel viewModel;
-
   StripImage({@required this.viewModel}) : assert(viewModel != null);
 
   @override
-  _StripImageState createState() => _StripImageState();
-}
-
-class _StripImageState extends State<StripImage> {
-  @override
-  Widget build(BuildContext context) => ZoomableWidget(
-      enableRotate: false,
-      maxScale: 3,
-      zoomSteps: 2,
-      multiFingersPan: true,
-      singleFingerPan: false,
-      minScale: 1,
-      child: Column(children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5),
-          child: Text(
-              '${widget.viewModel.currentStripId} / ${widget.viewModel.stripIds.length}  '
-              '${widget.viewModel.currentStrip.title}'),
-        ),
-        Image.memory(widget.viewModel.currentStrip.imageBytes),
-      ]));
+  Widget build(BuildContext context) {
+    var aboutStrip =
+        '${viewModel.currentStripId} / ${viewModel.stripIds.length}  ';
+    if (viewModel.currentStrip.title != null) {
+      aboutStrip = aboutStrip + viewModel.currentStrip.title;
+    }
+    return ZoomableWidget(
+        enableRotate: false,
+        maxScale: 3,
+        zoomSteps: 2,
+        multiFingersPan: true,
+        singleFingerPan: false,
+        minScale: 1,
+        child: Column(children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: Text(aboutStrip),
+          ),
+          Image.memory(viewModel.currentStrip.imageBytes),
+        ]));
+  }
 }

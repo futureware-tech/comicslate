@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:comicslate/models/comic.dart';
 import 'package:comicslate/models/comic_strip.dart';
 import 'package:flutter/widgets.dart';
@@ -9,15 +11,38 @@ class ComicPageViewModel {
   ComicStrip currentStrip;
   String currentStripId;
 
-  ComicPageViewModel({@required this.comic}) : assert(comic != null);
+  ComicPageViewModel({@required this.comic}) : assert(comic != null) {
+    _onGoToPageController.stream.listen((stripId) {
+      final page = stripIds.indexWhere((id) => id == stripId);
+      if (page != -1) {
+        _doGoToPageController.add(page);
+      } else {
+        // TODO(ksheremet): show to user that page doesn't exist
+        print('Couldn\'t find $stripId');
+      }
+    });
+  }
+
+  final _onGoToPageController = StreamController<String>();
+  Sink<String> get onGoToPage => _onGoToPageController.sink;
+
+  final _doGoToPageController = StreamController<int>();
+  Stream<int> get doGoToPage => _doGoToPageController.stream;
 
   Future<int> getLastSeenPage() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt(comic.id) ?? 0;
+    final page = prefs.getInt(comic.id) ?? 0;
+    return page;
   }
 
   Future<bool> setLastSeenPage(int page) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.setInt(comic.id, page);
+  }
+
+  // TODO(ksheremet): Call somewhere to dispose
+  void dispose() {
+    _onGoToPageController.close();
+    _doGoToPageController.close();
   }
 }

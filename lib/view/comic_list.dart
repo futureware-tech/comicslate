@@ -3,8 +3,10 @@ import 'dart:math';
 import 'package:comicslate/models/comic.dart';
 import 'package:comicslate/view/comic_page.dart';
 import 'package:comicslate/view/helpers/comic_card.dart';
+import 'package:comicslate/view/helpers/comic_page_view_model_iw.dart';
 import 'package:comicslate/view/helpers/comicslate_client.dart';
 import 'package:comicslate/view_model/comic_list_bloc.dart';
+import 'package:comicslate/view_model/comic_page_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_advanced_networkimage/provider.dart';
@@ -110,10 +112,16 @@ class _ComicListBodyState extends State<_ComicListBody> {
   }
 
   void _openComics(BuildContext context, Comic comics) {
+    // Initialize VM with another context. With initialization in Navigator
+    // it will be rebuild all the time.
+    final root = ComicPageViewModelWidget(
+      viewModel: ComicPageViewModel(comic: comics),
+      child: ComicPage(),
+    );
     Navigator.push(
         context,
         MaterialPageRoute(
             settings: const RouteSettings(name: '/read-comics'),
-            builder: (context) => ComicPage(comic: comics)));
+            builder: (context) => root));
   }
 }
