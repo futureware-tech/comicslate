@@ -71,7 +71,7 @@ class ComicslateClient {
           serializers.deserializeWith(ComicStrip.serializer, stripJson);
       final stripRenderPath = '$stripMetaPath/render';
       try {
-        final params = {};
+        final params = <String, String>{};
         if (!allowFromCache) {
           params['refresh'] = '1';
         }
@@ -81,6 +81,7 @@ class ComicslateClient {
           yield strip.rebuild((b) => b.imageBytes = imageBytes);
         }
       } catch (e) {
+        print(e);
         yield strip;
       }
     }
