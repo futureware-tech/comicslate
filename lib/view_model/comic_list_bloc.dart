@@ -18,7 +18,7 @@ class ComicListBloc {
   }
 
   Future<void> _getComicList(ComicslateClient client) async {
-    final comicList = await client.getComicsList();
+    final comicList = await client.getComicsList().first;
 
     Map<String, List<Comic>> comics;
     comics = comicList.fold<Map<String, List<Comic>>>({}, (map, comic) {

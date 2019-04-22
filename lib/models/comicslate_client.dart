@@ -58,16 +58,17 @@ class ComicslateClient {
     return json.decode(body);
   }
 
-  Future<List<Comic>> getComicsList() async {
+  Stream<List<Comic>> getComicsList() async* {
     final List comics = await requestJson('comics');
-    return comics
+    yield comics
         .map((comic) => serializers.deserializeWith(Comic.serializer, comic))
         .toList();
   }
 
-  Future<List<String>> getStoryStripsList(Comic comic) async =>
-      List<String>.from(
-          (await requestJson('comics/${comic.id}/strips'))['storyStrips']);
+  Stream<List<String>> getStoryStripsList(Comic comic) async* {
+    yield List<String>.from(
+        (await requestJson('comics/${comic.id}/strips'))['storyStrips']);
+  }
 
   Future<ComicStrip> _fetchStrip(
     Comic comic,
@@ -111,12 +112,12 @@ class ComicslateClient {
     return strip.rebuild((b) => b.imageBytes = imageBytes);
   }
 
-  Future<ComicStrip> getStrip(
+  Stream<ComicStrip> getStrip(
     Comic comic,
     String stripId, {
     bool allowFromCache = true,
     List<String> prefetch = const [],
-  }) async {
+  }) async* {
     final strip =
         await _fetchStrip(comic, stripId, allowFromCache: allowFromCache);
     () async {
@@ -126,6 +127,6 @@ class ComicslateClient {
         }
       }
     }();
-    return strip;
+    yield strip;
   }
 }

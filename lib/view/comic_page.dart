@@ -45,7 +45,8 @@ class ComicPage extends StatelessWidget {
         body: FutureBuilder<Iterable<String>>(
           future: ComicslateClientWidget.of(context)
               .client
-              .getStoryStripsList(comic),
+              .getStoryStripsList(comic)
+              .first,
           builder: (context, stripListSnapshot) {
             if (stripListSnapshot.hasData) {
               // Load image
@@ -106,14 +107,17 @@ class _StripPageState extends State<StripPage> {
               controller: _controller,
               itemCount: widget.viewModel.stripIds.length,
               itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
-                  future: ComicslateClientWidget.of(context).client.getStrip(
+                  future: ComicslateClientWidget.of(context)
+                      .client
+                      .getStrip(
                         widget.viewModel.comic,
                         widget.viewModel.stripIds.elementAt(i),
                         prefetch: widget.viewModel.stripIds.sublist(
                           max(0, i - 2),
                           min(widget.viewModel.stripIds.length - 1, i + 5),
                         ),
-                      ),
+                      )
+                      .first,
                   builder: (context, stripSnapshot) {
                     if (stripSnapshot.hasData) {
                       if (stripSnapshot.data.imageBytes == null) {
