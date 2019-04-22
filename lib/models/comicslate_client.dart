@@ -47,9 +47,9 @@ class ComicslateClient {
     String body;
     try {
       body = (await request(path)).body;
-      offlineStorage[path] = utf8.encode(body);
+      offlineStorage.store(path, utf8.encode(body));
     } on SocketException {
-      final offlineData = await offlineStorage[path];
+      final offlineData = await offlineStorage.fetch(path);
       if (offlineData == null) {
         rethrow;
       }
@@ -78,7 +78,7 @@ class ComicslateClient {
     dynamic jsonData;
 
     if (allowFromCache) {
-      final cachedBytes = await prefetchCache[stripMetaPath];
+      final cachedBytes = await prefetchCache.fetch(stripMetaPath);
       if (cachedBytes != null) {
         jsonData = json.decode(utf8.decode(cachedBytes));
       }
@@ -93,7 +93,7 @@ class ComicslateClient {
     final stripRenderPath = '$stripMetaPath/render';
     Uint8List imageBytes;
     if (allowFromCache) {
-      imageBytes = await prefetchCache[stripRenderPath];
+      imageBytes = await prefetchCache.fetch(stripRenderPath);
     }
     if (imageBytes == null) {
       try {
