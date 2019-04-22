@@ -290,7 +290,7 @@ class StripImage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 5),
             child: Text(aboutStrip),
           ),
-          Image.memory(viewModel.currentStrip.imageBytes),
+          Expanded(child: Image.memory(viewModel.currentStrip.imageBytes)),
         ]));
   }
 }
