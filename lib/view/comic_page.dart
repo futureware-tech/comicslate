@@ -89,48 +89,52 @@ class ComicPage extends StatelessWidget {
       );
 
   Widget _showGoToPageDialog(
-          BuildContext context, int allStrips, Sink onGoToPage) =>
-      AlertDialog(
-        title: const Text('Перейти на страницу'),
-        content: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(
-              width: 100,
-              height: 60,
-              child: TextField(
-                controller: pageTextController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
-                onSubmitted: (page) {
-                  onGoToPage.add(page);
-                  Navigator.of(context).pop();
-                },
+      BuildContext context, int allStrips, Sink onGoToPage) {
+    final focusNode = FocusNode();
+    FocusScope.of(context).requestFocus(focusNode);
+    return AlertDialog(
+      title: const Text('Перейти на страницу'),
+      content: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          SizedBox(
+            width: 100,
+            height: 60,
+            child: TextField(
+              focusNode: focusNode,
+              controller: pageTextController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
               ),
+              onSubmitted: (page) {
+                onGoToPage.add(page);
+                Navigator.of(context).pop();
+              },
             ),
-            Text(' / $allStrips'),
-          ],
-        ),
-        actions: <Widget>[
-          FlatButton(
-            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
           ),
-          FlatButton(
-            child: const Text(
-              'Перейти',
-              style: TextStyle(color: Colors.teal),
-            ),
-            onPressed: () {
-              onGoToPage.add(pageTextController.text);
-              Navigator.of(context).pop();
-            },
-          ),
+          Text(' / $allStrips'),
         ],
-      );
+      ),
+      actions: <Widget>[
+        FlatButton(
+          child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        FlatButton(
+          child: const Text(
+            'Перейти',
+            style: TextStyle(color: Colors.teal),
+          ),
+          onPressed: () {
+            onGoToPage.add(pageTextController.text);
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+  }
 
   /*Widget _buildComicInfo() => Padding(
         padding: const EdgeInsets.all(8),
