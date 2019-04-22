@@ -86,7 +86,7 @@ class _StripPageState extends State<StripPage> {
                     if (stripSnapshot.hasData) {
                       if (stripSnapshot.data.imageBytes == null) {
                         return WebView(
-                          initialUrl: stripSnapshot.data.url.toString(),
+                          initialUrl: stripSnapshot.data.displayUrl.toString(),
                           javascriptMode: JavascriptMode.unrestricted,
                         );
                       } else {

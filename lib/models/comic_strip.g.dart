@@ -18,8 +18,12 @@ class _$ComicStripSerializer implements StructuredSerializer<ComicStrip> {
   Iterable serialize(Serializers serializers, ComicStrip object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[
-      'url',
-      serializers.serialize(object.url, specifiedType: const FullType(Uri)),
+      'displayUrl',
+      serializers.serialize(object.displayUrl,
+          specifiedType: const FullType(Uri)),
+      'shareUrl',
+      serializers.serialize(object.shareUrl,
+          specifiedType: const FullType(Uri)),
     ];
     if (object.title != null) {
       result
@@ -31,6 +35,12 @@ class _$ComicStripSerializer implements StructuredSerializer<ComicStrip> {
       result
         ..add('lastModified')
         ..add(serializers.serialize(object.lastModified,
+            specifiedType: const FullType(DateTime)));
+    }
+    if (object.lastRendered != null) {
+      result
+        ..add('lastRendered')
+        ..add(serializers.serialize(object.lastRendered,
             specifiedType: const FullType(DateTime)));
     }
     if (object.author != null) {
@@ -66,8 +76,12 @@ class _$ComicStripSerializer implements StructuredSerializer<ComicStrip> {
       iterator.moveNext();
       final dynamic value = iterator.current;
       switch (key) {
-        case 'url':
-          result.url = serializers.deserialize(value,
+        case 'displayUrl':
+          result.displayUrl = serializers.deserialize(value,
+              specifiedType: const FullType(Uri)) as Uri;
+          break;
+        case 'shareUrl':
+          result.shareUrl = serializers.deserialize(value,
               specifiedType: const FullType(Uri)) as Uri;
           break;
         case 'title':
@@ -76,6 +90,10 @@ class _$ComicStripSerializer implements StructuredSerializer<ComicStrip> {
           break;
         case 'lastModified':
           result.lastModified = serializers.deserialize(value,
+              specifiedType: const FullType(DateTime)) as DateTime;
+          break;
+        case 'lastRendered':
+          result.lastRendered = serializers.deserialize(value,
               specifiedType: const FullType(DateTime)) as DateTime;
           break;
         case 'author':
@@ -99,11 +117,15 @@ class _$ComicStripSerializer implements StructuredSerializer<ComicStrip> {
 
 class _$ComicStrip extends ComicStrip {
   @override
-  final Uri url;
+  final Uri displayUrl;
+  @override
+  final Uri shareUrl;
   @override
   final String title;
   @override
   final DateTime lastModified;
+  @override
+  final DateTime lastRendered;
   @override
   final String author;
   @override
@@ -115,15 +137,20 @@ class _$ComicStrip extends ComicStrip {
       (new ComicStripBuilder()..update(updates)).build();
 
   _$ComicStrip._(
-      {this.url,
+      {this.displayUrl,
+      this.shareUrl,
       this.title,
       this.lastModified,
+      this.lastRendered,
       this.author,
       this.version,
       this.imageBytes})
       : super._() {
-    if (url == null) {
-      throw new BuiltValueNullFieldError('ComicStrip', 'url');
+    if (displayUrl == null) {
+      throw new BuiltValueNullFieldError('ComicStrip', 'displayUrl');
+    }
+    if (shareUrl == null) {
+      throw new BuiltValueNullFieldError('ComicStrip', 'shareUrl');
     }
   }
 
@@ -138,9 +165,11 @@ class _$ComicStrip extends ComicStrip {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is ComicStrip &&
-        url == other.url &&
+        displayUrl == other.displayUrl &&
+        shareUrl == other.shareUrl &&
         title == other.title &&
         lastModified == other.lastModified &&
+        lastRendered == other.lastRendered &&
         author == other.author &&
         version == other.version &&
         imageBytes == other.imageBytes;
@@ -151,8 +180,12 @@ class _$ComicStrip extends ComicStrip {
     return $jf($jc(
         $jc(
             $jc(
-                $jc($jc($jc(0, url.hashCode), title.hashCode),
-                    lastModified.hashCode),
+                $jc(
+                    $jc(
+                        $jc($jc($jc(0, displayUrl.hashCode), shareUrl.hashCode),
+                            title.hashCode),
+                        lastModified.hashCode),
+                    lastRendered.hashCode),
                 author.hashCode),
             version.hashCode),
         imageBytes.hashCode));
@@ -161,9 +194,11 @@ class _$ComicStrip extends ComicStrip {
   @override
   String toString() {
     return (newBuiltValueToStringHelper('ComicStrip')
-          ..add('url', url)
+          ..add('displayUrl', displayUrl)
+          ..add('shareUrl', shareUrl)
           ..add('title', title)
           ..add('lastModified', lastModified)
+          ..add('lastRendered', lastRendered)
           ..add('author', author)
           ..add('version', version)
           ..add('imageBytes', imageBytes))
@@ -174,9 +209,13 @@ class _$ComicStrip extends ComicStrip {
 class ComicStripBuilder implements Builder<ComicStrip, ComicStripBuilder> {
   _$ComicStrip _$v;
 
-  Uri _url;
-  Uri get url => _$this._url;
-  set url(Uri url) => _$this._url = url;
+  Uri _displayUrl;
+  Uri get displayUrl => _$this._displayUrl;
+  set displayUrl(Uri displayUrl) => _$this._displayUrl = displayUrl;
+
+  Uri _shareUrl;
+  Uri get shareUrl => _$this._shareUrl;
+  set shareUrl(Uri shareUrl) => _$this._shareUrl = shareUrl;
 
   String _title;
   String get title => _$this._title;
@@ -186,6 +225,11 @@ class ComicStripBuilder implements Builder<ComicStrip, ComicStripBuilder> {
   DateTime get lastModified => _$this._lastModified;
   set lastModified(DateTime lastModified) =>
       _$this._lastModified = lastModified;
+
+  DateTime _lastRendered;
+  DateTime get lastRendered => _$this._lastRendered;
+  set lastRendered(DateTime lastRendered) =>
+      _$this._lastRendered = lastRendered;
 
   String _author;
   String get author => _$this._author;
@@ -203,9 +247,11 @@ class ComicStripBuilder implements Builder<ComicStrip, ComicStripBuilder> {
 
   ComicStripBuilder get _$this {
     if (_$v != null) {
-      _url = _$v.url;
+      _displayUrl = _$v.displayUrl;
+      _shareUrl = _$v.shareUrl;
       _title = _$v.title;
       _lastModified = _$v.lastModified;
+      _lastRendered = _$v.lastRendered;
       _author = _$v.author;
       _version = _$v.version;
       _imageBytes = _$v.imageBytes;
@@ -231,9 +277,11 @@ class ComicStripBuilder implements Builder<ComicStrip, ComicStripBuilder> {
   _$ComicStrip build() {
     final _$result = _$v ??
         new _$ComicStrip._(
-            url: url,
+            displayUrl: displayUrl,
+            shareUrl: shareUrl,
             title: title,
             lastModified: lastModified,
+            lastRendered: lastRendered,
             author: author,
             version: version,
             imageBytes: imageBytes);

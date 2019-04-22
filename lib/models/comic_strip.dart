@@ -6,13 +6,17 @@ import 'package:built_value/serializer.dart';
 part 'comic_strip.g.dart';
 
 abstract class ComicStrip implements Built<ComicStrip, ComicStripBuilder> {
-  Uri get url;
+  Uri get displayUrl;
+  Uri get shareUrl;
 
   @nullable
   String get title;
 
   @nullable
   DateTime get lastModified;
+
+  @nullable
+  DateTime get lastRendered;
 
   @nullable
   String get author;
