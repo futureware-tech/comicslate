@@ -21,6 +21,9 @@ class ComicPageViewModel {
         print('Couldn\'t find $stripId');
       }
     });
+    _onRefreshStripController.stream.listen((_) {
+      _doRefreshStripController.add(null);
+    });
   }
 
   final _onGoToPageController = StreamController<String>();
@@ -28,6 +31,12 @@ class ComicPageViewModel {
 
   final _doGoToPageController = StreamController<int>();
   Stream<int> get doGoToPage => _doGoToPageController.stream;
+
+  final _onRefreshStripController = StreamController<void>();
+  Sink<void> get onRefreshStrip => _onRefreshStripController.sink;
+
+  final _doRefreshStripController = StreamController<void>();
+  Stream<void> get doRefreshStrip => _doRefreshStripController.stream;
 
   Future<int> getLastSeenPage() async {
     final prefs = await SharedPreferences.getInstance();
@@ -44,5 +53,7 @@ class ComicPageViewModel {
   void dispose() {
     _onGoToPageController.close();
     _doGoToPageController.close();
+    _onRefreshStripController.close();
+    _doRefreshStripController.close();
   }
 }

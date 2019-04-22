@@ -54,6 +54,15 @@ class ComicPage extends StatelessWidget {
                     .toString());
               },
             ),
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                ComicPageViewModelWidget.of(context)
+                    .viewModel
+                    .onRefreshStrip
+                    .add(null);
+              },
+            ),
             /*IconButton(
               icon: const Icon(Icons.menu),
               onPressed: () {
@@ -169,11 +178,18 @@ class _StripPageState extends State<StripPage> {
   PageController _controller;
   bool _isOrientationSetup = false;
   Future<int> _lastSeenStrip;
+  bool _allowCache = true;
 
   @override
   void initState() {
     widget.viewModel.doGoToPage.listen((page) {
       _controller.jumpToPage(page);
+    });
+
+    widget.viewModel.doRefreshStrip.listen((_) {
+      setState(() {
+        _allowCache = false;
+      });
     });
 
     _lastSeenStrip = widget.viewModel.getLastSeenPage();
@@ -196,6 +212,7 @@ class _StripPageState extends State<StripPage> {
                       .getStrip(
                         widget.viewModel.comic,
                         widget.viewModel.stripIds.elementAt(i),
+                        allowFromCache: _allowCache,
                         prefetch: widget.viewModel.stripIds.sublist(
                           max(0, i - 2),
                           min(widget.viewModel.stripIds.length - 1, i + 5),
@@ -204,6 +221,7 @@ class _StripPageState extends State<StripPage> {
                       .first,
                   builder: (context, stripSnapshot) {
                     if (stripSnapshot.hasData) {
+                      _allowCache = true;
                       if (stripSnapshot.data.imageBytes == null) {
                         return WebView(
                           initialUrl: stripSnapshot.data.displayUrl.toString(),
