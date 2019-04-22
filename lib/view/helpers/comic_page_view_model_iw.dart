@@ -9,9 +9,7 @@ class ComicPageViewModelWidget extends InheritedWidget {
     @required this.viewModel,
     @required Widget child,
   })  : assert(viewModel != null),
-        super(child: child) {
-    print('New ViewModel created');
-  }
+        super(child: child);
 
   static ComicPageViewModelWidget of(BuildContext context) =>
       context.inheritFromWidgetOfExactType(ComicPageViewModelWidget);
