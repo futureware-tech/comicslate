@@ -117,7 +117,7 @@ class ComicCard extends StatelessWidget {
               useDiskCache: true,
             ),
             fit: BoxFit.cover,
-            placeholder: Image.asset('images/favicon.png'),
+            placeholder: Image.asset('images/favicon.webp'),
           ),
         ),
         Container(

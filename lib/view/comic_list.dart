@@ -19,7 +19,8 @@ class _ComicslateTitleWidget extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.symmetric(vertical: 2),
-        child: Image.asset('images/logo${_logoId.nextInt(_numberOfLogos)}.png'),
+        child:
+            Image.asset('images/logo${_logoId.nextInt(_numberOfLogos)}.webp'),
       );
 }
 
