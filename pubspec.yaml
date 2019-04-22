@@ -32,6 +32,9 @@ dependencies:
   webview_flutter: ^0.3.5+4
   flutter_cache_manager: ^0.3.2
 
+  flutter_localizations:
+    sdk: flutter
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

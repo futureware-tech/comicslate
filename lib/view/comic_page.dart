@@ -9,16 +9,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_advanced_networkimage/zoomable.dart';
+import 'package:intl/intl.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class ComicPage extends StatelessWidget {
   final Comic comic;
+  final ComicPageViewModel _viewModel;
 
-  ComicPage({@required this.comic}) : assert(comic != null);
+  ComicPage({@required this.comic})
+      : assert(comic != null),
+        _viewModel = ComicPageViewModel(comic: comic);
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(comic.name)),
+        appBar: AppBar(
+          title: Text(comic.name),
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                showModalBottomSheet(
+                    context: context, builder: (context) => _buildComicInfo());
+              },
+            )
+          ],
+        ),
         // Get a list of stripsId
         body: FutureBuilder<Iterable<String>>(
           future: ComicslateClientWidget.of(context)
@@ -27,9 +42,9 @@ class ComicPage extends StatelessWidget {
           builder: (context, stripListSnapshot) {
             if (stripListSnapshot.hasData) {
               // Load image
+              _viewModel.stripIds = stripListSnapshot.data.toList();
               return StripPage(
-                comic: comic,
-                stripIds: stripListSnapshot.data.toList(),
+                viewModel: _viewModel,
               );
             } else {
               return Center(child: const CircularProgressIndicator());
@@ -37,15 +52,33 @@ class ComicPage extends StatelessWidget {
           },
         ),
       );
+
+  Widget _buildComicInfo() => Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              'Автор:  ${_viewModel.currentStrip.author}',
+              style: TextStyle(fontSize: 20),
+            ),
+            Container(
+              height: 10,
+            ),
+            Text(
+              'Дата последнего изменения:  '
+              '${DateFormat.yMMMd().add_jm().format(_viewModel.currentStrip.lastModified)}',
+              style: TextStyle(fontSize: 20),
+            ),
+          ],
+        ),
+      );
 }
 
 class StripPage extends StatefulWidget {
-  final List<String> stripIds;
-  final Comic comic;
+  final ComicPageViewModel viewModel;
 
-  StripPage({@required this.comic, @required this.stripIds})
-      : assert(stripIds != null && stripIds.isNotEmpty),
-        assert(comic != null);
+  StripPage({@required this.viewModel}) : assert(viewModel != null);
 
   @override
   _StripPageState createState() => _StripPageState();
@@ -53,33 +86,25 @@ class StripPage extends StatefulWidget {
 
 class _StripPageState extends State<StripPage> {
   PageController _controller;
-  ComicPageViewModel _viewModel;
   bool _isOrientationSetup = false;
 
   @override
-  void initState() {
-    _viewModel = ComicPageViewModel(comic: widget.comic);
-    super.initState();
-  }
-
-  // TODO(ksheremet): Cache images
-  @override
   Widget build(BuildContext context) => FutureBuilder<int>(
-        future: _viewModel.getLastSeenPage(),
+        future: widget.viewModel.getLastSeenPage(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             _controller = PageController(initialPage: snapshot.data);
             return PageView.builder(
               physics: const AlwaysScrollableScrollPhysics(),
               controller: _controller,
-              itemCount: widget.stripIds.length,
+              itemCount: widget.viewModel.stripIds.length,
               itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
                   future: ComicslateClientWidget.of(context).client.getStrip(
-                        widget.comic,
-                        widget.stripIds.elementAt(i),
-                        prefetch: widget.stripIds.sublist(
+                        widget.viewModel.comic,
+                        widget.viewModel.stripIds.elementAt(i),
+                        prefetch: widget.viewModel.stripIds.sublist(
                           max(0, i - 2),
-                          min(widget.stripIds.length - 1, i + 5),
+                          min(widget.viewModel.stripIds.length - 1, i + 5),
                         ),
                       ),
                   builder: (context, stripSnapshot) {
@@ -93,27 +118,19 @@ class _StripPageState extends State<StripPage> {
                         if (!_isOrientationSetup) {
                           setUpOrientation(stripSnapshot.data.imageBytes);
                         }
-                        return StripImage(
-                            imageBytes: stripSnapshot.data.imageBytes);
+                        widget.viewModel.currentStrip = stripSnapshot.data;
+                        widget.viewModel.currentStripId =
+                            widget.viewModel.stripIds.elementAt(i);
+                        // TODO(ksheremet): Zoomable widget doesn't work
+                        //  in Column
+                        return StripImage(viewModel: widget.viewModel);
                       }
-                      // TODO(ksheremet): Zoomable widget doesn't work in Column
-                      /*return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text('${widget.stripIds.elementAt(i)}/'
-                              '${widget.stripIds.length}'
-                              '${stripSnapshot.data.title}'),
-                          StripImage(imageBytes: stripSnapshot.data.imageBytes),
-                          Text('${stripSnapshot.data.author}: '
-                              '${stripSnapshot.data.lastModified}'),
-                        ],
-                      );*/
                     } else {
                       return Center(child: const CircularProgressIndicator());
                     }
                   }),
               onPageChanged: (index) {
-                _viewModel.setLastSeenPage(index);
+                widget.viewModel.setLastSeenPage(index);
               },
             );
           } else {
@@ -155,9 +172,9 @@ class _StripPageState extends State<StripPage> {
 }
 
 class StripImage extends StatefulWidget {
-  final Uint8List imageBytes;
+  final ComicPageViewModel viewModel;
 
-  StripImage({@required this.imageBytes}) : assert(imageBytes != null);
+  StripImage({@required this.viewModel}) : assert(viewModel != null);
 
   @override
   _StripImageState createState() => _StripImageState();
@@ -172,5 +189,13 @@ class _StripImageState extends State<StripImage> {
       multiFingersPan: true,
       singleFingerPan: false,
       minScale: 1,
-      child: Image.memory(widget.imageBytes));
+      child: Column(children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          child: Text(
+              '${widget.viewModel.currentStripId} / ${widget.viewModel.stripIds.length}  '
+              '${widget.viewModel.currentStrip.title}'),
+        ),
+        Image.memory(widget.viewModel.currentStrip.imageBytes),
+      ]));
 }

@@ -4,6 +4,8 @@ import 'package:comicslate/view/comic_list.dart';
 import 'package:comicslate/view/helpers/comicslate_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
 void main() => runApp(MyApp());
 
@@ -32,6 +34,33 @@ class MyApp extends StatelessWidget {
       builder: (context, child) =>
           ComicslateClientWidget(client: client, child: child),
       home: ComicList(),
+      localizationsDelegates: [
+        AppLocalizationsDelegate(),
+      ],
+      supportedLocales: const [
+        // This list limits what locales Global Localizations delegates above
+        // will support. The first element of this list is a fallback locale.
+        Locale('en', 'US'),
+        Locale('ru', 'RU'),
+      ],
     );
   }
+}
+
+class AppLocalizationsDelegate extends LocalizationsDelegate {
+  @override
+  bool isSupported(Locale locale) => true;
+
+  @override
+  Future load(Locale locale) async {
+    final name =
+        locale.countryCode.isEmpty ? locale.languageCode : locale.toString();
+    final localeName = Intl.canonicalizedLocale(name);
+
+    await initializeDateFormatting();
+    Intl.defaultLocale = localeName;
+  }
+
+  @override
+  bool shouldReload(LocalizationsDelegate old) => false;
 }

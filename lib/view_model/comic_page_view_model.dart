@@ -1,9 +1,13 @@
 import 'package:comicslate/models/comic.dart';
+import 'package:comicslate/models/comic_strip.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ComicPageViewModel {
   Comic comic;
+  List<String> stripIds;
+  ComicStrip currentStrip;
+  String currentStripId;
 
   ComicPageViewModel({@required this.comic}) : assert(comic != null);
 
