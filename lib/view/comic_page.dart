@@ -24,12 +24,9 @@ class ComicPage extends StatelessWidget {
           title:
               Text(ComicPageViewModelWidget.of(context).viewModel.comic.name),
           actions: <Widget>[
-            MaterialButton(
+            IconButton(
               padding: const EdgeInsets.all(8),
-              child: const Text(
-                'go to',
-                style: TextStyle(color: Colors.white),
-              ),
+              icon: const Icon(Icons.input),
               onPressed: () {
                 pageTextController.text = ComicPageViewModelWidget.of(context)
                     .viewModel
