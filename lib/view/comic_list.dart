@@ -5,6 +5,7 @@ import 'package:comicslate/view/comic_page.dart';
 import 'package:comicslate/view/helpers/comic_card.dart';
 import 'package:comicslate/view/helpers/comic_page_view_model_iw.dart';
 import 'package:comicslate/view/helpers/comicslate_client.dart';
+import 'package:comicslate/view/helpers/search_bar.dart';
 import 'package:comicslate/view_model/comic_list_bloc.dart';
 import 'package:comicslate/view_model/comic_page_view_model.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -26,30 +27,37 @@ class _ComicslateTitleWidget extends StatelessWidget {
 }
 
 class ComicList extends StatelessWidget {
+  // TODO(ksheremet): Create Inherited widget for bloc. Consider to try
+  // ScopedModel, Provide
+  ComicListBloc _bloc;
+
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: _ComicslateTitleWidget()),
-        body: _ComicListBody(),
-      );
+  Widget build(BuildContext context) {
+    _bloc = ComicListBloc(ComicslateClientWidget.of(context).client);
+    return Scaffold(
+      appBar: SearchBarWidget(
+          title: _ComicslateTitleWidget(),
+          search: (text) {
+            _bloc.onComicSearch.add(text);
+          }),
+      body: _ComicListBody(bloc: _bloc),
+    );
+  }
 }
 
 class _ComicListBody extends StatefulWidget {
+  final ComicListBloc bloc;
+
+  _ComicListBody({@required this.bloc}) : assert(bloc != null);
+
   @override
   _ComicListBodyState createState() => _ComicListBodyState();
 }
 
 class _ComicListBodyState extends State<_ComicListBody> {
-  ComicListBloc _bloc;
-
-  @override
-  void didChangeDependencies() {
-    _bloc ??= ComicListBloc(ComicslateClientWidget.of(context).client);
-    super.didChangeDependencies();
-  }
-
   @override
   Widget build(BuildContext context) => StreamBuilder<Map<String, List<Comic>>>(
-        stream: _bloc.doComicListByCategory,
+        stream: widget.bloc.doComicListByCategory,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return RefreshIndicator(
@@ -61,10 +69,14 @@ class _ComicListBodyState extends State<_ComicListBody> {
                   imageCache.clear();
                 });
               },
-              child: CustomScrollView(
-                primary: true,
-                slivers: _buildComicList(snapshot.data, context),
-              ),
+              child: snapshot.data.isEmpty
+                  ? Center(
+                      child: const Text('Нет комиксов во Вашему запросу'),
+                    )
+                  : CustomScrollView(
+                      primary: true,
+                      slivers: _buildComicList(snapshot.data, context),
+                    ),
             );
           } else {
             return Center(
