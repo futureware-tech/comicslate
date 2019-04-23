@@ -4,12 +4,12 @@ import 'dart:typed_data';
 import 'package:comicslate/models/comic_strip.dart';
 import 'package:comicslate/view/helpers/comic_page_view_model_iw.dart';
 import 'package:comicslate/view/helpers/comicslate_client.dart';
+import 'package:comicslate/view/helpers/strip_image.dart';
 import 'package:comicslate/view_model/comic_page_view_model.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_advanced_networkimage/zoomable.dart';
 import 'package:share/share.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -290,33 +290,5 @@ class _StripPageState extends State<StripPage> {
       DeviceOrientation.landscapeRight,
     ]);
     super.dispose();
-  }
-}
-
-class StripImage extends StatelessWidget {
-  final ComicPageViewModel viewModel;
-  StripImage({@required this.viewModel}) : assert(viewModel != null);
-
-  @override
-  Widget build(BuildContext context) {
-    var aboutStrip =
-        '${viewModel.currentStripId} / ${viewModel.stripIds.length}  ';
-    if (viewModel.currentStrip.title != null) {
-      aboutStrip = aboutStrip + viewModel.currentStrip.title;
-    }
-    return ZoomableWidget(
-        enableRotate: false,
-        maxScale: 3,
-        zoomSteps: 2,
-        multiFingersPan: true,
-        singleFingerPan: false,
-        minScale: 1,
-        child: Column(children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5),
-            child: Text(aboutStrip),
-          ),
-          Expanded(child: Image.memory(viewModel.currentStrip.imageBytes)),
-        ]));
   }
 }
