@@ -184,11 +184,6 @@ class _StripPageState extends State<StripPage> {
   @override
   void initState() {
     widget.viewModel.doGoToPage.listen((page) {
-      FirebaseAnalytics().logViewItem(
-        itemCategory: widget.viewModel.comic.id,
-        itemId: page.toString(),
-        itemName: page.toString(),
-      );
       _controller.jumpToPage(page);
     });
 
@@ -251,6 +246,12 @@ class _StripPageState extends State<StripPage> {
                     }
                   }),
               onPageChanged: (index) {
+                FirebaseAnalytics().logViewItem(
+                  itemCategory: widget.viewModel.comic.id,
+                  itemId: index.toString(),
+                  itemName: index.toString(),
+                );
+
                 widget.viewModel.setLastSeenPage(index);
               },
             );
