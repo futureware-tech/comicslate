@@ -4,11 +4,19 @@ import 'package:comicslate/models/comicslate_client.dart';
 import 'package:comicslate/models/storage.dart';
 import 'package:comicslate/view/comic_list.dart';
 import 'package:comicslate/view/helpers/comicslate_client.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  Crashlytics.instance.enableInDevMode = true;
+  FlutterError.onError = Crashlytics.instance.onError;
+
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -47,6 +55,9 @@ class MyApp extends StatelessWidget {
         // will support. The first element of this list is a fallback locale.
         Locale('en', 'US'),
         Locale('ru', 'RU'),
+      ],
+      navigatorObservers: [
+        FirebaseAnalyticsObserver(analytics: FirebaseAnalytics()),
       ],
     );
   }

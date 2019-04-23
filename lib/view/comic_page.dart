@@ -5,6 +5,7 @@ import 'package:comicslate/models/comic_strip.dart';
 import 'package:comicslate/view/helpers/comic_page_view_model_iw.dart';
 import 'package:comicslate/view/helpers/comicslate_client.dart';
 import 'package:comicslate/view_model/comic_page_view_model.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -183,6 +184,11 @@ class _StripPageState extends State<StripPage> {
   @override
   void initState() {
     widget.viewModel.doGoToPage.listen((page) {
+      FirebaseAnalytics().logViewItem(
+        itemCategory: widget.viewModel.comic.id,
+        itemId: page.toString(),
+        itemName: page.toString(),
+      );
       _controller.jumpToPage(page);
     });
 

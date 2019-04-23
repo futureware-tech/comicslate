@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:comicslate/models/comic.dart';
 import 'package:comicslate/models/comicslate_client.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class ComicListBloc {
   ComicListBloc(ComicslateClient client) {
@@ -19,6 +20,7 @@ class ComicListBloc {
 
   Future<void> _getComicList(ComicslateClient client) async {
     final comicList = await client.getComicsList().first;
+    FirebaseAnalytics().logViewItemList(itemCategory: '');
 
     Map<String, List<Comic>> comics;
     comics = comicList.fold<Map<String, List<Comic>>>({}, (map, comic) {
