@@ -13,7 +13,7 @@ class ComicListBloc {
     _onComicSearchController.stream.listen((word) async {
       Map<String, List<Comic>> comics;
       comics = _comicList.fold<Map<String, List<Comic>>>({}, (map, comic) {
-        if (comic.name.toLowerCase().startsWith(word.toLowerCase())) {
+        if (comic.name.toLowerCase().contains(word.toLowerCase())) {
           (map[comic.categoryName] ??= []).add(comic);
         }
         return map;
