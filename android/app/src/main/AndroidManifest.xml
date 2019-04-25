@@ -11,6 +11,7 @@
         android:label="Comicslate"
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="true">
+        <meta-data android:name="google_analytics_adid_collection_enabled" android:value="false" />
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
