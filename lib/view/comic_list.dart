@@ -5,6 +5,7 @@ import 'package:comicslate/view/comic_page.dart';
 import 'package:comicslate/view/helpers/comic_card.dart';
 import 'package:comicslate/view/helpers/comic_page_view_model_iw.dart';
 import 'package:comicslate/view/helpers/comicslate_client.dart';
+import 'package:comicslate/view/helpers/navigation_drawer.dart';
 import 'package:comicslate/view/helpers/search_bar.dart';
 import 'package:comicslate/view_model/comic_list_bloc.dart';
 import 'package:comicslate/view_model/comic_page_view_model.dart';
@@ -41,6 +42,8 @@ class ComicList extends StatelessWidget {
             _bloc.onComicSearch.add(text);
           }),
       body: _ComicListBody(bloc: _bloc),
+      drawer: NavigationDrawer(),
+      //drawer: NavigationDrawer(),
     );
   }
 }
