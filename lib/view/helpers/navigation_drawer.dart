@@ -1,8 +1,14 @@
 import 'package:comicslate/remote/email_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:package_info/package_info.dart';
 
 class NavigationDrawer extends StatelessWidget {
+  Future<String> _getAppVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    return packageInfo.version;
+  }
+
   @override
   Widget build(BuildContext context) => Drawer(
         child: ListView(
@@ -26,11 +32,15 @@ class NavigationDrawer extends StatelessWidget {
                 await launchEmail(context);
               },
             ),
-            AboutListTile(
-              icon: const Icon(Icons.perm_device_information),
-              child: const Text('О приложении'),
-              applicationIcon: Image.asset('images/favicon.webp'),
-              applicationLegalese: 'MIT License',
+            FutureBuilder<String>(
+              future: _getAppVersion(),
+              builder: (context, snapshot) => AboutListTile(
+                    icon: const Icon(Icons.perm_device_information),
+                    child: const Text('О приложении'),
+                    applicationIcon: Image.asset('images/favicon.webp'),
+                    applicationVersion: snapshot.hasData ? snapshot.data : null,
+                    applicationLegalese: 'MIT License',
+                  ),
             ),
           ],
         ),
