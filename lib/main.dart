@@ -44,9 +44,9 @@ class MyApp extends StatelessWidget {
           textTheme: Theme.of(context).textTheme.apply(
               displayColor: const Color(0xFF212121),
               decorationColor: const Color(0xFF757575))),
-      // If Inherited widget assigned to build param, it will be recreated
-      // every time(rotation, set state, etc). Therefore create it here once.
-      home: ComicslateClientWidget(client: client, child: ComicList()),
+      builder: (context, child) =>
+          ComicslateClientWidget(client: client, child: child),
+      home: ComicList(),
       localizationsDelegates: [
         AppLocalizationsDelegate(),
       ],
