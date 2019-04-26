@@ -32,6 +32,15 @@ class NavigationDrawer extends StatelessWidget {
                 await launchEmail(context);
               },
             ),
+            ListTile(
+              leading: const Icon(Icons.thumb_up),
+              title: const Text('Голосовать за улучшениe приложения'),
+              onTap: () async {
+                Navigator.pop(context);
+                await launchUrl(
+                    context, 'https://comicslate.featureupvote.com/');
+              },
+            ),
             FutureBuilder<String>(
               future: _getAppVersion(),
               builder: (context, snapshot) => AboutListTile(

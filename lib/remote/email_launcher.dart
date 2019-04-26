@@ -45,6 +45,7 @@ Future<void> launchEmail(BuildContext context) async {
           queryParameters: {'to': _supportEmail}..addAll(appInfoOptions))
       .toString());
 
+  launchUrl(context, googleGmailUrl);
   try {
     if (Theme.of(context).platform == TargetPlatform.iOS &&
         await canLaunch(googleGmailUrl)) {
@@ -52,6 +53,15 @@ Future<void> launchEmail(BuildContext context) async {
       return;
     }
     await launch(mailUrl, forceSafariVC: false);
+  } catch (e, stackTrace) {
+    // TODO(ksheremet): Show error to user that app is not installed
+    print(e);
+  }
+}
+
+Future<void> launchUrl(BuildContext context, String url) async {
+  try {
+    await launch(url, forceSafariVC: false);
   } catch (e, stackTrace) {
     // TODO(ksheremet): Show error to user that app is not installed
     print(e);
