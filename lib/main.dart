@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
           fontFamily: 'DatFestComic',
           primaryColorDark: const Color(0xFF00796B),
           primaryColor: const Color(0xFF009688),
-          accentColor: const Color(0xFFFFEB3B),
+          accentColor: const Color(0xFF795548),
           primaryColorLight: const Color(0xFFB2DFDB),
           dividerColor: const Color(0xFFBDBDBD),
           textTheme: Theme.of(context).textTheme.apply(
