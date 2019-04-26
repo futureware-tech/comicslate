@@ -10,6 +10,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provide/provide.dart';
 import 'package:share/share.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -75,7 +76,7 @@ class ComicPage extends StatelessWidget {
         ),
         // Get a list of stripsId
         body: FutureBuilder<Iterable<String>>(
-          future: ComicslateClientWidget.of(context)
+          future: Provide.value<ComicslateClientWidget>(context)
               .client
               .getStoryStripsList(
                   ComicPageViewModelWidget.of(context).viewModel.comic)
@@ -208,7 +209,7 @@ class _StripPageState extends State<StripPage> {
               controller: _controller,
               itemCount: widget.viewModel.stripIds.length,
               itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
-                  future: ComicslateClientWidget.of(context)
+                  future: Provide.value<ComicslateClientWidget>(context)
                       .client
                       .getStrip(
                         widget.viewModel.comic,

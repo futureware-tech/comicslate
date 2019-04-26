@@ -13,6 +13,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_advanced_networkimage/provider.dart';
+import 'package:provide/provide.dart';
 
 class _ComicslateTitleWidget extends StatelessWidget {
   static const _numberOfLogos = 9;
@@ -34,7 +35,8 @@ class ComicList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _bloc = ComicListBloc(ComicslateClientWidget.of(context).client);
+    _bloc =
+        ComicListBloc(Provide.value<ComicslateClientWidget>(context).client);
     return Scaffold(
       appBar: SearchBarWidget(
           title: _ComicslateTitleWidget(),
