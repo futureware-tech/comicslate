@@ -1,5 +1,8 @@
+import 'dart:convert';
+
+import 'package:comicslate/models/comicslate_client.dart';
+import 'package:comicslate/models/storage.dart';
 import 'package:comicslate/view/comic_list.dart';
-import 'package:comicslate/view/helpers/comicslate_client.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -22,10 +25,18 @@ class MyApp extends StatelessWidget {
     // The class that contains all the providers. This shouldn't change after
     // being used.
     //
-    // In this case, the ComicslateClientWidget gets instantiated
+    // In this case, the ComicslateClient gets instantiated
     // the first time someone uses it, and lives as a singleton after that.
     final providers = Providers()
-      ..provide(Provider.function((context) => ComicslateClientWidget()));
+      ..provide(Provider.value(ComicslateClient(
+        language: 'ru',
+        offlineStorage: FlutterCachingAPIClient(
+            cacheName: 'comicslate-client-json',
+            responseParser: (js) => json.decode(utf8.decode(js))),
+        prefetchCache: FlutterCachingAPIClient(
+            cacheName: 'comicslate-client-images',
+            responseParser: (bytes) => bytes),
+      )));
     return MaterialApp(
       title: 'Comicslate',
       theme: ThemeData(

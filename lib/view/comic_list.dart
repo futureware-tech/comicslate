@@ -1,10 +1,10 @@
 import 'dart:math';
 
 import 'package:comicslate/models/comic.dart';
+import 'package:comicslate/models/comicslate_client.dart';
 import 'package:comicslate/view/comic_page.dart';
 import 'package:comicslate/view/helpers/comic_card.dart';
 import 'package:comicslate/view/helpers/comic_page_view_model_iw.dart';
-import 'package:comicslate/view/helpers/comicslate_client.dart';
 import 'package:comicslate/view/helpers/navigation_drawer.dart';
 import 'package:comicslate/view/helpers/search_bar.dart';
 import 'package:comicslate/view_model/comic_list_bloc.dart';
@@ -35,8 +35,7 @@ class ComicList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _bloc =
-        ComicListBloc(Provide.value<ComicslateClientWidget>(context).client);
+    _bloc = ComicListBloc(Provide.value<ComicslateClient>(context));
     return Scaffold(
       appBar: SearchBarWidget(
           title: _ComicslateTitleWidget(),
