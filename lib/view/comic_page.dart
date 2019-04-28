@@ -2,14 +2,15 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:comicslate/models/comic_strip.dart';
+import 'package:comicslate/models/comicslate_client.dart';
 import 'package:comicslate/view/helpers/comic_page_view_model_iw.dart';
-import 'package:comicslate/view/helpers/comicslate_client.dart';
 import 'package:comicslate/view/helpers/strip_image.dart';
 import 'package:comicslate/view_model/comic_page_view_model.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provide/provide.dart';
 import 'package:share/share.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -75,8 +76,7 @@ class ComicPage extends StatelessWidget {
         ),
         // Get a list of stripsId
         body: FutureBuilder<Iterable<String>>(
-          future: ComicslateClientWidget.of(context)
-              .client
+          future: Provide.value<ComicslateClient>(context)
               .getStoryStripsList(
                   ComicPageViewModelWidget.of(context).viewModel.comic)
               .first,
@@ -208,8 +208,7 @@ class _StripPageState extends State<StripPage> {
               controller: _controller,
               itemCount: widget.viewModel.stripIds.length,
               itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
-                  future: ComicslateClientWidget.of(context)
-                      .client
+                  future: Provide.value<ComicslateClient>(context)
                       .getStrip(
                         widget.viewModel.comic,
                         widget.viewModel.stripIds.elementAt(i),
