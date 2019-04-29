@@ -16,59 +16,54 @@ void main() {
   Crashlytics.instance.enableInDevMode = true;
   FlutterError.onError = Crashlytics.instance.onError;
 
-  runApp(MyApp());
+  // The class that contains all the providers. This shouldn't change after
+  // being used.
+  //
+  // In this case, the ComicslateClient gets instantiated
+  // the first time someone uses it, and lives as a singleton after that.
+  final providers = Providers()
+    ..provide(Provider.value(ComicslateClient(
+      language: 'ru',
+      offlineStorage: FlutterCachingAPIClient(
+          cacheName: 'comicslate-client-json',
+          responseParser: (js) => json.decode(utf8.decode(js))),
+      prefetchCache: FlutterCachingAPIClient(
+          cacheName: 'comicslate-client-images',
+          responseParser: (bytes) => bytes),
+    )));
+
+  runApp(ProviderNode(providers: providers, child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    // The class that contains all the providers. This shouldn't change after
-    // being used.
-    //
-    // In this case, the ComicslateClient gets instantiated
-    // the first time someone uses it, and lives as a singleton after that.
-    final providers = Providers()
-      ..provide(Provider.value(ComicslateClient(
-        language: 'ru',
-        offlineStorage: FlutterCachingAPIClient(
-            cacheName: 'comicslate-client-json',
-            responseParser: (js) => json.decode(utf8.decode(js))),
-        prefetchCache: FlutterCachingAPIClient(
-            cacheName: 'comicslate-client-images',
-            responseParser: (bytes) => bytes),
-      )));
-    return MaterialApp(
-      title: 'Comicslate',
-      theme: ThemeData(
-          fontFamily: app_styles.kFontFamily,
-          primaryColorDark: app_styles.kPrimaryColorDark,
-          primaryColor: app_styles.kPrimaryColor,
-          accentColor: app_styles.kAccentColor,
-          primaryColorLight: app_styles.kPrimaryColorLight,
-          dividerColor: app_styles.kDividerColor,
-          textTheme: Theme.of(context).textTheme.apply(
-              displayColor: app_styles.kPrimaryText,
-              decorationColor: app_styles.kSecondaryText)),
-      builder: (context, child) => ProviderNode(
-            providers: providers,
-            child: child,
-          ),
-      home: ComicList(),
-      localizationsDelegates: [
-        AppLocalizationsDelegate(),
-      ],
-      supportedLocales: const [
-        // This list limits what locales Global Localizations delegates above
-        // will support. The first element of this list is a fallback locale.
-        Locale('en', 'US'),
-        Locale('ru', 'RU'),
-      ],
-      navigatorObservers: [
-        FirebaseAnalyticsObserver(analytics: FirebaseAnalytics()),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'Comicslate',
+        theme: ThemeData(
+            fontFamily: app_styles.kFontFamily,
+            primaryColorDark: app_styles.kPrimaryColorDark,
+            primaryColor: app_styles.kPrimaryColor,
+            accentColor: app_styles.kAccentColor,
+            primaryColorLight: app_styles.kPrimaryColorLight,
+            dividerColor: app_styles.kDividerColor,
+            textTheme: Theme.of(context).textTheme.apply(
+                displayColor: app_styles.kPrimaryText,
+                decorationColor: app_styles.kSecondaryText)),
+        home: ComicList(),
+        localizationsDelegates: [
+          AppLocalizationsDelegate(),
+        ],
+        supportedLocales: const [
+          // This list limits what locales Global Localizations delegates above
+          // will support. The first element of this list is a fallback locale.
+          Locale('en', 'US'),
+          Locale('ru', 'RU'),
+        ],
+        navigatorObservers: [
+          FirebaseAnalyticsObserver(analytics: FirebaseAnalytics()),
+        ],
+      );
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate {
