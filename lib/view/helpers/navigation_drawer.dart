@@ -21,7 +21,7 @@ class NavigationDrawer extends StatelessWidget {
                 style: TextStyle(color: Colors.white, fontSize: 25),
               ),
               decoration: BoxDecoration(
-                color: Colors.teal,
+                color: Theme.of(context).primaryColor,
               ),
             ),
             ListTile(

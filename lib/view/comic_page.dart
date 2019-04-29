@@ -130,9 +130,9 @@ class ComicPage extends StatelessWidget {
           },
         ),
         FlatButton(
-          child: const Text(
+          child: Text(
             'Перейти',
-            style: TextStyle(color: Colors.teal),
+            style: TextStyle(color: Theme.of(context).primaryColor),
           ),
           onPressed: () {
             onGoToPage.add(pageTextController.text);
