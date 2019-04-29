@@ -1,4 +1,3 @@
-import 'package:comicslate/flutter/styles.dart' as app_styles;
 import 'package:comicslate/remote/email_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -22,7 +21,7 @@ class NavigationDrawer extends StatelessWidget {
                 style: TextStyle(color: Colors.white, fontSize: 25),
               ),
               decoration: BoxDecoration(
-                color: app_styles.kPrimaryColor,
+                color: Theme.of(context).primaryColor,
               ),
             ),
             ListTile(
