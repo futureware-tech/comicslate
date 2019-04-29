@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:comicslate/flutter/styles.dart' as app_styles;
 import 'package:comicslate/models/comic_strip.dart';
 import 'package:comicslate/models/comicslate_client.dart';
 import 'package:comicslate/view/helpers/comic_page_view_model_iw.dart';
@@ -132,7 +133,7 @@ class ComicPage extends StatelessWidget {
         FlatButton(
           child: const Text(
             'Перейти',
-            style: TextStyle(color: Colors.teal),
+            style: TextStyle(color: app_styles.kPrimaryColor),
           ),
           onPressed: () {
             onGoToPage.add(pageTextController.text);

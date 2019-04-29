@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:comicslate/flutter/styles.dart' as app_styles;
 import 'package:comicslate/models/comicslate_client.dart';
 import 'package:comicslate/models/storage.dart';
 import 'package:comicslate/view/comic_list.dart';
@@ -40,15 +41,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Comicslate',
       theme: ThemeData(
-          fontFamily: 'DatFestComic',
-          primaryColorDark: const Color(0xFF00796B),
-          primaryColor: const Color(0xFF009688),
-          accentColor: const Color(0xFF795548),
-          primaryColorLight: const Color(0xFFB2DFDB),
-          dividerColor: const Color(0xFFBDBDBD),
+          fontFamily: app_styles.kFontFamily,
+          primaryColorDark: app_styles.kPrimaryColorDark,
+          primaryColor: app_styles.kPrimaryColor,
+          accentColor: app_styles.kAccentColor,
+          primaryColorLight: app_styles.kPrimaryColorLight,
+          dividerColor: app_styles.kDividerColor,
           textTheme: Theme.of(context).textTheme.apply(
-              displayColor: const Color(0xFF212121),
-              decorationColor: const Color(0xFF757575))),
+              displayColor: app_styles.kPrimaryText,
+              decorationColor: app_styles.kSecondaryText)),
       builder: (context, child) => ProviderNode(
             providers: providers,
             child: child,
