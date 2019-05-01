@@ -10,6 +10,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
 import 'package:provide/provide.dart';
 import 'package:share/share.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -17,83 +18,74 @@ import 'package:webview_flutter/webview_flutter.dart';
 class ComicPage extends StatelessWidget {
   final pageTextController = TextEditingController();
 
+  ComicPageViewModel _viewModel;
+
   @override
-  Widget build(BuildContext context) => Scaffold(
-        // When keyboard appears it is breaks layout if it is not scrollable.
-        // This property helps to appear the keyboard above the screen.
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          title:
-              Text(ComicPageViewModelWidget.of(context).viewModel.comic.name),
-          actions: <Widget>[
-            IconButton(
-              padding: const EdgeInsets.all(8),
-              icon: const Icon(Icons.input),
-              onPressed: () {
-                pageTextController.text = ComicPageViewModelWidget.of(context)
-                    .viewModel
-                    .currentStripId;
-                final allStrips = ComicPageViewModelWidget.of(context)
-                    .viewModel
-                    .stripIds
-                    .length;
-                final onGoToPage =
-                    ComicPageViewModelWidget.of(context).viewModel.onGoToPage;
-                showDialog(
-                    context: context,
-                    barrierDismissible: true,
-                    builder: (context) =>
-                        _showGoToPageDialog(context, allStrips, onGoToPage));
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.share),
-              onPressed: () {
-                Share.share(ComicPageViewModelWidget.of(context)
-                    .viewModel
-                    .currentStrip
-                    .shareUrl
-                    .toString());
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: () {
-                ComicPageViewModelWidget.of(context)
-                    .viewModel
-                    .onRefreshStrip
-                    .add(null);
-              },
-            ),
-            /*IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () {
-                showModalBottomSheet(
-                    context: context, builder: (context) => _buildComicInfo());
-              },
-            )*/
-          ],
-        ),
-        // Get a list of stripsId
-        body: FutureBuilder<Iterable<String>>(
-          future: Provide.value<ComicslateClient>(context)
-              .getStoryStripsList(
-                  ComicPageViewModelWidget.of(context).viewModel.comic)
-              .first,
-          builder: (context, stripListSnapshot) {
-            if (stripListSnapshot.hasData) {
-              // Load image
-              ComicPageViewModelWidget.of(context).viewModel.stripIds =
-                  stripListSnapshot.data.toList();
-              return StripPage(
-                viewModel: ComicPageViewModelWidget.of(context).viewModel,
-              );
-            } else {
-              return Center(child: const CircularProgressIndicator());
-            }
-          },
-        ),
-      );
+  Widget build(BuildContext context) {
+    _viewModel = ComicPageViewModelWidget.of(context).viewModel;
+    return Scaffold(
+      // When keyboard appears it is breaks layout if it is not scrollable.
+      // This property helps to appear the keyboard above the screen.
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        title: Text(_viewModel.comic.name),
+        actions: <Widget>[
+          IconButton(
+            padding: const EdgeInsets.all(8),
+            icon: const Icon(Icons.input),
+            onPressed: () {
+              pageTextController.text = _viewModel.currentStripId;
+              final allStrips = _viewModel.stripIds.length;
+              final onGoToPage = _viewModel.onGoToPage;
+              showDialog(
+                  context: context,
+                  barrierDismissible: true,
+                  builder: (context) =>
+                      _showGoToPageDialog(context, allStrips, onGoToPage));
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: () {
+              Share.share(_viewModel.currentStrip.shareUrl.toString());
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              _viewModel.onRefreshStrip.add(null);
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              showModalBottomSheet<void>(
+                  context: context, builder: (context) => _buildComicInfo());
+            },
+          )
+        ],
+      ),
+      // Get a list of stripsId
+      body: FutureBuilder<Iterable<String>>(
+        future: Provide.value<ComicslateClient>(context)
+            .getStoryStripsList(
+                ComicPageViewModelWidget.of(context).viewModel.comic)
+            .first,
+        builder: (context, stripListSnapshot) {
+          if (stripListSnapshot.hasData) {
+            // Load image
+            ComicPageViewModelWidget.of(context).viewModel.stripIds =
+                stripListSnapshot.data.toList();
+            return StripPage(
+              viewModel: ComicPageViewModelWidget.of(context).viewModel,
+            );
+          } else {
+            return Center(child: const CircularProgressIndicator());
+          }
+        },
+      ),
+    );
+  }
 
   Widget _showGoToPageDialog(
       BuildContext context, int allStrips, Sink onGoToPage) {
@@ -143,13 +135,13 @@ class ComicPage extends StatelessWidget {
     );
   }
 
-  /*Widget _buildComicInfo() => Padding(
+  Widget _buildComicInfo() => Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              'Автор:  ${_viewModel.currentStrip.author}',
+              'Автор: ${_viewModel.currentStrip.author}',
               style: TextStyle(fontSize: 20),
             ),
             Container(
@@ -157,13 +149,12 @@ class ComicPage extends StatelessWidget {
             ),
             Text(
               'Дата последнего изменения:  '
-              '${DateFormat.yMMMd().add_jm()
-              .format(_viewModel.currentStrip.lastModified)}',
+              '${DateFormat.yMMMd().add_jm().format(_viewModel.currentStrip.lastModified)}',
               style: TextStyle(fontSize: 20),
             ),
           ],
         ),
-      );*/
+      );
 }
 
 class StripPage extends StatefulWidget {
