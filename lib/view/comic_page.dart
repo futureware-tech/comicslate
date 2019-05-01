@@ -16,7 +16,7 @@ import 'package:share/share.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class ComicPage extends StatelessWidget {
-  final pageTextController = TextEditingController();
+  final _pageTextController = TextEditingController();
 
   ComicPageViewModel _viewModel;
 
@@ -34,7 +34,7 @@ class ComicPage extends StatelessWidget {
             padding: const EdgeInsets.all(8),
             icon: const Icon(Icons.input),
             onPressed: () {
-              pageTextController.text = _viewModel.currentStripId;
+              _pageTextController.text = _viewModel.currentStripId;
               final allStrips = _viewModel.stripIds.length;
               final onGoToPage = _viewModel.onGoToPage;
               showDialog(
@@ -101,7 +101,7 @@ class ComicPage extends StatelessWidget {
             height: 60,
             child: TextField(
               focusNode: focusNode,
-              controller: pageTextController,
+              controller: _pageTextController,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
               ),
@@ -127,7 +127,7 @@ class ComicPage extends StatelessWidget {
             style: TextStyle(color: Theme.of(context).primaryColor),
           ),
           onPressed: () {
-            onGoToPage.add(pageTextController.text);
+            onGoToPage.add(_pageTextController.text);
             Navigator.of(context).pop();
           },
         ),
