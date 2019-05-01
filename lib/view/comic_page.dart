@@ -15,6 +15,8 @@ import 'package:provide/provide.dart';
 import 'package:share/share.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+enum StripAction { refresh, about }
+
 class ComicPage extends StatelessWidget {
   final _pageTextController = TextEditingController();
 
@@ -50,19 +52,30 @@ class ComicPage extends StatelessWidget {
               Share.share(_viewModel.currentStrip.shareUrl.toString());
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              _viewModel.onRefreshStrip.add(null);
+          PopupMenuButton<StripAction>(
+            onSelected: (action) {
+              switch (action) {
+                case StripAction.refresh:
+                  _viewModel.onRefreshStrip.add(null);
+                  break;
+                case StripAction.about:
+                  showModalBottomSheet<void>(
+                      context: context,
+                      builder: (context) => _buildComicInfo());
+                  break;
+              }
             },
+            itemBuilder: (context) => <PopupMenuEntry<StripAction>>[
+                  const PopupMenuItem<StripAction>(
+                    value: StripAction.refresh,
+                    child: Text('Обновить'),
+                  ),
+                  const PopupMenuItem<StripAction>(
+                    value: StripAction.about,
+                    child: Text('О стрипе'),
+                  ),
+                ],
           ),
-          IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () {
-              showModalBottomSheet<void>(
-                  context: context, builder: (context) => _buildComicInfo());
-            },
-          )
         ],
       ),
       // Get a list of stripsId
@@ -149,7 +162,7 @@ class ComicPage extends StatelessWidget {
             ),
             Text(
               'Дата последнего изменения:  '
-              '${DateFormat.yMMMd().add_jm().format(_viewModel.currentStrip.lastModified)}',
+              '${DateFormat.yMMMd().add_jm().format(_viewModel.currentStrip.lastModified.toLocal())}',
               style: TextStyle(fontSize: 20),
             ),
           ],
