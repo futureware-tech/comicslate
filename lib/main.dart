@@ -8,6 +8,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:provide/provide.dart';
@@ -52,6 +53,8 @@ class MyApp extends StatelessWidget {
                 decorationColor: app_styles.kSecondaryText)),
         home: ComicList(),
         localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
           AppLocalizationsDelegate(),
         ],
         supportedLocales: const [
