@@ -1,7 +1,11 @@
 name: comicslate
-description: A new Flutter project.
+description: Official client application for https://comicslate.org/
 
-version: 1.0.3+4
+# Version information is set by Fastlane when building:
+# $ flutter build --build-name=... --build-number=...
+# We set a default here for debugging purposes because debug binary is not
+# usually built via Fastlane.
+version: 1.0.0+1
 
 environment:
   sdk: ">=2.1.0 <3.0.0"

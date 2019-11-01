@@ -44,8 +44,8 @@ android {
             // have to provide a default value.
             storeFile file(System.getenv('ANDROID_KEYSTORE_PATH') ?: 'release.keystore')
             keyAlias 'upload'
-            storePassword System.getenv('ANDROID_KEYSTORE_PASSWORD')
-            keyPassword System.getenv('ANDROID_KEYSTORE_KEY_PASSWORD')
+            storePassword 'upload'
+            keyPassword 'upload'
         }
     }
 
