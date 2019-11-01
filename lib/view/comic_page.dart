@@ -20,25 +20,23 @@ enum StripAction { refresh, about }
 class ComicPage extends StatelessWidget {
   final _pageTextController = TextEditingController();
 
-  ComicPageViewModel _viewModel;
-
   @override
   Widget build(BuildContext context) {
-    _viewModel = ComicPageViewModelWidget.of(context).viewModel;
+    final viewModel = ComicPageViewModelWidget.of(context).viewModel;
     return Scaffold(
       // When keyboard appears it is breaks layout if it is not scrollable.
       // This property helps to appear the keyboard above the screen.
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text(_viewModel.comic.name),
+        title: Text(viewModel.comic.name),
         actions: <Widget>[
           IconButton(
             padding: const EdgeInsets.all(8),
             icon: const Icon(Icons.input),
             onPressed: () {
-              _pageTextController.text = _viewModel.currentStripId;
-              final allStrips = _viewModel.stripIds.length;
-              final onGoToPage = _viewModel.onGoToPage;
+              _pageTextController.text = viewModel.currentStripId;
+              final allStrips = viewModel.stripIds.length;
+              final onGoToPage = viewModel.onGoToPage;
               showDialog(
                   context: context,
                   barrierDismissible: true,
@@ -49,19 +47,19 @@ class ComicPage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.share),
             onPressed: () {
-              Share.share(_viewModel.currentStrip.shareUrl.toString());
+              Share.share(viewModel.currentStrip.shareUrl.toString());
             },
           ),
           PopupMenuButton<StripAction>(
             onSelected: (action) {
               switch (action) {
                 case StripAction.refresh:
-                  _viewModel.onRefreshStrip.add(null);
+                  viewModel.onRefreshStrip.add(null);
                   break;
                 case StripAction.about:
                   showModalBottomSheet<void>(
                       context: context,
-                      builder: (context) => _buildComicInfo());
+                      builder: (context) => _buildComicInfo(viewModel));
                   break;
               }
             },
@@ -148,17 +146,17 @@ class ComicPage extends StatelessWidget {
     );
   }
 
-  Widget _buildComicInfo() {
+  Widget _buildComicInfo(ComicPageViewModel viewModel) {
     final lastModifiedString = DateFormat.yMMMd()
         .add_jm()
-        .format(_viewModel.currentStrip.lastModified.toLocal());
+        .format(viewModel.currentStrip.lastModified.toLocal());
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            'Автор: ${_viewModel.currentStrip.author}',
+            'Автор: ${viewModel.currentStrip.author}',
             style: const TextStyle(fontSize: 20),
           ),
           Container(
