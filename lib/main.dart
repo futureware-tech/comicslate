@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:comicslate/flutter/styles.dart' as app_styles;
@@ -14,26 +15,33 @@ import 'package:intl/intl.dart';
 import 'package:provide/provide.dart';
 
 void main() {
-  Crashlytics.instance.enableInDevMode = true;
-  FlutterError.onError = Crashlytics.instance.recordFlutterError;
+  runZoned<Future>(() async {
+    // This is necessary to initialize Flutter method channels so that
+    // Crashlytics can call into the native code. It also must be in the same
+    // zone as the app: https://github.com/flutter/flutter/issues/42682.
+    WidgetsFlutterBinding.ensureInitialized();
 
-  // The class that contains all the providers. This shouldn't change after
-  // being used.
-  //
-  // In this case, the ComicslateClient gets instantiated
-  // the first time someone uses it, and lives as a singleton after that.
-  final providers = Providers()
-    ..provide(Provider.value(ComicslateClient(
-      language: 'ru',
-      offlineStorage: FlutterCachingAPIClient(
-          cacheName: 'comicslate-client-json',
-          responseParser: (js) => json.decode(utf8.decode(js))),
-      prefetchCache: FlutterCachingAPIClient(
-          cacheName: 'comicslate-client-images',
-          responseParser: (bytes) => bytes),
-    )));
+    Crashlytics.instance.enableInDevMode = true;
+    FlutterError.onError = Crashlytics.instance.recordFlutterError;
 
-  runApp(ProviderNode(providers: providers, child: MyApp()));
+    // The class that contains all the providers. This shouldn't change after
+    // being used.
+    //
+    // In this case, the ComicslateClient gets instantiated
+    // the first time someone uses it, and lives as a singleton after that.
+    final providers = Providers()
+      ..provide(Provider.value(ComicslateClient(
+        language: 'ru',
+        offlineStorage: FlutterCachingAPIClient(
+            cacheName: 'comicslate-client-json',
+            responseParser: (js) => json.decode(utf8.decode(js))),
+        prefetchCache: FlutterCachingAPIClient(
+            cacheName: 'comicslate-client-images',
+            responseParser: (bytes) => bytes),
+      )));
+
+    runApp(ProviderNode(providers: providers, child: MyApp()));
+  }, onError: Crashlytics.instance.recordError);
 }
 
 class MyApp extends StatelessWidget {
