@@ -1,0 +1,80 @@
+name: flutter
+
+on: [create, push, pull_request]
+
+jobs:
+  build:
+    # Run only on tags, PRs or pushes to master.
+    if: >
+      github.base_ref ||
+      startsWith(github.ref, 'refs/tags/') ||
+      github.ref == 'refs/heads/master'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macOS-latest, ubuntu-latest, windows-latest]
+        include:
+          - os: macOS-latest
+            platform: ios
+            app_artifact_path: "build/ios/iphoneos/Runner.app"
+          - os: windows-latest
+            platform: android
+            app_artifact_path: "build/app/outputs/apk/debug/app-debug.apk"
+          - os: ubuntu-latest
+            platform: android
+            app_artifact_path: "build/app/outputs/apk/debug/app-debug.apk"
+    env:
+      GRADLE_OPTS: -Dorg.gradle.daemon=false
+      FLUTTER_SDK_ROOT: /tmp/flutter
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: "Support >260 characters long paths in Git repositories (Windows)"
+        run: git config --global core.longpaths true
+      - uses: actions/checkout@v1
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 2.5
+      - name: "Install fastlane"
+        run: |
+          gem install bundler --no-doc
+          bundle install --clean --deployment
+      - name: "Install dependencies"
+        run: |
+          bundle exec fastlane install_dependencies
+      - name: "Add Flutter to PATH environment variable (GitHub Actions)"
+        shell: pwsh
+        run: echo "::add-path::${env:FLUTTER_SDK_ROOT}/bin"
+
+      - name: "Generate and lint"
+        run: |
+          bundle exec fastlane generate
+          bundle exec fastlane lint
+
+      - name: "Run unit tests"
+        run: flutter test --coverage
+      - name: "Workaround for fastlane & Dart generating files with LF"
+        if: startsWith(matrix.os, 'windows')
+        run: git add .
+      - name: "Check that all files were properly formatted and generated"
+        run: bundle exec fastlane run ensure_git_status_clean show_diff:true
+
+      - uses: actions/setup-java@v1
+        if: matrix.platform == 'android'
+        with:
+          java-version: 1.8
+      - run: bundle exec fastlane ${{ matrix.platform }} build
+      - name: "Check that no source files were modified during build"
+        run: bundle exec fastlane run ensure_git_status_clean show_diff:true
+
+      - name: "Upload application artifacts"
+        uses: actions/upload-artifact@v1
+        if: always()
+        with:
+          name: "flutter app (${{ matrix.os }})"
+          path: ${{ matrix.app_artifact_path }}
+      - name: "Upload Pubspec.lock for updating when not having a Mac"
+        uses: actions/upload-artifact@v1
+        if: always() && matrix.platform == 'ios'
+        with:
+          name: Podfile.lock
+          path: ios/Podfile.lock
