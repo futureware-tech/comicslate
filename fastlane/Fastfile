@@ -21,10 +21,7 @@ before_all do |lane|
       merge_commit_filtering: 'only_include_merges',
     ).lines.count
 
-    lane_context[SharedValues::BUILD_NUMBER] = is_ci ?
-      Integer(cirrus_ci_build_number) :
-      number_of_commits
-
+    lane_context[SharedValues::BUILD_NUMBER] = number_of_commits
     lane_context[SharedValues::VERSION_NUMBER] = '%s.%d' % [
         # First 2 digits of version number are taken from tag (ex.: "2.1").
         last_git_tag,
