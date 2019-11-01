@@ -15,7 +15,7 @@ class _$ComicStripSerializer implements StructuredSerializer<ComicStrip> {
   final String wireName = 'ComicStrip';
 
   @override
-  Iterable serialize(Serializers serializers, ComicStrip object,
+  Iterable<Object> serialize(Serializers serializers, ComicStrip object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[
       'displayUrl',
@@ -61,12 +61,11 @@ class _$ComicStripSerializer implements StructuredSerializer<ComicStrip> {
         ..add(serializers.serialize(object.imageBytes,
             specifiedType: const FullType(Uint8List)));
     }
-
     return result;
   }
 
   @override
-  ComicStrip deserialize(Serializers serializers, Iterable serialized,
+  ComicStrip deserialize(Serializers serializers, Iterable<Object> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new ComicStripBuilder();
 
