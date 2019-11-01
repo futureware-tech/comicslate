@@ -15,7 +15,7 @@ import 'package:provide/provide.dart';
 
 void main() {
   Crashlytics.instance.enableInDevMode = true;
-  FlutterError.onError = Crashlytics.instance.onError;
+  FlutterError.onError = Crashlytics.instance.recordFlutterError;
 
   // The class that contains all the providers. This shouldn't change after
   // being used.

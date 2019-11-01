@@ -76,7 +76,7 @@ class _$ComicSerializer implements StructuredSerializer<Comic> {
   final String wireName = 'Comic';
 
   @override
-  Iterable serialize(Serializers serializers, Comic object,
+  Iterable<Object> serialize(Serializers serializers, Comic object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[
       'id',
@@ -115,12 +115,11 @@ class _$ComicSerializer implements StructuredSerializer<Comic> {
         ..add(serializers.serialize(object.ratingColor,
             specifiedType: const FullType(ComicRatingColor)));
     }
-
     return result;
   }
 
   @override
-  Comic deserialize(Serializers serializers, Iterable serialized,
+  Comic deserialize(Serializers serializers, Iterable<Object> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new ComicBuilder();
 

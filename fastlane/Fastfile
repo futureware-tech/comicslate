@@ -1,0 +1,145 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:android)
+
+before_all do |lane|
+  if [:build, :publish].include?(lane)
+    commits_since_last_tag = changelog_from_git_commits(
+      quiet: true,
+      # One line per commit, which allows us to easily count them.
+      pretty: 'oneline',
+      # We push to "master" only when merging a PR, so increment with each merge.
+      merge_commit_filtering: 'only_include_merges',
+    ).lines.count
+
+    lane_context[SharedValues::BUILD_NUMBER] = is_ci ?
+      Integer(cirrus_ci_build_number) :
+      number_of_commits
+
+    lane_context[SharedValues::VERSION_NUMBER] = '%s.%d' % [
+        # First 2 digits of version number are taken from tag (ex.: "2.1").
+        last_git_tag,
+        # Add the number of commits afterwards, multiplied by 10 to allow room
+        # for manual testing of CI/CD, if necessary.
+        commits_since_last_tag * 10,
+    ]
+  end
+end
+
+desc 'Install or upgrade Flutter and Android SDK licenses'
+lane :install_dependencies do
+  bootstrap_options = {
+    flutter_channel: 'beta',
+  }
+
+  if ENV.key?('ANDROID_SDK_ROOT')
+    # License hashes. These are NOT secret!
+    # Copy them from $ANDROID_SDK_ROOT/licenses/ directory for the license
+    # agreements you accept.
+    bootstrap_options[:android_licenses] = {
+      'android-sdk-license' => '24333f8a63b6825ea9c5514f83c2829b004d1fee',
+    }
+  end
+
+  flutter_bootstrap(bootstrap_options)
+end
+
+desc 'Generate files for built_value and format all files'
+lane :generate do
+  flutter_generate
+  flutter(args: %w(format .))
+end
+
+desc 'Run static analysis on Flutter files'
+lane :lint do
+  flutter(args: %w(analyze))
+end
+
+platform :android do
+  desc 'Build a debug APK'
+  lane :build do
+    flutter_build(debug: true)
+  end
+
+  desc 'Build a release AAB and publish it (including Store artifacts).'
+  desc 'Set "release" lane key to non-empty value to upload to "alpha" track.'
+  lane :publish do |options|
+    aab = flutter_build(build: 'appbundle')
+    supply(
+      track: options[:release].to_s.empty? ? 'internal' : 'alpha',
+      aab: aab,
+    )
+  end
+end
+
+platform :ios do
+  desc 'Build a debug iOS package'
+  lane :build do
+    flutter_build(
+      debug: true,
+      codesign: false,
+    )
+  end
+
+  desc 'Build a release iOS package and publish it (including Store artifacts).'
+  desc 'Set "release" lane key to non-empty value to upload metadata.'
+  lane :publish do |options|
+    # Set up OS X keychain and switch match to readonly model. This command has
+    # no effect outside CI.
+    setup_travis
+
+    app_identifier = 'org.dasfoo.comicslate'
+
+    match(
+      type: 'appstore',
+      app_identifier: app_identifier,
+    )
+    # Perform an (otherwise unnecessary) build to:
+    # - add version
+    # - switch to release mode
+    flutter_build
+    gym(silent: true, suppress_xcode_output: true)
+
+    upload_to_testflight(
+      distribute_external: true,
+      groups: ['fastlane_testers'],
+    )
+
+    unless options[:release].to_s.empty?
+      upload_to_app_store(
+        app_identifier: app_identifier,
+        overwrite_screenshots: true,
+        submit_for_review: true,
+        submission_information: {
+          add_id_info_uses_idfa: false,
+        },
+
+        # Skip the HTML report file verification.
+        force: true,
+
+        # Binary is already uploaded by upload_to_testflight, just use it.
+        skip_binary_upload: true,
+        build_number: lane_context[SharedValues::BUILD_NUMBER].to_s,
+
+        # Override because defaults make directory layout messy.
+        # Default is: "screenshots".
+        screenshots_path: File.join(Dir.pwd, 'metadata/ios/screenshots'),
+        # Default is: "metadata". Also have to bury it into additional directory
+        # because storing metadata in "metadata/ios" complains about
+        # unrecognized subdirectory "screenshots".
+        metadata_path: File.join(Dir.pwd, 'metadata/ios/metadata'),
+      )
+    end
+  end
+end
+
+# vim: ft=ruby
