@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class ComicPageViewModelWidget extends InheritedWidget {
   final ComicPageViewModel viewModel;
 
-  ComicPageViewModelWidget({
+  const ComicPageViewModelWidget({
     @required this.viewModel,
     @required Widget child,
   })  : assert(viewModel != null),

@@ -29,20 +29,18 @@ class _ComicslateTitleWidget extends StatelessWidget {
 }
 
 class ComicList extends StatelessWidget {
-  // TODO(ksheremet): Create Inherited widget for bloc. Consider to try
-  // ScopedModel, Provide
-  ComicListBloc _bloc;
-
   @override
   Widget build(BuildContext context) {
-    _bloc = ComicListBloc(Provide.value<ComicslateClient>(context));
+    // TODO(ksheremet): Create Inherited widget for bloc. Consider to try
+    // ScopedModel, Provide
+    final bloc = ComicListBloc(Provide.value<ComicslateClient>(context));
     return Scaffold(
       appBar: SearchBarWidget(
           title: _ComicslateTitleWidget(),
           search: (text) {
-            _bloc.onComicSearch.add(text);
+            bloc.onComicSearch.add(text);
           }),
-      body: _ComicListBody(bloc: _bloc),
+      body: _ComicListBody(bloc: bloc),
       drawer: NavigationDrawer(),
       //drawer: NavigationDrawer(),
     );
@@ -52,7 +50,7 @@ class ComicList extends StatelessWidget {
 class _ComicListBody extends StatefulWidget {
   final ComicListBloc bloc;
 
-  _ComicListBody({@required this.bloc}) : assert(bloc != null);
+  const _ComicListBody({@required this.bloc}) : assert(bloc != null);
 
   @override
   _ComicListBodyState createState() => _ComicListBodyState();
@@ -74,8 +72,8 @@ class _ComicListBodyState extends State<_ComicListBody> {
                 });
               },
               child: snapshot.data.isEmpty
-                  ? Center(
-                      child: const Text('Нет комиксов во Вашему запросу'),
+                  ? const Center(
+                      child: Text('Нет комиксов во Вашему запросу'),
                     )
                   : CustomScrollView(
                       primary: true,
@@ -83,8 +81,8 @@ class _ComicListBodyState extends State<_ComicListBody> {
                     ),
             );
           } else {
-            return Center(
-              child: const CircularProgressIndicator(),
+            return const Center(
+              child: CircularProgressIndicator(),
             );
           }
         },
@@ -101,7 +99,7 @@ class _ComicListBodyState extends State<_ComicListBody> {
             child: ListTile(
               title: Text(
                 category,
-                style: TextStyle(fontSize: 20),
+                style: const TextStyle(fontSize: 20),
               ),
             ),
           ),

@@ -53,7 +53,7 @@ class DeviceInfo {
             'Hardware Type': iosInfo.utsname.machine,
           });
         }
-      } catch (e, stackTrace) {
+      } catch (e) {
         // TODO(ksheremet): Report error
         print(e);
       }

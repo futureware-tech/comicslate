@@ -66,15 +66,15 @@ class ComicPage extends StatelessWidget {
               }
             },
             itemBuilder: (context) => <PopupMenuEntry<StripAction>>[
-                  const PopupMenuItem<StripAction>(
-                    value: StripAction.refresh,
-                    child: Text('Обновить'),
-                  ),
-                  const PopupMenuItem<StripAction>(
-                    value: StripAction.about,
-                    child: Text('О стрипе'),
-                  ),
-                ],
+              const PopupMenuItem<StripAction>(
+                value: StripAction.refresh,
+                child: Text('Обновить'),
+              ),
+              const PopupMenuItem<StripAction>(
+                value: StripAction.about,
+                child: Text('О стрипе'),
+              ),
+            ],
           ),
         ],
       ),
@@ -93,7 +93,7 @@ class ComicPage extends StatelessWidget {
               viewModel: ComicPageViewModelWidget.of(context).viewModel,
             );
           } else {
-            return Center(child: const CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
         },
       ),
@@ -115,7 +115,7 @@ class ComicPage extends StatelessWidget {
             child: TextField(
               focusNode: focusNode,
               controller: _pageTextController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
               ),
               onSubmitted: (page) {
@@ -148,32 +148,36 @@ class ComicPage extends StatelessWidget {
     );
   }
 
-  Widget _buildComicInfo() => Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              'Автор: ${_viewModel.currentStrip.author}',
-              style: TextStyle(fontSize: 20),
-            ),
-            Container(
-              height: 10,
-            ),
-            Text(
-              'Дата последнего изменения:  '
-              '${DateFormat.yMMMd().add_jm().format(_viewModel.currentStrip.lastModified.toLocal())}',
-              style: TextStyle(fontSize: 20),
-            ),
-          ],
-        ),
-      );
+  Widget _buildComicInfo() {
+    final lastModifiedString = DateFormat.yMMMd()
+        .add_jm()
+        .format(_viewModel.currentStrip.lastModified.toLocal());
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            'Автор: ${_viewModel.currentStrip.author}',
+            style: const TextStyle(fontSize: 20),
+          ),
+          Container(
+            height: 10,
+          ),
+          Text(
+            'Дата последнего изменения: $lastModifiedString',
+            style: const TextStyle(fontSize: 20),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class StripPage extends StatefulWidget {
   final ComicPageViewModel viewModel;
 
-  StripPage({@required this.viewModel}) : assert(viewModel != null);
+  const StripPage({@required this.viewModel}) : assert(viewModel != null);
 
   @override
   _StripPageState createState() => _StripPageState();
@@ -245,7 +249,7 @@ class _StripPageState extends State<StripPage> {
                         );
                       }
                     } else {
-                      return Center(child: const CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator());
                     }
                   }),
               onPageChanged: (index) {
@@ -269,7 +273,7 @@ class _StripPageState extends State<StripPage> {
     final image = MemoryImage(imageBytes);
     image
         .resolve(createLocalImageConfiguration(context))
-        .addListener((imageInfo, error) {
+        .addListener(ImageStreamListener((imageInfo, synchronousCall) {
       _isOrientationSetup = true;
       if (imageInfo.image.width > imageInfo.image.height) {
         SystemChrome.setPreferredOrientations([
@@ -280,7 +284,7 @@ class _StripPageState extends State<StripPage> {
         SystemChrome.setPreferredOrientations(
             [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
       }
-    });
+    }));
   }
 
   @override
