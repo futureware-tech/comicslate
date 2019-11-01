@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>950375134756-0s4qa2tqvsc1n6lvtbhglqqojrsjj6cf.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.950375134756-0s4qa2tqvsc1n6lvtbhglqqojrsjj6cf</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBTQ6QzBRwSieIMtYeSvdJ-BbvG4_s2Tjk</string>
+	<key>GCM_SENDER_ID</key>
+	<string>950375134756</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>org.dasfoo.comicslate</string>
+	<key>PROJECT_ID</key>
+	<string>comicslate-prod</string>
+	<key>STORAGE_BUCKET</key>
+	<string>comicslate-prod.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:950375134756:ios:6bb29ebe39e93d78</string>
+	<key>DATABASE_URL</key>
+	<string>https://comicslate-prod.firebaseio.com</string>
+</dict>
+</plist>
