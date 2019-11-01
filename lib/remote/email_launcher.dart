@@ -53,7 +53,7 @@ Future<void> launchEmail(BuildContext context) async {
       return;
     }
     await launch(mailUrl, forceSafariVC: false);
-  } catch (e, stackTrace) {
+  } catch (e) {
     // TODO(ksheremet): Show error to user that app is not installed
     print(e);
   }
@@ -62,7 +62,7 @@ Future<void> launchEmail(BuildContext context) async {
 Future<void> launchUrl(BuildContext context, String url) async {
   try {
     await launch(url, forceSafariVC: false);
-  } catch (e, stackTrace) {
+  } catch (e) {
     // TODO(ksheremet): Show error to user that app is not installed
     print(e);
   }

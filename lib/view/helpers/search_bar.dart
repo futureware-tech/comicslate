@@ -53,14 +53,14 @@ class SearchBarWidgetState extends State<SearchBarWidget> {
       appBarTitle = TextField(
         autofocus: true,
         controller: _searchController,
-        style: TextStyle(
+        style: const TextStyle(
           color: Colors.white,
           fontSize: 19,
         ),
         decoration: InputDecoration(
             border: InputBorder.none,
             hintText: 'Поиск ...',
-            hintStyle: TextStyle(
+            hintStyle: const TextStyle(
               color: Colors.white,
               fontSize: 19,
             )),

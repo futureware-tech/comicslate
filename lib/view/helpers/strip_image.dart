@@ -4,7 +4,7 @@ import 'package:flutter_advanced_networkimage/zoomable.dart';
 
 class StripImage extends StatelessWidget {
   final ComicPageViewModel viewModel;
-  StripImage({@required this.viewModel}) : assert(viewModel != null);
+  const StripImage({@required this.viewModel}) : assert(viewModel != null);
 
   @override
   Widget build(BuildContext context) {
