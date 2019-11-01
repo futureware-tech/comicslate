@@ -39,3 +39,8 @@ lib/generated_plugin_registrant.dart
 /fastlane/report.xml
 # Output from "builders:" in pubspec.yaml.
 /.packages.generated
+# Bundler files.
+/.bundle
+/vendor
+# Dart coverage.
+/coverage
