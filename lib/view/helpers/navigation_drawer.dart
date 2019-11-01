@@ -44,12 +44,12 @@ class NavigationDrawer extends StatelessWidget {
             FutureBuilder<String>(
               future: _getAppVersion(),
               builder: (context, snapshot) => AboutListTile(
-                    icon: const Icon(Icons.perm_device_information),
-                    child: const Text('О приложении'),
-                    applicationIcon: Image.asset('images/favicon.webp'),
-                    applicationVersion: snapshot.hasData ? snapshot.data : null,
-                    applicationLegalese: 'MIT License',
-                  ),
+                icon: const Icon(Icons.perm_device_information),
+                child: const Text('О приложении'),
+                applicationIcon: Image.asset('images/favicon.webp'),
+                applicationVersion: snapshot.hasData ? snapshot.data : null,
+                applicationLegalese: 'MIT License',
+              ),
             ),
           ],
         ),
