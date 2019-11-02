@@ -40,11 +40,7 @@ jobs:
           gem install bundler --no-doc
           bundle install --clean --deployment
       - name: "Install dependencies"
-        run: |
-          bundle exec fastlane install_dependencies
-      - name: "Add Flutter to PATH environment variable (GitHub Actions)"
-        shell: pwsh
-        run: echo "::add-path::${env:FLUTTER_SDK_ROOT}/bin"
+        run: bundle exec fastlane install_dependencies
 
       - name: "Generate and lint"
         run: |
@@ -52,7 +48,7 @@ jobs:
           bundle exec fastlane lint
 
       - name: "Run unit tests"
-        run: flutter test --coverage
+        run: bundle exec fastlane run flutter args:test,--coverage
       - name: "Workaround for fastlane & Dart generating files with LF"
         if: startsWith(matrix.os, 'windows')
         run: git add .
@@ -99,6 +95,7 @@ jobs:
             platform: android
     env:
       SUPPLY_JSON_KEY: /tmp/gcloud-service-account.json
+      GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-service-account.json
       ANDROID_KEYSTORE_PATH: /tmp/upload.keystore
 
       MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
@@ -116,21 +113,23 @@ jobs:
           gem install bundler --no-doc
           bundle install --clean --deployment
       - name: "Install dependencies"
-        run: |
-          bundle exec fastlane install_dependencies
-      - name: "Add Flutter to PATH environment variable (GitHub Actions)"
-        shell: pwsh
-        run: echo "::add-path::${env:FLUTTER_SDK_ROOT}/bin"
+        run: bundle exec fastlane install_dependencies
 
       - uses: actions/setup-java@v1
         with:
           java-version: 1.8
         if: matrix.platform == 'android'
       - run: >
-          echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_DATA }}' >
-          "${SUPPLY_JSON_KEY?}"
-
           echo '${{ secrets.ANDROID_KEYSTORE_DATA }}' | base64 -d >
           "${ANDROID_KEYSTORE_PATH?}"
         if: matrix.platform == 'android'
+
+      - run: >
+          echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_DATA }}' >
+          "${GOOGLE_APPLICATION_CREDENTIALS?}"
+
+          git config --global
+          credential.https://source.developers.google.com.helper
+          gcloud.sh
+
       - run: bundle exec fastlane ${{ matrix.platform }} publish
