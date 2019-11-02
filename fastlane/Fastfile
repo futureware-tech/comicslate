@@ -93,9 +93,10 @@ platform :ios do
     # - add version
     # - switch to release mode
     flutter_build
-    Dir.chdir('ios') do
-      build_ios_app(silent: true, suppress_xcode_output: true)
-    end
+    build_ios_app(
+      silent: true,
+      suppress_xcode_output: true,
+    )
 
     upload_to_testflight(
       distribute_external: true,

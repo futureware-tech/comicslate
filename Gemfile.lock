@@ -109,7 +109,7 @@ GEM
       xcodeproj (>= 1.8.1, < 2.0.0)
       xcpretty (~> 0.3.0)
       xcpretty-travis-formatter (>= 0.0.3)
-    fastlane-plugin-flutter (0.3.11)
+    fastlane-plugin-flutter (0.3.13)
     fastlane-plugin-versioning (0.4.0)
     fourflusher (2.3.1)
     fuzzy_match (2.0.4)
