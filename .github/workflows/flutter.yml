@@ -98,6 +98,7 @@ jobs:
       GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-service-account.json
       ANDROID_KEYSTORE_PATH: /tmp/upload.keystore
 
+      CLOUDSDK_CORE_DISABLE_PROMPTS: 1
       MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
       FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
@@ -127,9 +128,15 @@ jobs:
       - run: >
           echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_DATA }}' >
           "${GOOGLE_APPLICATION_CREDENTIALS?}"
+      - name: "Install and configure GCloud to fetch 'fastlane match' repo"
+        run: >
+          curl -sSL https://sdk.cloud.google.com | bash
+
+          echo "::add-path::${HOME?}/google-cloud-sdk/bin"
 
           git config --global
           credential.https://source.developers.google.com.helper
           gcloud.sh
+        if: matrix.platform == 'ios'
 
       - run: bundle exec fastlane ${{ matrix.platform }} publish
