@@ -132,6 +132,9 @@ jobs:
         run: >
           curl -sSL https://sdk.cloud.google.com | bash
 
+          ${HOME?}/google-cloud-sdk/bin/gcloud auth activate-service-account
+          --key-file "${GOOGLE_APPLICATION_CREDENTIALS?}"
+
           echo "::add-path::${HOME?}/google-cloud-sdk/bin"
 
           git config --global
@@ -139,4 +142,6 @@ jobs:
           gcloud.sh
         if: matrix.platform == 'ios'
 
-      - run: bundle exec fastlane ${{ matrix.platform }} publish
+      - run: >
+          bundle exec fastlane ${{ matrix.platform }} publish
+          release:$(sed -n -e 's|^refs/tags/||p' <<<$GITHUB_REF)
