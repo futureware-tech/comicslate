@@ -142,4 +142,6 @@ jobs:
           gcloud.sh
         if: matrix.platform == 'ios'
 
-      - run: bundle exec fastlane ${{ matrix.platform }} publish
+      - run: >
+          bundle exec fastlane ${{ matrix.platform }} publish
+          release:$(sed -n -e 's|^refs/tags/||p' <<<$GITHUB_REF)
