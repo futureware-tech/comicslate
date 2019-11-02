@@ -1,14 +1,4 @@
-# This file contains the fastlane.tools configuration
-# You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
-
+APP_IDENTIFIER = 'org.dasfoo.comicslate'
 default_platform(:android)
 
 before_all do |lane|
@@ -71,8 +61,9 @@ platform :android do
   desc 'Set "release" lane key to non-empty value to upload to "alpha" track.'
   lane :publish do |options|
     aab = flutter_build(build: 'appbundle')
-    supply(
+    upload_to_play_store(
       track: options[:release].to_s.empty? ? 'internal' : 'alpha',
+      package_name: APP_IDENTIFIER,
       aab: aab,
     )
   end
@@ -94,17 +85,17 @@ platform :ios do
     # no effect outside CI.
     setup_travis
 
-    app_identifier = 'org.dasfoo.comicslate'
-
     match(
       type: 'appstore',
-      app_identifier: app_identifier,
+      app_identifier: APP_IDENTIFIER,
     )
     # Perform an (otherwise unnecessary) build to:
     # - add version
     # - switch to release mode
     flutter_build
-    gym(silent: true, suppress_xcode_output: true)
+    Dir.chdir('ios') do
+      build_ios_app(silent: true, suppress_xcode_output: true)
+    end
 
     upload_to_testflight(
       distribute_external: true,
@@ -113,7 +104,7 @@ platform :ios do
 
     unless options[:release].to_s.empty?
       upload_to_app_store(
-        app_identifier: app_identifier,
+        app_identifier: APP_IDENTIFIER,
         overwrite_screenshots: true,
         submit_for_review: true,
         submission_information: {

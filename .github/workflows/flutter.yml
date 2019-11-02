@@ -2,6 +2,10 @@ name: flutter
 
 on: [create, push, pull_request]
 
+env:
+  GRADLE_OPTS: -Dorg.gradle.daemon=false
+  FLUTTER_SDK_ROOT: /tmp/flutter
+
 jobs:
   build:
     # Run only on tags, PRs or pushes to master.
@@ -23,9 +27,6 @@ jobs:
           - os: ubuntu-latest
             platform: android
             app_artifact_path: "build/app/outputs/apk/debug/app-debug.apk"
-    env:
-      GRADLE_OPTS: -Dorg.gradle.daemon=false
-      FLUTTER_SDK_ROOT: /tmp/flutter
     runs-on: ${{ matrix.os }}
     steps:
       - name: "Support >260 characters long paths in Git repositories (Windows)"
@@ -87,12 +88,24 @@ jobs:
         github.ref == 'refs/heads/master'
       ) && github.repository == 'dasfoo/comicslate'
     needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macOS-latest, ubuntu-latest]
+        include:
+          - os: macOS-latest
+            platform: ios
+          - os: ubuntu-latest
+            platform: android
     env:
-      GRADLE_OPTS: -Dorg.gradle.daemon=false
-      FLUTTER_SDK_ROOT: /tmp/flutter
       SUPPLY_JSON_KEY: /tmp/gcloud-service-account.json
       ANDROID_KEYSTORE_PATH: /tmp/upload.keystore
-    runs-on: ubuntu-latest
+
+      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
+      FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-ruby@v1
@@ -112,10 +125,12 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 1.8
+        if: matrix.platform == 'android'
       - run: >
           echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_DATA }}' >
           "${SUPPLY_JSON_KEY?}"
 
           echo '${{ secrets.ANDROID_KEYSTORE_DATA }}' | base64 -d >
           "${ANDROID_KEYSTORE_PATH?}"
-      - run: bundle exec fastlane android publish
+        if: matrix.platform == 'android'
+      - run: bundle exec fastlane ${{ matrix.platform }} publish
