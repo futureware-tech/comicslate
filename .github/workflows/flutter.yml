@@ -1,6 +1,6 @@
 name: flutter
 
-on: [create, push, pull_request]
+on: [push, pull_request]
 
 env:
   GRADLE_OPTS: -Dorg.gradle.daemon=false
@@ -8,11 +8,10 @@ env:
 
 jobs:
   build:
-    # Run only on tags, PRs or pushes to master.
     if: >
-      github.base_ref ||
-      startsWith(github.ref, 'refs/tags/') ||
-      github.ref == 'refs/heads/master'
+      github.event_name == 'pull_request' ||
+      github.ref == 'refs/heads/master' ||
+      startsWith(github.ref, 'refs/tags/')
     strategy:
       fail-fast: false
       matrix:
@@ -77,13 +76,13 @@ jobs:
           path: ios/Podfile.lock
 
   publish:
-    # Build off tags (push, not create) and master, but not forks.
     if: >
+      github.repository == 'dasfoo/comicslate' &&
+      github.event_name == 'push' &&
       (
         startsWith(github.ref, 'refs/tags/') ||
         github.ref == 'refs/heads/master'
-      ) && github.repository == 'dasfoo/comicslate'
-      && github.event_name == 'push'
+      )
     needs: build
     strategy:
       fail-fast: false
