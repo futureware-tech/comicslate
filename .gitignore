@@ -44,3 +44,5 @@ lib/generated_plugin_registrant.dart
 /vendor
 # Dart coverage.
 /coverage
+# XCode settings.
+/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/
