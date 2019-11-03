@@ -1,7 +1,7 @@
 APP_IDENTIFIER = 'org.dasfoo.comicslate'
 default_platform(:android)
 
-before_all do |lane|
+before_all do |lane, options|
   if [:build, :publish].include?(lane)
     commits_since_last_tag = changelog_from_git_commits(
       quiet: true,
@@ -11,7 +11,13 @@ before_all do |lane|
       merge_commit_filtering: 'only_include_merges',
     ).lines.count
 
-    lane_context[SharedValues::BUILD_NUMBER] = number_of_commits
+    # Keep even numbers for internal releases, and odd numbers for public, to
+    # make sure they do not clash as the number of commits is usually the same.
+    lane_context[SharedValues::BUILD_NUMBER] = number_of_commits * 2
+    unless options[:release].to_s.empty?
+      lane_context[SharedValues::BUILD_NUMBER] += 1
+    end
+
     lane_context[SharedValues::VERSION_NUMBER] = '%s.%d' % [
         # First 2 digits of version number are taken from tag (ex.: "2.1").
         last_git_tag,
