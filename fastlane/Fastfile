@@ -114,6 +114,7 @@ platform :ios do
         app_identifier: APP_IDENTIFIER,
         overwrite_screenshots: true,
         submit_for_review: true,
+        reject_if_possible: true,
         submission_information: {
           add_id_info_uses_idfa: false,
         },
