@@ -51,10 +51,15 @@ class FlutterCachingAPIClient<T> extends BaseCacheManager
     bool allowFromCache = true,
     Map<String, String> headers,
   }) async* {
+    print('Downloading $url, allowFromCache: $allowFromCache');
     if (allowFromCache) {
       // TODO(dotdoom): handle HTTP error codes.
-      await for (final fileInfo in getFile(url.toString(), headers: headers)) {
-        yield responseParser(await fileInfo.file.readAsBytes());
+      await for (final fileInfo
+          in getFileStream(url.toString(), headers: headers)) {
+        if (fileInfo is FileInfo) {
+          print('>> [from:${fileInfo.source}] $url');
+          yield responseParser(await fileInfo.file.readAsBytes());
+        }
       }
     } else {
       yield responseParser(await (await downloadFile(url.toString(),

@@ -13,7 +13,10 @@ class ComicPageViewModel {
 
   ComicPageViewModel({@required this.comic}) : assert(comic != null) {
     _onGoToPageController.stream.listen((stripId) {
-      final page = stripIds.indexWhere((id) => id == stripId);
+      final intStripId = int.tryParse(stripId);
+      final page = stripIds.indexWhere((id) =>
+          id == stripId ||
+          (intStripId != null && int.tryParse(id) == intStripId));
       if (page != -1) {
         _doGoToPageController.add(page);
       } else {

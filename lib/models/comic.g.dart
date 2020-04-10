@@ -40,13 +40,13 @@ Serializer<Comic> _$comicSerializer = new _$ComicSerializer();
 
 class _$ComicRatingColorSerializer
     implements PrimitiveSerializer<ComicRatingColor> {
-  static const Map<String, String> _toWire = const <String, String>{
+  static const Map<String, Object> _toWire = const <String, Object>{
     'empty': 'PUST',
     'bronze': 'BRNZ',
     'silver': 'SILV',
     'gold': 'GOLD',
   };
-  static const Map<String, String> _fromWire = const <String, String>{
+  static const Map<Object, String> _fromWire = const <Object, String>{
     'PUST': 'empty',
     'BRNZ': 'bronze',
     'SILV': 'silver',

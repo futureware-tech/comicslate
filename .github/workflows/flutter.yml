@@ -10,7 +10,7 @@ on:
 
 env:
   GRADLE_OPTS: -Dorg.gradle.daemon=false
-  FLUTTER_SDK_ROOT: /tmp/flutter
+  FLUTTER_ROOT: /tmp/flutter
 
 jobs:
   build:
@@ -35,7 +35,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-ruby@v1
         with:
-          ruby-version: 2.5
+          ruby-version: 2.6
       - name: "Install fastlane"
         run: |
           gem install bundler --no-doc

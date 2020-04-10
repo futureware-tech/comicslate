@@ -13,6 +13,7 @@ import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:provide/provide.dart';
 import 'package:share/share.dart';
+import 'package:wakelock/wakelock.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 enum StripAction { refresh, about }
@@ -38,10 +39,11 @@ class ComicPage extends StatelessWidget {
               final allStrips = viewModel.stripIds.length;
               final onGoToPage = viewModel.onGoToPage;
               showDialog(
-                  context: context,
-                  barrierDismissible: true,
-                  builder: (context) =>
-                      _showGoToPageDialog(context, allStrips, onGoToPage));
+                context: context,
+                barrierDismissible: true,
+                builder: (context) =>
+                    _showGoToPageDialog(context, allStrips, onGoToPage),
+              );
             },
           ),
           IconButton(
@@ -58,8 +60,9 @@ class ComicPage extends StatelessWidget {
                   break;
                 case StripAction.about:
                   showModalBottomSheet<void>(
-                      context: context,
-                      builder: (context) => _buildComicInfo(viewModel));
+                    context: context,
+                    builder: (context) => _buildComicInfo(viewModel),
+                  );
                   break;
               }
             },
@@ -189,6 +192,9 @@ class _StripPageState extends State<StripPage> {
 
   @override
   void initState() {
+    // Do not allow the screen to go to sleep when dislaying a comic strip.
+    Wakelock.enable();
+
     widget.viewModel.doGoToPage.listen((page) {
       _controller.jumpToPage(page);
     });
@@ -294,6 +300,7 @@ class _StripPageState extends State<StripPage> {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
+    Wakelock.disable();
     super.dispose();
   }
 }

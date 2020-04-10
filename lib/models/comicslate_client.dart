@@ -76,7 +76,12 @@ class ComicslateClient {
           params['refresh'] = '1';
         }
         await for (final imageBytes in prefetchCache.get(
-            _baseUri.replace(path: stripRenderPath, queryParameters: params),
+            _baseUri.replace(
+              path: stripRenderPath,
+              // Must pass null, otherwise Uri.toString() will have '?' at the
+              // end, invalidating cache.
+              queryParameters: params.isEmpty ? null : params,
+            ),
             allowFromCache: allowFromCache)) {
           yield strip.rebuild((b) => b.imageBytes = imageBytes);
         }
