@@ -12,7 +12,7 @@ class ComicPageViewModelWidget extends InheritedWidget {
         super(child: child);
 
   static ComicPageViewModelWidget of(BuildContext context) =>
-      context.inheritFromWidgetOfExactType(ComicPageViewModelWidget);
+      context.dependOnInheritedWidgetOfExactType<ComicPageViewModelWidget>();
 
   @override
   bool updateShouldNotify(ComicPageViewModelWidget oldWidget) =>

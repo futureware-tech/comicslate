@@ -79,8 +79,8 @@ platform :ios do
   desc 'Build a debug iOS package'
   lane :build do
     flutter_build(
+      build_args: ["--no-codesign"],
       debug: true,
-      codesign: false,
     )
   end
 

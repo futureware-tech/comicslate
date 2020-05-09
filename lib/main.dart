@@ -7,23 +7,15 @@ import 'package:comicslate/models/storage.dart';
 import 'package:comicslate/view/comic_list.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_sentry/flutter_sentry.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:provide/provide.dart';
 
 void main() {
-  runZoned<Future>(() async {
-    // This is necessary to initialize Flutter method channels so that
-    // Crashlytics can call into the native code. It also must be in the same
-    // zone as the app: https://github.com/flutter/flutter/issues/42682.
-    WidgetsFlutterBinding.ensureInitialized();
-
-    Crashlytics.instance.enableInDevMode = true;
-    FlutterError.onError = Crashlytics.instance.recordFlutterError;
-
+  FlutterSentry.wrap(() {
     // The class that contains all the providers. This shouldn't change after
     // being used.
     //
@@ -41,7 +33,7 @@ void main() {
       )));
 
     runApp(ProviderNode(providers: providers, child: MyApp()));
-  }, onError: Crashlytics.instance.recordError);
+  }, dsn: 'https://b150cab29afe42278804731d11f2af9b@o336071.ingest.sentry.io/5230711');
 }
 
 class MyApp extends StatelessWidget {
@@ -50,15 +42,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
         title: 'Comicslate',
         theme: ThemeData(
-            fontFamily: app_styles.kFontFamily,
-            primaryColorDark: app_styles.kPrimaryColorDark,
-            primaryColor: app_styles.kPrimaryColor,
-            accentColor: app_styles.kAccentColor,
-            primaryColorLight: app_styles.kPrimaryColorLight,
-            dividerColor: app_styles.kDividerColor,
-            textTheme: Theme.of(context).textTheme.apply(
+          fontFamily: app_styles.kFontFamily,
+          primaryColorDark: app_styles.kPrimaryColorDark,
+          primaryColor: app_styles.kPrimaryColor,
+          accentColor: app_styles.kAccentColor,
+          primaryColorLight: app_styles.kPrimaryColorLight,
+          dividerColor: app_styles.kDividerColor,
+          textTheme: Theme.of(context).textTheme.apply(
+                fontFamily: app_styles.kFontFamily,
                 displayColor: app_styles.kPrimaryText,
-                decorationColor: app_styles.kSecondaryText)),
+                decorationColor: app_styles.kSecondaryText,
+              ),
+        ),
         home: ComicList(),
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,

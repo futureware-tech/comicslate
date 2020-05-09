@@ -11,6 +11,9 @@
         android:label="Comicslate"
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="true">
+        <meta-data
+            android:name="io.sentry.dsn"
+            android:value="https://b150cab29afe42278804731d11f2af9b@o336071.ingest.sentry.io/5230711" />
         <meta-data android:name="google_analytics_adid_collection_enabled" android:value="false" />
         <activity
             android:name=".MainActivity"
