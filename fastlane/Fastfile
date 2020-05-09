@@ -108,6 +108,7 @@ platform :android do
       supply(
         track: lane_context[SharedValues::PROMOTE_RELEASE] ? 'alpha'
                                                            : 'internal',
+        package_name: APP_IDENTIFIER,
         aab: aab,
       )
     end
