@@ -53,3 +53,5 @@ app.*.map.json
 /coverage
 # XCode settings.
 /ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/
+# File importing all files for test coverage.
+/test/all_imports_for_coverage_test.dart

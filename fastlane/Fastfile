@@ -1,6 +1,10 @@
 APP_IDENTIFIER = 'org.dasfoo.comicslate'
 default_platform(:android)
 
+module SharedValues
+  PROMOTE_RELEASE = :PROMOTE_RELEASE
+end
+
 before_all do |lane, options|
   if [:build, :publish].include?(lane)
     commits_since_last_tag = changelog_from_git_commits(
@@ -10,22 +14,50 @@ before_all do |lane, options|
       # We push to "master" only when merging a PR, so increment with each merge.
       merge_commit_filtering: 'only_include_merges',
     ).lines.count
+    # changelog_from_git_commits populates this context, causing some actions
+    # (e.g. upload_to_testflight) to pick it up instead of our text files.
+    lane_context.delete(SharedValues::FL_CHANGELOG)
 
     # Keep even numbers for internal releases, and odd numbers for public, to
     # make sure they do not clash as the number of commits is usually the same.
-    lane_context[SharedValues::BUILD_NUMBER] = number_of_commits * 2
-    unless options[:release].to_s.empty?
-      lane_context[SharedValues::BUILD_NUMBER] += 1
-    end
-
-    lane_context[SharedValues::VERSION_NUMBER] = '%s.%d' % [
+    lane_context[SharedValues::BUILD_NUMBER] = number_of_commits * 2 + 1000
+    lane_context[SharedValues::VERSION_NUMBER] = options[:release].to_s
+    if lane_context[SharedValues::VERSION_NUMBER].empty?
+      lane_context[SharedValues::VERSION_NUMBER] = '%s.%d' % [
         # First 2 digits of version number are taken from tag (ex.: "2.1").
         last_git_tag,
         # Add the number of commits afterwards, multiplied by 10 to allow room
         # for manual testing of CI/CD, if necessary.
         commits_since_last_tag * 10,
-    ]
+      ]
+      lane_context[SharedValues::PROMOTE_RELEASE] = false
+    else
+      # We complement the tag (e.g. "2.1") to "2.1.0", which App Store will do
+      # anyway, but this way we also make it consistent with Play Store.
+      lane_context[SharedValues::VERSION_NUMBER] += '.0'
+      lane_context[SharedValues::BUILD_NUMBER] += 1
+      lane_context[SharedValues::PROMOTE_RELEASE] = true
+    end
   end
+end
+
+def retry_on_exception(extra_attempts=2, initial_delay=1)
+  extra_attempts -= 1
+  yield
+rescue => e
+  raise if extra_attempts < 0
+
+  UI.error(e)
+  if extra_attempts > 0
+    UI.important("Retrying after #{initial_delay}s, " \
+                 "#{extra_attempts + 1} attempts left!")
+  else
+    UI.important("Retrying after #{initial_delay}s, last attempt!")
+  end
+
+  sleep(initial_delay)
+  initial_delay *= 2
+  retry
 end
 
 desc 'Install or upgrade Flutter and Android SDK licenses'
@@ -46,9 +78,11 @@ lane :install_dependencies do
   flutter_bootstrap(bootstrap_options)
 end
 
-desc 'Generate files for built_value and format all files'
+desc 'Generate files for Intl and built_value and format all files'
 lane :generate do
-  flutter_generate
+  flutter_generate(
+    coverage_all_imports: true,
+  )
   flutter(args: %w(format .))
 end
 
@@ -60,28 +94,36 @@ end
 platform :android do
   desc 'Build a debug APK'
   lane :build do
-    flutter_build(debug: true)
+    # Occasionally build may fail due to a network error.
+    retry_on_exception do
+      flutter_build(debug: true)
+    end
   end
 
   desc 'Build a release AAB and publish it (including Store artifacts).'
   desc 'Set "release" lane key to non-empty value to upload to "alpha" track.'
   lane :publish do |options|
     aab = flutter_build(build: 'appbundle')
-    upload_to_play_store(
-      track: options[:release].to_s.empty? ? 'internal' : 'alpha',
-      package_name: APP_IDENTIFIER,
-      aab: aab,
-    )
+    retry_on_exception do
+      supply(
+        track: lane_context[SharedValues::PROMOTE_RELEASE] ? 'alpha'
+                                                           : 'internal',
+        aab: aab,
+      )
+    end
   end
 end
 
 platform :ios do
   desc 'Build a debug iOS package'
   lane :build do
-    flutter_build(
-      build_args: ["--no-codesign"],
-      debug: true,
-    )
+    # Occasionally build may fail due to a network error.
+    retry_on_exception do
+      flutter_build(
+        debug: true,
+        build_args: ['--no-codesign'],
+      )
+    end
   end
 
   desc 'Build a release iOS package and publish it (including Store artifacts).'
@@ -98,42 +140,71 @@ platform :ios do
     # Perform an (otherwise unnecessary) build to:
     # - add version
     # - switch to release mode
-    flutter_build
-    build_ios_app(
-      silent: true,
-      suppress_xcode_output: true,
-    )
+    retry_on_exception do
+      flutter_build
+    end
+    gym(silent: true, suppress_xcode_output: true)
 
-    upload_to_testflight(
-      distribute_external: true,
-      groups: ['fastlane_testers'],
-    )
+    begin
+      retry_on_exception do
+        config = {
+          distribute_external: true,
+          # Changelog is required for TestFlight.
+          changelog: 'Look for latest changes at ' +
+                     'https://github.com/dasfoo/comicslate/commits/master',
+          groups: lane_context[SharedValues::PROMOTE_RELEASE] ? ['alpha']
+                                                              : ['internal'],
+        }
+        begin
+          upload_to_testflight(config)
+        rescue => e
+          # It is possible that the binary has been uploaded, but failed to
+          # distribute. It is not allowed to upload the binary twice, so retries
+          # will fail, but if we can distribute this binary without an error,
+          # then we have achieved what we wanted.
+          #
+          # It's only slightly hacky -- pilot does not provide Action interface:
+          # https://github.com/fastlane/fastlane/issues/13612.
+          UI.error("upload + distribute failed: #{e}, retrying distribute")
+          config.merge!({
+            ipa: File.expand_path(lane_context[SharedValues::IPA_OUTPUT_PATH]),
+            app_identifier: APP_IDENTIFIER,
+          })
+          fastlane_require 'pilot'
+          Pilot::BuildManager.new.distribute(config)
+        end
+      end
+    ensure
+      # It is possible that the above build has not been distributed to testers,
+      # but it was uploaded nevertheless. In such case, we still try and send it
+      # for review, allowing humans to fix the issue with distributing.
+      if lane_context[SharedValues::PROMOTE_RELEASE]
+        retry_on_exception do
+          upload_to_app_store(
+            app_identifier: APP_IDENTIFIER,
+            overwrite_screenshots: true,
+            submit_for_review: true,
+            submission_information: {
+              add_id_info_uses_idfa: false,
+            },
 
-    unless options[:release].to_s.empty?
-      upload_to_app_store(
-        app_identifier: APP_IDENTIFIER,
-        overwrite_screenshots: true,
-        submit_for_review: true,
-        reject_if_possible: true,
-        submission_information: {
-          add_id_info_uses_idfa: false,
-        },
+            # Skip the HTML report file verification.
+            force: true,
 
-        # Skip the HTML report file verification.
-        force: true,
+            # Binary is already uploaded by upload_to_testflight, just use it.
+            skip_binary_upload: true,
+            build_number: lane_context[SharedValues::BUILD_NUMBER].to_s,
 
-        # Binary is already uploaded by upload_to_testflight, just use it.
-        skip_binary_upload: true,
-        build_number: lane_context[SharedValues::BUILD_NUMBER].to_s,
-
-        # Override because defaults make directory layout messy.
-        # Default is: "screenshots".
-        screenshots_path: File.join(Dir.pwd, 'metadata/ios/screenshots'),
-        # Default is: "metadata". Also have to bury it into additional directory
-        # because storing metadata in "metadata/ios" complains about
-        # unrecognized subdirectory "screenshots".
-        metadata_path: File.join(Dir.pwd, 'metadata/ios/metadata'),
-      )
+            # Override because defaults make directory layout messy.
+            # Default is: "screenshots".
+            screenshots_path: File.join(Dir.pwd, 'metadata/ios/screenshots'),
+            # Default is: "metadata". Also have to bury it into additional
+            # directory because storing metadata in "metadata/ios" complains
+            # about unrecognized subdirectory "screenshots".
+            metadata_path: File.join(Dir.pwd, 'metadata/ios/metadata'),
+          )
+        end
+      end
     end
   end
 end
