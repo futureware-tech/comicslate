@@ -24,7 +24,7 @@ Install or upgrade Flutter and Android SDK licenses
 ```
 fastlane generate
 ```
-Generate files for built_value and format all files
+Generate files for Intl and built_value and format all files
 ### lint
 ```
 fastlane lint
