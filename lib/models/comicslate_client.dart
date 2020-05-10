@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:comicslate/models/comic.dart';
@@ -85,8 +86,11 @@ class ComicslateClient {
             allowFromCache: allowFromCache)) {
           yield strip.rebuild((b) => b.imageBytes = imageBytes);
         }
+      } on HttpException catch (e) {
+        print('HttpException getting strip: $e');
+        yield strip.rebuild((b) => b.title ??= e.message);
       } catch (e) {
-        print(e);
+        print('Unclassified error getting strip: $e');
         yield strip;
       }
     }
