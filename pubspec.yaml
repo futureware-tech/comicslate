@@ -22,7 +22,6 @@ dependencies:
   shared_preferences: ^0.5.4
   built_value: ^7.1.0
   flutter_advanced_networkimage: ^0.7.0
-  webview_flutter: ^0.3.15
   flutter_cache_manager: ^1.2.2
   share: ^0.6.3
   quiver: ">=2.0.0 <3.0.0"

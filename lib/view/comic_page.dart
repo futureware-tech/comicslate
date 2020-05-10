@@ -14,7 +14,6 @@ import 'package:intl/intl.dart';
 import 'package:provide/provide.dart';
 import 'package:share/share.dart';
 import 'package:wakelock/wakelock.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 enum StripAction { refresh, about }
 
@@ -235,9 +234,16 @@ class _StripPageState extends State<StripPage> {
                     if (stripSnapshot.hasData) {
                       _allowCache = true;
                       if (stripSnapshot.data.imageBytes == null) {
-                        return WebView(
-                          initialUrl: stripSnapshot.data.displayUrl.toString(),
-                          javascriptMode: JavascriptMode.unrestricted,
+                        var title = stripSnapshot.data.title ?? 'n/a';
+                        if (stripSnapshot.hasError) {
+                          title += ' (${stripSnapshot.error})';
+                        }
+                        return Center(
+                          child: Text(
+                            'Данная страница '
+                            '${widget.viewModel.stripIds.elementAt(i)} еще не '
+                            'поддерживается мобильным приложением: $title.',
+                          ),
                         );
                       } else {
                         if (!_isOrientationSetup) {
