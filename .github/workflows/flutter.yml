@@ -78,10 +78,10 @@ jobs:
           path: ios/Podfile.lock
 
   publish:
-    if: >
-      github.repository == 'dasfoo/comicslate' &&
-      github.event_name == 'push'
-    needs: build
+    #if: >
+    #  github.repository == 'dasfoo/comicslate' &&
+    #  github.event_name == 'push'
+    #needs: build
     strategy:
       fail-fast: false
       matrix:
@@ -142,4 +142,4 @@ jobs:
 
       - run: >
           bundle exec fastlane ${{ matrix.platform }} publish
-          release:$(sed -n -e 's|^refs/tags/||p' <<<$GITHUB_REF)
+          release:1.6
