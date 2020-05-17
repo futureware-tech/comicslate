@@ -187,6 +187,10 @@ platform :ios do
             submit_for_review: true,
             submission_information: {
               add_id_info_uses_idfa: false,
+
+              # We use https protocol.
+              export_compliance_uses_encryption: true,
+              export_compliance_is_exempt: true,
             },
 
             # Skip the HTML report file verification.
