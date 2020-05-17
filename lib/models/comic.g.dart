@@ -115,6 +115,12 @@ class _$ComicSerializer implements StructuredSerializer<Comic> {
         ..add(serializers.serialize(object.ratingColor,
             specifiedType: const FullType(ComicRatingColor)));
     }
+    if (object.firstStripRenders != null) {
+      result
+        ..add('firstStripRenders')
+        ..add(serializers.serialize(object.firstStripRenders,
+            specifiedType: const FullType(bool)));
+    }
     return result;
   }
 
@@ -158,6 +164,10 @@ class _$ComicSerializer implements StructuredSerializer<Comic> {
                   specifiedType: const FullType(ComicRatingColor))
               as ComicRatingColor;
           break;
+        case 'firstStripRenders':
+          result.firstStripRenders = serializers.deserialize(value,
+              specifiedType: const FullType(bool)) as bool;
+          break;
       }
     }
 
@@ -180,6 +190,8 @@ class _$Comic extends Comic {
   final bool isActive;
   @override
   final ComicRatingColor ratingColor;
+  @override
+  final bool firstStripRenders;
 
   factory _$Comic([void Function(ComicBuilder) updates]) =>
       (new ComicBuilder()..update(updates)).build();
@@ -191,7 +203,8 @@ class _$Comic extends Comic {
       this.categoryName,
       this.thumbnailURL,
       this.isActive,
-      this.ratingColor})
+      this.ratingColor,
+      this.firstStripRenders})
       : super._() {
     if (id == null) {
       throw new BuiltValueNullFieldError('Comic', 'id');
@@ -218,7 +231,8 @@ class _$Comic extends Comic {
         categoryName == other.categoryName &&
         thumbnailURL == other.thumbnailURL &&
         isActive == other.isActive &&
-        ratingColor == other.ratingColor;
+        ratingColor == other.ratingColor &&
+        firstStripRenders == other.firstStripRenders;
   }
 
   @override
@@ -227,12 +241,14 @@ class _$Comic extends Comic {
         $jc(
             $jc(
                 $jc(
-                    $jc($jc($jc(0, id.hashCode), homePageURL.hashCode),
-                        name.hashCode),
-                    categoryName.hashCode),
-                thumbnailURL.hashCode),
-            isActive.hashCode),
-        ratingColor.hashCode));
+                    $jc(
+                        $jc($jc($jc(0, id.hashCode), homePageURL.hashCode),
+                            name.hashCode),
+                        categoryName.hashCode),
+                    thumbnailURL.hashCode),
+                isActive.hashCode),
+            ratingColor.hashCode),
+        firstStripRenders.hashCode));
   }
 
   @override
@@ -244,7 +260,8 @@ class _$Comic extends Comic {
           ..add('categoryName', categoryName)
           ..add('thumbnailURL', thumbnailURL)
           ..add('isActive', isActive)
-          ..add('ratingColor', ratingColor))
+          ..add('ratingColor', ratingColor)
+          ..add('firstStripRenders', firstStripRenders))
         .toString();
   }
 }
@@ -281,6 +298,11 @@ class ComicBuilder implements Builder<Comic, ComicBuilder> {
   set ratingColor(ComicRatingColor ratingColor) =>
       _$this._ratingColor = ratingColor;
 
+  bool _firstStripRenders;
+  bool get firstStripRenders => _$this._firstStripRenders;
+  set firstStripRenders(bool firstStripRenders) =>
+      _$this._firstStripRenders = firstStripRenders;
+
   ComicBuilder();
 
   ComicBuilder get _$this {
@@ -292,6 +314,7 @@ class ComicBuilder implements Builder<Comic, ComicBuilder> {
       _thumbnailURL = _$v.thumbnailURL;
       _isActive = _$v.isActive;
       _ratingColor = _$v.ratingColor;
+      _firstStripRenders = _$v.firstStripRenders;
       _$v = null;
     }
     return this;
@@ -320,7 +343,8 @@ class ComicBuilder implements Builder<Comic, ComicBuilder> {
             categoryName: categoryName,
             thumbnailURL: thumbnailURL,
             isActive: isActive,
-            ratingColor: ratingColor);
+            ratingColor: ratingColor,
+            firstStripRenders: firstStripRenders);
     replace(_$result);
     return _$result;
   }

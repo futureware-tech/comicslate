@@ -25,7 +25,7 @@ void main() {
       ..provide(Provider.value(ComicslateClient(
         language: 'ru',
         offlineStorage: FlutterCachingAPIClient(
-            cacheName: 'comicslate-client-json',
+            cacheName: 'comicslate-client-json-v1',
             responseParser: (js) => json.decode(utf8.decode(js))),
         prefetchCache: FlutterCachingAPIClient(
             cacheName: 'comicslate-client-images',

@@ -48,6 +48,7 @@ class ComicslateClient {
   Stream<List<Comic>> getComicsList() =>
       requestJson('comics').cast<List>().map((comics) => comics
           .map((comic) => serializers.deserializeWith(Comic.serializer, comic))
+          .where((comic) => comic.firstStripRenders == true)
           .toList());
 
   Stream<List<String>> getStoryStripsList(Comic comic) =>
