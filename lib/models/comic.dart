@@ -44,6 +44,9 @@ abstract class Comic implements Built<Comic, ComicBuilder> {
   @nullable
   ComicRatingColor get ratingColor;
 
+  @nullable
+  bool get firstStripRenders;
+
   static Serializer<Comic> get serializer => _$comicSerializer;
   factory Comic([void Function(ComicBuilder) updates]) = _$Comic;
   Comic._();

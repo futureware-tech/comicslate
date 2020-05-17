@@ -57,10 +57,10 @@ class SearchBarWidgetState extends State<SearchBarWidget> {
           color: Colors.white,
           fontSize: 19,
         ),
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
             border: InputBorder.none,
             hintText: 'Поиск ...',
-            hintStyle: const TextStyle(
+            hintStyle: TextStyle(
               color: Colors.white,
               fontSize: 19,
             )),
