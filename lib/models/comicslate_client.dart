@@ -41,6 +41,9 @@ class ComicslateClient {
     return response;
       }*/
 
+  Future<void> emptyCache() =>
+      Future.wait([offlineStorage.emptyCache(), prefetchCache.emptyCache()]);
+
   Stream<dynamic> requestJson(String path, {bool allowFromCache = true}) =>
       offlineStorage.get(_baseUri.replace(path: path),
           allowFromCache: allowFromCache);
