@@ -64,10 +64,16 @@ class ComicslateClient {
     bool allowFromCache = true,
     List<String> prefetch = const [],
   }) async* {
-    offlineStorage.prefetch(prefetch.map((prefetchStripId) =>
-        _baseUri.replace(path: 'comics/${comic.id}/strips/$prefetchStripId')));
-    prefetchCache.prefetch(prefetch.map((prefetchStripId) => _baseUri.replace(
-        path: 'comics/${comic.id}/strips/$prefetchStripId/render')));
+    () async {
+      // Wait a little before prefetching, so that the strip we are currently
+      // trying to fetch gets all the bandwidth.
+      await Future.delayed(const Duration(seconds: 3));
+
+      offlineStorage.prefetch(prefetch.map((prefetchStripId) => _baseUri
+          .replace(path: 'comics/${comic.id}/strips/$prefetchStripId')));
+      prefetchCache.prefetch(prefetch.map((prefetchStripId) => _baseUri.replace(
+          path: 'comics/${comic.id}/strips/$prefetchStripId/render')));
+    }();
 
     final stripMetaPath = 'comics/${comic.id}/strips/$stripId';
     await for (final stripJson
