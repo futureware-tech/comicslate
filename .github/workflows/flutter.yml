@@ -124,8 +124,8 @@ jobs:
         if: matrix.platform == 'android'
 
       - run: >
-          echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_DATA }}' >
-          "${GOOGLE_APPLICATION_CREDENTIALS?}"
+          echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_DATA }}' |
+          base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS?}"
       - name: "Install and configure GCloud to fetch 'fastlane match' repo"
         run: >
           curl -sSL https://sdk.cloud.google.com | bash
