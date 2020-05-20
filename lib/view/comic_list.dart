@@ -12,7 +12,6 @@ import 'package:comicslate/view_model/comic_page_view_model.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_advanced_networkimage/provider.dart';
 import 'package:provide/provide.dart';
 
 class _ComicslateTitleWidget extends StatelessWidget {
@@ -64,12 +63,8 @@ class _ComicListBodyState extends State<_ComicListBody> {
           if (snapshot.hasData) {
             return RefreshIndicator(
               onRefresh: () async {
-                if (!await DiskCache().clear()) {
-                  print('report a problem with cleaning cache');
-                }
-                setState(() {
-                  imageCache.clear();
-                });
+                widget.bloc.onEmptyCache.add(null);
+                imageCache.clear();
               },
               child: snapshot.data.isEmpty
                   ? const Center(

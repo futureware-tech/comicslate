@@ -20,6 +20,11 @@ class ComicListBloc {
       });
       _doComicListByCategoryController.add(comics);
     });
+
+    _onEmptyCache.stream.listen((_) async {
+      await client.emptyCache();
+      _getComicList(client);
+    });
   }
 
   final _doComicListByCategoryController =
@@ -30,9 +35,13 @@ class ComicListBloc {
   final _onComicSearchController = StreamController<String>();
   Sink<String> get onComicSearch => _onComicSearchController.sink;
 
+  final _onEmptyCache = StreamController<void>();
+  Sink<void> get onEmptyCache => _onEmptyCache.sink;
+
   void dispose() {
     _doComicListByCategoryController.close();
     _onComicSearchController.close();
+    _onEmptyCache.close();
   }
 
   Future<void> _getComicList(ComicslateClient client) async {

@@ -16,6 +16,7 @@ abstract class CachingAPIClient<T> {
   });
 
   void prefetch(Iterable<Uri> urls, {Map<String, String> headers});
+  Future<void> emptyCache();
 }
 
 /*
