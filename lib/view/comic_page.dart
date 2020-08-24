@@ -214,63 +214,66 @@ class _StripPageState extends State<StripPage> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             _controller = PageController(initialPage: snapshot.data);
-            return PageView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-              controller: _controller,
-              itemCount: widget.viewModel.stripIds.length,
-              itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
-                  future: Provide.value<ComicslateClient>(context)
-                      .getStrip(
-                        widget.viewModel.comic,
-                        widget.viewModel.stripIds.elementAt(i),
-                        allowFromCache: _allowCache,
-                        prefetch: widget.viewModel.stripIds.sublist(
-                          max(0, i - 2),
-                          min(widget.viewModel.stripIds.length - 1, i + 5),
-                        ),
-                      )
-                      .first,
-                  builder: (context, stripSnapshot) {
-                    if (stripSnapshot.hasData) {
-                      _allowCache = true;
-                      if (stripSnapshot.data.imageBytes == null) {
-                        var title = stripSnapshot.data.title ?? 'n/a';
-                        if (stripSnapshot.hasError) {
-                          title += ' (${stripSnapshot.error})';
-                        }
-                        return Center(
-                          child: Text(
-                            'Данная страница '
-                            '${widget.viewModel.stripIds.elementAt(i)} еще не '
-                            'поддерживается мобильным приложением: $title.',
+            return InteractiveViewer(
+              maxScale: 5,
+              child: PageView.builder(
+                physics: const ClampingScrollPhysics(),
+                controller: _controller,
+                itemCount: widget.viewModel.stripIds.length,
+                itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
+                    future: Provide.value<ComicslateClient>(context)
+                        .getStrip(
+                          widget.viewModel.comic,
+                          widget.viewModel.stripIds.elementAt(i),
+                          allowFromCache: _allowCache,
+                          prefetch: widget.viewModel.stripIds.sublist(
+                            max(0, i - 2),
+                            min(widget.viewModel.stripIds.length - 1, i + 5),
                           ),
-                        );
-                      } else {
-                        if (!_isOrientationSetup) {
-                          setUpOrientation(stripSnapshot.data.imageBytes);
+                        )
+                        .first,
+                    builder: (context, stripSnapshot) {
+                      if (stripSnapshot.hasData) {
+                        _allowCache = true;
+                        if (stripSnapshot.data.imageBytes == null) {
+                          var title = stripSnapshot.data.title ?? 'n/a';
+                          if (stripSnapshot.hasError) {
+                            title += ' (${stripSnapshot.error})';
+                          }
+                          return Center(
+                            child: Text(
+                              'Данная страница '
+                              '${widget.viewModel.stripIds.elementAt(i)} еще не '
+                              'поддерживается мобильным приложением: $title.',
+                            ),
+                          );
+                        } else {
+                          if (!_isOrientationSetup) {
+                            setUpOrientation(stripSnapshot.data.imageBytes);
+                          }
+                          widget.viewModel.currentStrip = stripSnapshot.data;
+                          widget.viewModel.currentStripId =
+                              widget.viewModel.stripIds.elementAt(i);
+                          // TODO(ksheremet): Zoomable widget doesn't work
+                          //  in Column
+                          return StripImage(
+                            viewModel: widget.viewModel,
+                          );
                         }
-                        widget.viewModel.currentStrip = stripSnapshot.data;
-                        widget.viewModel.currentStripId =
-                            widget.viewModel.stripIds.elementAt(i);
-                        // TODO(ksheremet): Zoomable widget doesn't work
-                        //  in Column
-                        return StripImage(
-                          viewModel: widget.viewModel,
-                        );
+                      } else {
+                        return const Center(child: CircularProgressIndicator());
                       }
-                    } else {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                  }),
-              onPageChanged: (index) {
-                FirebaseAnalytics().logViewItem(
-                  itemCategory: widget.viewModel.comic.id,
-                  itemId: index.toString(),
-                  itemName: index.toString(),
-                );
+                    }),
+                onPageChanged: (index) {
+                  FirebaseAnalytics().logViewItem(
+                    itemCategory: widget.viewModel.comic.id,
+                    itemId: index.toString(),
+                    itemName: index.toString(),
+                  );
 
-                widget.viewModel.setLastSeenPage(index);
-              },
+                  widget.viewModel.setLastSeenPage(index);
+                },
+              ),
             );
           } else {
             return const CircularProgressIndicator();
