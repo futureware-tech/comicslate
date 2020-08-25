@@ -243,8 +243,9 @@ class _StripPageState extends State<StripPage> {
                           return Center(
                             child: Text(
                               'Данная страница '
-                              '${widget.viewModel.stripIds.elementAt(i)} еще не '
-                              'поддерживается мобильным приложением: $title.',
+                              '${widget.viewModel.stripIds.elementAt(i)} еще '
+                              'не поддерживается мобильным приложением: '
+                              '$title.',
                             ),
                           );
                         } else {
