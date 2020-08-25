@@ -1,12 +1,10 @@
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:comicslate/models/comic_strip.dart';
 import 'package:comicslate/models/comicslate_client.dart';
 import 'package:comicslate/view/helpers/comic_page_view_model_iw.dart';
 import 'package:comicslate/view/helpers/strip_image.dart';
 import 'package:comicslate/view_model/comic_page_view_model.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -185,7 +183,6 @@ class StripPage extends StatefulWidget {
 
 class _StripPageState extends State<StripPage> {
   PageController _controller;
-  bool _isOrientationSetup = false;
   Future<int> _lastSeenStrip;
   bool _allowCache = true;
 
@@ -216,8 +213,8 @@ class _StripPageState extends State<StripPage> {
             _controller = PageController(initialPage: snapshot.data);
             return InteractiveViewer(
               maxScale: 5,
-              child: PageView.builder(
-                physics: const ClampingScrollPhysics(),
+              child: ListView.builder(
+                scrollDirection: Axis.vertical,
                 controller: _controller,
                 itemCount: widget.viewModel.stripIds.length,
                 itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
@@ -249,9 +246,6 @@ class _StripPageState extends State<StripPage> {
                             ),
                           );
                         } else {
-                          if (!_isOrientationSetup) {
-                            setUpOrientation(stripSnapshot.data.imageBytes);
-                          }
                           widget.viewModel.currentStrip = stripSnapshot.data;
                           widget.viewModel.currentStripId =
                               widget.viewModel.stripIds.elementAt(i);
@@ -265,15 +259,16 @@ class _StripPageState extends State<StripPage> {
                         return const Center(child: CircularProgressIndicator());
                       }
                     }),
-                onPageChanged: (index) {
-                  FirebaseAnalytics().logViewItem(
-                    itemCategory: widget.viewModel.comic.id,
-                    itemId: index.toString(),
-                    itemName: index.toString(),
-                  );
+                // TODO: Log pages
+                // onPageChanged: (index) {
+                //   FirebaseAnalytics().logViewItem(
+                //     itemCategory: widget.viewModel.comic.id,
+                //     itemId: index.toString(),
+                //     itemName: index.toString(),
+                //   );
 
-                  widget.viewModel.setLastSeenPage(index);
-                },
+                //   widget.viewModel.setLastSeenPage(index);
+                // },
               ),
             );
           } else {
@@ -281,25 +276,6 @@ class _StripPageState extends State<StripPage> {
           }
         },
       );
-
-  // TODO(ksheremet): Consider more elegant solution, doesnt' work on iOS
-  void setUpOrientation(Uint8List imageBytes) {
-    final image = MemoryImage(imageBytes);
-    image
-        .resolve(createLocalImageConfiguration(context))
-        .addListener(ImageStreamListener((imageInfo, synchronousCall) {
-      _isOrientationSetup = true;
-      if (imageInfo.image.width > imageInfo.image.height) {
-        SystemChrome.setPreferredOrientations([
-          DeviceOrientation.landscapeLeft,
-          DeviceOrientation.landscapeRight
-        ]);
-      } else {
-        SystemChrome.setPreferredOrientations(
-            [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-      }
-    }));
-  }
 
   @override
   void dispose() {

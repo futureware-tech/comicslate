@@ -13,12 +13,16 @@ class StripImage extends StatelessWidget {
       aboutStrip = aboutStrip + viewModel.currentStrip.title;
     }
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
           child: Text(aboutStrip),
         ),
-        Expanded(child: Image.memory(viewModel.currentStrip.imageBytes)),
+        Image.memory(
+          viewModel.currentStrip.imageBytes,
+          fit: BoxFit.fitHeight,
+        ),
       ],
     );
   }
