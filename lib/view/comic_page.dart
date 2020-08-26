@@ -6,10 +6,9 @@ import 'package:comicslate/view/helpers/comic_page_view_model_iw.dart';
 import 'package:comicslate/view/helpers/strip_image.dart';
 import 'package:comicslate/view_model/comic_page_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:provide/provide.dart';
+import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -78,7 +77,7 @@ class ComicPage extends StatelessWidget {
       ),
       // Get a list of stripsId
       body: FutureBuilder<Iterable<String>>(
-        future: Provide.value<ComicslateClient>(context)
+        future: Provider.of<ComicslateClient>(context)
             .getStoryStripsList(
                 ComicPageViewModelWidget.of(context).viewModel.comic)
             .first,
@@ -218,7 +217,7 @@ class _StripPageState extends State<StripPage> {
                 controller: _controller,
                 itemCount: widget.viewModel.stripIds.length,
                 itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
-                    future: Provide.value<ComicslateClient>(context)
+                    future: Provider.of<ComicslateClient>(context)
                         .getStrip(
                           widget.viewModel.comic,
                           widget.viewModel.stripIds.elementAt(i),
@@ -249,8 +248,6 @@ class _StripPageState extends State<StripPage> {
                           widget.viewModel.currentStrip = stripSnapshot.data;
                           widget.viewModel.currentStripId =
                               widget.viewModel.stripIds.elementAt(i);
-                          // TODO(ksheremet): Zoomable widget doesn't work
-                          //  in Column
                           return StripImage(
                             viewModel: widget.viewModel,
                           );
@@ -279,13 +276,6 @@ class _StripPageState extends State<StripPage> {
 
   @override
   void dispose() {
-    // When we leave the screen enable screen rotation
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
     Wakelock.disable();
     super.dispose();
   }

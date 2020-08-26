@@ -12,7 +12,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_sentry/flutter_sentry.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:provide/provide.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   FlutterSentry.wrap(() {
@@ -21,18 +21,21 @@ void main() {
     //
     // In this case, the ComicslateClient gets instantiated
     // the first time someone uses it, and lives as a singleton after that.
-    final providers = Providers()
-      ..provide(Provider.value(ComicslateClient(
-        language: 'ru',
-        offlineStorage: FlutterCachingAPIClient(
-            cacheName: 'comicslate-client-json-v1',
-            responseParser: (js) => json.decode(utf8.decode(js))),
-        prefetchCache: FlutterCachingAPIClient(
-            cacheName: 'comicslate-client-images',
-            responseParser: (bytes) => bytes),
-      )));
+    final providers = [
+      Provider<ComicslateClient>(
+        create: (_) => ComicslateClient(
+          language: 'ru',
+          offlineStorage: FlutterCachingAPIClient(
+              cacheName: 'comicslate-client-json',
+              responseParser: (js) => json.decode(utf8.decode(js))),
+          prefetchCache: FlutterCachingAPIClient(
+              cacheName: 'comicslate-client-images',
+              responseParser: (bytes) => bytes),
+        ),
+      ),
+    ];
 
-    runApp(ProviderNode(providers: providers, child: MyApp()));
+    runApp(MultiProvider(providers: providers, child: MyApp()));
   }, dsn: 'https://b150cab29afe42278804731d11f2af9b@o336071.ingest.sentry.io/5230711');
 }
 
