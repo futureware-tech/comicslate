@@ -211,61 +211,66 @@ class _StripPageState extends State<StripPage> {
           if (snapshot.hasData) {
             _controller = PageController(initialPage: snapshot.data);
             return InteractiveViewer(
+              minScale: 0.1,
               maxScale: 5,
-              child: ListView.builder(
-                scrollDirection: Axis.vertical,
-                controller: _controller,
-                itemCount: widget.viewModel.stripIds.length,
-                itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
-                    future: Provider.of<ComicslateClient>(context)
-                        .getStrip(
-                          widget.viewModel.comic,
-                          widget.viewModel.stripIds.elementAt(i),
-                          allowFromCache: _allowCache,
-                          prefetch: widget.viewModel.stripIds.sublist(
-                            max(0, i - 2),
-                            min(widget.viewModel.stripIds.length - 1, i + 5),
-                          ),
-                        )
-                        .first,
-                    builder: (context, stripSnapshot) {
-                      if (stripSnapshot.hasData) {
-                        _allowCache = true;
-                        if (stripSnapshot.data.imageBytes == null) {
-                          var title = stripSnapshot.data.title ?? 'n/a';
-                          if (stripSnapshot.hasError) {
-                            title += ' (${stripSnapshot.error})';
-                          }
-                          return Center(
-                            child: Text(
-                              'Данная страница '
-                              '${widget.viewModel.stripIds.elementAt(i)} еще '
-                              'не поддерживается мобильным приложением: '
-                              '$title.',
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  controller: _controller,
+                  itemCount: widget.viewModel.stripIds.length,
+                  itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
+                      future: Provider.of<ComicslateClient>(context)
+                          .getStrip(
+                            widget.viewModel.comic,
+                            widget.viewModel.stripIds.elementAt(i),
+                            allowFromCache: _allowCache,
+                            prefetch: widget.viewModel.stripIds.sublist(
+                              max(0, i - 2),
+                              min(widget.viewModel.stripIds.length - 1, i + 5),
                             ),
-                          );
+                          )
+                          .first,
+                      builder: (context, stripSnapshot) {
+                        if (stripSnapshot.hasData) {
+                          _allowCache = true;
+                          if (stripSnapshot.data.imageBytes == null) {
+                            var title = stripSnapshot.data.title ?? 'n/a';
+                            if (stripSnapshot.hasError) {
+                              title += ' (${stripSnapshot.error})';
+                            }
+                            return Center(
+                              child: Text(
+                                'Данная страница '
+                                '${widget.viewModel.stripIds.elementAt(i)} еще '
+                                'не поддерживается мобильным приложением: '
+                                '$title.',
+                              ),
+                            );
+                          } else {
+                            widget.viewModel.currentStrip = stripSnapshot.data;
+                            widget.viewModel.currentStripId =
+                                widget.viewModel.stripIds.elementAt(i);
+                            return StripImage(
+                              viewModel: widget.viewModel,
+                            );
+                          }
                         } else {
-                          widget.viewModel.currentStrip = stripSnapshot.data;
-                          widget.viewModel.currentStripId =
-                              widget.viewModel.stripIds.elementAt(i);
-                          return StripImage(
-                            viewModel: widget.viewModel,
-                          );
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
-                      } else {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                    }),
-                // TODO: Log pages
-                // onPageChanged: (index) {
-                //   FirebaseAnalytics().logViewItem(
-                //     itemCategory: widget.viewModel.comic.id,
-                //     itemId: index.toString(),
-                //     itemName: index.toString(),
-                //   );
+                      }),
+                  // TODO: Log pages
+                  // onPageChanged: (index) {
+                  //   FirebaseAnalytics().logViewItem(
+                  //     itemCategory: widget.viewModel.comic.id,
+                  //     itemId: index.toString(),
+                  //     itemName: index.toString(),
+                  //   );
 
-                //   widget.viewModel.setLastSeenPage(index);
-                // },
+                  //   widget.viewModel.setLastSeenPage(index);
+                  // },
+                ),
               ),
             );
           } else {
