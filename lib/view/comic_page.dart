@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:comicslate/models/comic_strip.dart';
 import 'package:comicslate/models/comicslate_client.dart';
@@ -8,10 +7,10 @@ import 'package:comicslate/view/helpers/strip_image.dart';
 import 'package:comicslate/view_model/comic_page_view_model.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:provide/provide.dart';
+import 'package:provider/provider.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:share/share.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -80,7 +79,7 @@ class ComicPage extends StatelessWidget {
       ),
       // Get a list of stripsId
       body: FutureBuilder<Iterable<String>>(
-        future: Provide.value<ComicslateClient>(context)
+        future: Provider.of<ComicslateClient>(context)
             .getStoryStripsList(
                 ComicPageViewModelWidget.of(context).viewModel.comic)
             .first,
@@ -184,10 +183,13 @@ class StripPage extends StatefulWidget {
 }
 
 class _StripPageState extends State<StripPage> {
-  PageController _controller;
-  bool _isOrientationSetup = false;
   Future<int> _lastSeenStrip;
   bool _allowCache = true;
+  int _lastSeenStripValue;
+
+  final ItemScrollController _controller = ItemScrollController();
+  final ItemPositionsListener _itemPositionsListener =
+      ItemPositionsListener.create();
 
   @override
   void initState() {
@@ -195,7 +197,10 @@ class _StripPageState extends State<StripPage> {
     Wakelock.enable();
 
     widget.viewModel.doGoToPage.listen((page) {
-      _controller.jumpToPage(page);
+      _controller.scrollTo(
+          index: page,
+          duration: const Duration(seconds: 2),
+          curve: Curves.easeIn);
     });
 
     widget.viewModel.doRefreshStrip.listen((_) {
@@ -204,22 +209,49 @@ class _StripPageState extends State<StripPage> {
       });
     });
 
+    _itemPositionsListener.itemPositions.addListener(() {
+      if (_itemPositionsListener.itemPositions.value.first.index !=
+          _lastSeenStripValue) {
+        _lastSeenStripValue =
+            _itemPositionsListener.itemPositions.value.first.index;
+
+        FirebaseAnalytics().logViewItem(
+          itemCategory: widget.viewModel.comic.id,
+          itemId: _lastSeenStripValue.toString(),
+          itemName: _lastSeenStripValue.toString(),
+        );
+
+        widget.viewModel.setLastSeenPage(_lastSeenStripValue);
+      }
+    });
+
     _lastSeenStrip = widget.viewModel.getLastSeenPage();
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) => FutureBuilder<int>(
-        future: _lastSeenStrip,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            _controller = PageController(initialPage: snapshot.data);
-            return PageView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-              controller: _controller,
+      future: _lastSeenStrip,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        return InteractiveViewer(
+          minScale: 0.1,
+          maxScale: 5,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: ScrollablePositionedList.builder(
+              initialScrollIndex: snapshot.data,
+              scrollDirection: Axis.vertical,
+              itemScrollController: _controller,
+              itemPositionsListener: _itemPositionsListener,
               itemCount: widget.viewModel.stripIds.length,
               itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
-                  future: Provide.value<ComicslateClient>(context)
+                  future: Provider.of<ComicslateClient>(context)
                       .getStrip(
                         widget.viewModel.comic,
                         widget.viewModel.stripIds.elementAt(i),
@@ -241,71 +273,33 @@ class _StripPageState extends State<StripPage> {
                         return Center(
                           child: Text(
                             'Данная страница '
-                            '${widget.viewModel.stripIds.elementAt(i)} еще не '
-                            'поддерживается мобильным приложением: $title.',
+                            '${widget.viewModel.stripIds.elementAt(i)} еще '
+                            'не поддерживается мобильным приложением: '
+                            '$title.',
                           ),
                         );
                       } else {
-                        if (!_isOrientationSetup) {
-                          setUpOrientation(stripSnapshot.data.imageBytes);
-                        }
                         widget.viewModel.currentStrip = stripSnapshot.data;
                         widget.viewModel.currentStripId =
                             widget.viewModel.stripIds.elementAt(i);
-                        // TODO(ksheremet): Zoomable widget doesn't work
-                        //  in Column
                         return StripImage(
                           viewModel: widget.viewModel,
                         );
                       }
                     } else {
-                      return const Center(child: CircularProgressIndicator());
+                      return SizedBox(
+                          height: MediaQuery.of(context).size.height / 5,
+                          child:
+                              const Center(child: CircularProgressIndicator()));
                     }
                   }),
-              onPageChanged: (index) {
-                FirebaseAnalytics().logViewItem(
-                  itemCategory: widget.viewModel.comic.id,
-                  itemId: index.toString(),
-                  itemName: index.toString(),
-                );
-
-                widget.viewModel.setLastSeenPage(index);
-              },
-            );
-          } else {
-            return const CircularProgressIndicator();
-          }
-        },
-      );
-
-  // TODO(ksheremet): Consider more elegant solution, doesnt' work on iOS
-  void setUpOrientation(Uint8List imageBytes) {
-    final image = MemoryImage(imageBytes);
-    image
-        .resolve(createLocalImageConfiguration(context))
-        .addListener(ImageStreamListener((imageInfo, synchronousCall) {
-      _isOrientationSetup = true;
-      if (imageInfo.image.width > imageInfo.image.height) {
-        SystemChrome.setPreferredOrientations([
-          DeviceOrientation.landscapeLeft,
-          DeviceOrientation.landscapeRight
-        ]);
-      } else {
-        SystemChrome.setPreferredOrientations(
-            [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-      }
-    }));
-  }
+            ),
+          ),
+        );
+      });
 
   @override
   void dispose() {
-    // When we leave the screen enable screen rotation
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
     Wakelock.disable();
     super.dispose();
   }

@@ -1,7 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:comicslate/models/comic.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_advanced_networkimage/provider.dart';
-import 'package:flutter_advanced_networkimage/transition.dart';
 
 @immutable
 class ComicsRatingWidget extends StatefulWidget {
@@ -111,13 +110,10 @@ class ComicCard extends StatelessWidget {
     } else {
       cover = Column(children: [
         Expanded(
-          child: TransitionToImage(
-            image: AdvancedNetworkImage(
-              imageUrl.toString(),
-              useDiskCache: true,
-            ),
+          child: CachedNetworkImage(
+            imageUrl: imageUrl.toString(),
             fit: BoxFit.cover,
-            placeholder: Image.asset('images/favicon.webp'),
+            placeholder: (_, __) => Image.asset('images/favicon.webp'),
           ),
         ),
         Container(
