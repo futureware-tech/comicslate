@@ -5,10 +5,12 @@ import 'package:comicslate/models/comicslate_client.dart';
 import 'package:comicslate/view/helpers/comic_page_view_model_iw.dart';
 import 'package:comicslate/view/helpers/strip_image.dart';
 import 'package:comicslate/view_model/comic_page_view_model.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:share/share.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -181,9 +183,13 @@ class StripPage extends StatefulWidget {
 }
 
 class _StripPageState extends State<StripPage> {
-  PageController _controller;
   Future<int> _lastSeenStrip;
   bool _allowCache = true;
+  int _lastSeenStripValue;
+
+  final ItemScrollController _controller = ItemScrollController();
+  final ItemPositionsListener _itemPositionsListener =
+      ItemPositionsListener.create();
 
   @override
   void initState() {
@@ -191,7 +197,10 @@ class _StripPageState extends State<StripPage> {
     Wakelock.enable();
 
     widget.viewModel.doGoToPage.listen((page) {
-      _controller.jumpToPage(page);
+      _controller.scrollTo(
+          index: page,
+          duration: const Duration(seconds: 2),
+          curve: Curves.easeIn);
     });
 
     widget.viewModel.doRefreshStrip.listen((_) {
@@ -200,84 +209,94 @@ class _StripPageState extends State<StripPage> {
       });
     });
 
+    _itemPositionsListener.itemPositions.addListener(() {
+      if (_itemPositionsListener.itemPositions.value.first.index !=
+          _lastSeenStripValue) {
+        _lastSeenStripValue =
+            _itemPositionsListener.itemPositions.value.first.index;
+
+        FirebaseAnalytics().logViewItem(
+          itemCategory: widget.viewModel.comic.id,
+          itemId: _lastSeenStripValue.toString(),
+          itemName: _lastSeenStripValue.toString(),
+        );
+
+        widget.viewModel.setLastSeenPage(_lastSeenStripValue);
+      }
+    });
+
     _lastSeenStrip = widget.viewModel.getLastSeenPage();
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) => FutureBuilder<int>(
-        future: _lastSeenStrip,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            _controller = PageController(initialPage: snapshot.data);
-            return InteractiveViewer(
-              minScale: 0.1,
-              maxScale: 5,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  controller: _controller,
-                  itemCount: widget.viewModel.stripIds.length,
-                  itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
-                      future: Provider.of<ComicslateClient>(context)
-                          .getStrip(
-                            widget.viewModel.comic,
-                            widget.viewModel.stripIds.elementAt(i),
-                            allowFromCache: _allowCache,
-                            prefetch: widget.viewModel.stripIds.sublist(
-                              max(0, i - 2),
-                              min(widget.viewModel.stripIds.length - 1, i + 5),
-                            ),
-                          )
-                          .first,
-                      builder: (context, stripSnapshot) {
-                        if (stripSnapshot.hasData) {
-                          _allowCache = true;
-                          if (stripSnapshot.data.imageBytes == null) {
-                            var title = stripSnapshot.data.title ?? 'n/a';
-                            if (stripSnapshot.hasError) {
-                              title += ' (${stripSnapshot.error})';
-                            }
-                            return Center(
-                              child: Text(
-                                'Данная страница '
-                                '${widget.viewModel.stripIds.elementAt(i)} еще '
-                                'не поддерживается мобильным приложением: '
-                                '$title.',
-                              ),
-                            );
-                          } else {
-                            widget.viewModel.currentStrip = stripSnapshot.data;
-                            widget.viewModel.currentStripId =
-                                widget.viewModel.stripIds.elementAt(i);
-                            return StripImage(
-                              viewModel: widget.viewModel,
-                            );
-                          }
-                        } else {
-                          return const Center(
-                              child: CircularProgressIndicator());
+      future: _lastSeenStrip,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        return InteractiveViewer(
+          minScale: 0.1,
+          maxScale: 5,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: ScrollablePositionedList.builder(
+              initialScrollIndex: snapshot.data,
+              scrollDirection: Axis.vertical,
+              itemScrollController: _controller,
+              itemPositionsListener: _itemPositionsListener,
+              itemCount: widget.viewModel.stripIds.length,
+              itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
+                  future: Provider.of<ComicslateClient>(context)
+                      .getStrip(
+                        widget.viewModel.comic,
+                        widget.viewModel.stripIds.elementAt(i),
+                        allowFromCache: _allowCache,
+                        prefetch: widget.viewModel.stripIds.sublist(
+                          max(0, i - 2),
+                          min(widget.viewModel.stripIds.length - 1, i + 5),
+                        ),
+                      )
+                      .first,
+                  builder: (context, stripSnapshot) {
+                    if (stripSnapshot.hasData) {
+                      _allowCache = true;
+                      if (stripSnapshot.data.imageBytes == null) {
+                        var title = stripSnapshot.data.title ?? 'n/a';
+                        if (stripSnapshot.hasError) {
+                          title += ' (${stripSnapshot.error})';
                         }
-                      }),
-                  // TODO: Log pages
-                  // onPageChanged: (index) {
-                  //   FirebaseAnalytics().logViewItem(
-                  //     itemCategory: widget.viewModel.comic.id,
-                  //     itemId: index.toString(),
-                  //     itemName: index.toString(),
-                  //   );
-
-                  //   widget.viewModel.setLastSeenPage(index);
-                  // },
-                ),
-              ),
-            );
-          } else {
-            return const CircularProgressIndicator();
-          }
-        },
-      );
+                        return Center(
+                          child: Text(
+                            'Данная страница '
+                            '${widget.viewModel.stripIds.elementAt(i)} еще '
+                            'не поддерживается мобильным приложением: '
+                            '$title.',
+                          ),
+                        );
+                      } else {
+                        widget.viewModel.currentStrip = stripSnapshot.data;
+                        widget.viewModel.currentStripId =
+                            widget.viewModel.stripIds.elementAt(i);
+                        return StripImage(
+                          viewModel: widget.viewModel,
+                        );
+                      }
+                    } else {
+                      return SizedBox(
+                          height: MediaQuery.of(context).size.height / 5,
+                          child:
+                              const Center(child: CircularProgressIndicator()));
+                    }
+                  }),
+            ),
+          ),
+        );
+      });
 
   @override
   void dispose() {
