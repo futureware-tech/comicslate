@@ -11,33 +11,31 @@ environment:
   sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
+  built_value:
+  device_info:
+  firebase_analytics:
   flutter:
     sdk: flutter
-
-  flutter_localizations:
-    sdk: flutter
-
-  intl:
-  http:
-  shared_preferences:
-  built_value:
   flutter_advanced_networkimage:
   flutter_cache_manager:
-  share:
-  quiver:
-  wakelock:
-  firebase_analytics:
-  package_info:
-  url_launcher:
-  device_info:
-  provide:
+  flutter_localizations:
+    sdk: flutter
   flutter_sentry:
+  http:
+  intl:
+  package_info:
+  provide:
+  quiver:
+  share:
+  shared_preferences:
+  url_launcher:
+  wakelock:
 
 dev_dependencies:
+  build_runner:
+  built_value_generator:
   flutter_test:
     sdk: flutter
-  built_value_generator:
-  build_runner:
   test:
 
 flutter:
