@@ -63,7 +63,7 @@ end
 desc 'Install or upgrade Flutter and Android SDK licenses'
 lane :install_dependencies do
   bootstrap_options = {
-    flutter_channel: 'beta',
+    flutter_channel: 'stable',
   }
 
   if ENV.key?('ANDROID_SDK_ROOT')
