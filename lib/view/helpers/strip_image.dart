@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 
 class StripImage extends StatelessWidget {
   final ComicPageViewModel viewModel;
-  const StripImage({@required this.viewModel}) : assert(viewModel != null);
+
+  const StripImage({
+    @required this.viewModel,
+  }) : assert(viewModel != null);
 
   @override
   Widget build(BuildContext context) {
@@ -13,14 +16,15 @@ class StripImage extends StatelessWidget {
       aboutStrip = aboutStrip + viewModel.currentStrip.title;
     }
     return InteractiveViewer(
-        minScale: 0.1,
-        maxScale: 5,
-        child: Column(children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5),
-            child: Text(aboutStrip),
-          ),
-          Expanded(child: Image.memory(viewModel.currentStrip.imageBytes)),
-        ]));
+      minScale: 0.1,
+      maxScale: 5,
+      child: Column(children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          child: Text(aboutStrip),
+        ),
+        Expanded(child: Image.memory(viewModel.currentStrip.imageBytes)),
+      ]),
+    );
   }
 }
