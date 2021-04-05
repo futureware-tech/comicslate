@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:provide/provide.dart';
+import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -80,7 +80,8 @@ class ComicPage extends StatelessWidget {
       ),
       // Get a list of stripsId
       body: FutureBuilder<Iterable<String>>(
-        future: Provide.value<ComicslateClient>(context)
+        future: context
+            .read<ComicslateClient>()
             .getStoryStripsList(
                 ComicPageViewModelWidget.of(context).viewModel.comic)
             .first,
@@ -219,7 +220,8 @@ class _StripPageState extends State<StripPage> {
               controller: _controller,
               itemCount: widget.viewModel.stripIds.length,
               itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
-                  future: Provide.value<ComicslateClient>(context)
+                  future: context
+                      .read<ComicslateClient>()
                       .getStrip(
                         widget.viewModel.comic,
                         widget.viewModel.stripIds.elementAt(i),

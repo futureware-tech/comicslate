@@ -24,7 +24,7 @@ dependencies:
   http:
   intl:
   package_info:
-  provide:
+  provider:
   quiver:
   share:
   shared_preferences:

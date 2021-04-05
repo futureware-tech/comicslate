@@ -12,7 +12,7 @@ import 'package:comicslate/view_model/comic_page_view_model.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:provide/provide.dart';
+import 'package:provider/provider.dart';
 
 class _ComicslateTitleWidget extends StatelessWidget {
   static const _numberOfLogos = 9;
@@ -32,7 +32,7 @@ class ComicList extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO(ksheremet): Create Inherited widget for bloc. Consider to try
     // ScopedModel, Provide
-    final bloc = ComicListBloc(Provide.value<ComicslateClient>(context));
+    final bloc = ComicListBloc(context.read<ComicslateClient>());
     return Scaffold(
       appBar: SearchBarWidget(
           title: _ComicslateTitleWidget(),
