@@ -85,41 +85,47 @@ class _$ComicSerializer implements StructuredSerializer<Comic> {
       serializers.serialize(object.homePageURL,
           specifiedType: const FullType(Uri)),
     ];
-    if (object.name != null) {
+    Object value;
+    value = object.name;
+    if (value != null) {
       result
         ..add('name')
-        ..add(serializers.serialize(object.name,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.categoryName != null) {
+    value = object.categoryName;
+    if (value != null) {
       result
         ..add('categoryName')
-        ..add(serializers.serialize(object.categoryName,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.thumbnailURL != null) {
+    value = object.thumbnailURL;
+    if (value != null) {
       result
         ..add('thumbnailURL')
-        ..add(serializers.serialize(object.thumbnailURL,
-            specifiedType: const FullType(Uri)));
+        ..add(serializers.serialize(value, specifiedType: const FullType(Uri)));
     }
-    if (object.isActive != null) {
+    value = object.isActive;
+    if (value != null) {
       result
         ..add('isActive')
-        ..add(serializers.serialize(object.isActive,
-            specifiedType: const FullType(bool)));
+        ..add(
+            serializers.serialize(value, specifiedType: const FullType(bool)));
     }
-    if (object.ratingColor != null) {
+    value = object.ratingColor;
+    if (value != null) {
       result
         ..add('ratingColor')
-        ..add(serializers.serialize(object.ratingColor,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(ComicRatingColor)));
     }
-    if (object.firstStripRenders != null) {
+    value = object.firstStripRenders;
+    if (value != null) {
       result
         ..add('firstStripRenders')
-        ..add(serializers.serialize(object.firstStripRenders,
-            specifiedType: const FullType(bool)));
+        ..add(
+            serializers.serialize(value, specifiedType: const FullType(bool)));
     }
     return result;
   }
@@ -133,7 +139,7 @@ class _$ComicSerializer implements StructuredSerializer<Comic> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'id':
           result.id = serializers.deserialize(value,
@@ -206,12 +212,8 @@ class _$Comic extends Comic {
       this.ratingColor,
       this.firstStripRenders})
       : super._() {
-    if (id == null) {
-      throw new BuiltValueNullFieldError('Comic', 'id');
-    }
-    if (homePageURL == null) {
-      throw new BuiltValueNullFieldError('Comic', 'homePageURL');
-    }
+    BuiltValueNullFieldError.checkNotNull(id, 'Comic', 'id');
+    BuiltValueNullFieldError.checkNotNull(homePageURL, 'Comic', 'homePageURL');
   }
 
   @override
@@ -306,15 +308,16 @@ class ComicBuilder implements Builder<Comic, ComicBuilder> {
   ComicBuilder();
 
   ComicBuilder get _$this {
-    if (_$v != null) {
-      _id = _$v.id;
-      _homePageURL = _$v.homePageURL;
-      _name = _$v.name;
-      _categoryName = _$v.categoryName;
-      _thumbnailURL = _$v.thumbnailURL;
-      _isActive = _$v.isActive;
-      _ratingColor = _$v.ratingColor;
-      _firstStripRenders = _$v.firstStripRenders;
+    final $v = _$v;
+    if ($v != null) {
+      _id = $v.id;
+      _homePageURL = $v.homePageURL;
+      _name = $v.name;
+      _categoryName = $v.categoryName;
+      _thumbnailURL = $v.thumbnailURL;
+      _isActive = $v.isActive;
+      _ratingColor = $v.ratingColor;
+      _firstStripRenders = $v.firstStripRenders;
       _$v = null;
     }
     return this;
@@ -322,9 +325,7 @@ class ComicBuilder implements Builder<Comic, ComicBuilder> {
 
   @override
   void replace(Comic other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Comic;
   }
 
@@ -337,8 +338,9 @@ class ComicBuilder implements Builder<Comic, ComicBuilder> {
   _$Comic build() {
     final _$result = _$v ??
         new _$Comic._(
-            id: id,
-            homePageURL: homePageURL,
+            id: BuiltValueNullFieldError.checkNotNull(id, 'Comic', 'id'),
+            homePageURL: BuiltValueNullFieldError.checkNotNull(
+                homePageURL, 'Comic', 'homePageURL'),
             name: name,
             categoryName: categoryName,
             thumbnailURL: thumbnailURL,

@@ -8,7 +8,7 @@ description: Official client application for https://comicslate.org/
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.8.0 <3.0.0"
 
 dependencies:
   built_value:
@@ -17,7 +17,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_advanced_networkimage:
-  flutter_cache_manager:
+  flutter_cache_manager: ^1.2.2
   flutter_localizations:
     sdk: flutter
   flutter_sentry:
