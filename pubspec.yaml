@@ -12,11 +12,11 @@ environment:
 
 dependencies:
   built_value:
+  cached_network_image:
   device_info:
   firebase_analytics:
   flutter:
     sdk: flutter
-  flutter_advanced_networkimage:
   flutter_cache_manager:
   flutter_localizations:
     sdk: flutter
