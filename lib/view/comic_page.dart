@@ -128,13 +128,13 @@ class ComicPage extends StatelessWidget {
         ],
       ),
       actions: <Widget>[
-        FlatButton(
+        TextButton(
           child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-        FlatButton(
+        TextButton(
           child: Text(
             'Перейти',
             style: TextStyle(color: Theme.of(context).primaryColor),
