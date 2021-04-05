@@ -76,7 +76,7 @@ class FlutterCachingAPIClient<T> implements CachingAPIClient<T> {
         try {
           await _get(url, headers: headers)
               .last
-              .timeout(const Duration(seconds: 5));
+              .timeout(const Duration(seconds: 10));
         } finally {
           _currentlyPrefetching.remove(url);
         }
