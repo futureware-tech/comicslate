@@ -8,6 +8,7 @@ import 'package:comicslate/view/comic_list.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_sentry/flutter_sentry.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -25,11 +26,13 @@ void main() {
       ..provide(Provider.value(ComicslateClient(
         language: 'ru',
         offlineStorage: FlutterCachingAPIClient(
-            cacheName: 'comicslate-client-json-v1',
-            responseParser: (js) => json.decode(utf8.decode(js))),
+          cache: CacheManager(Config('comicslate-client-json-v1')),
+          responseParser: (js) => json.decode(utf8.decode(js)),
+        ),
         prefetchCache: FlutterCachingAPIClient(
-            cacheName: 'comicslate-client-images',
-            responseParser: (bytes) => bytes),
+          cache: CacheManager(Config('comicslate-client-images')),
+          responseParser: (bytes) => bytes,
+        ),
       )));
 
     runApp(ProviderNode(providers: providers, child: MyApp()));

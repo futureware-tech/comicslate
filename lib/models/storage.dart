@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:meta/meta.dart';
-import 'package:path_provider/path_provider.dart';
 
 // TODO(dotdoom): parse HTTP response also for correct encoding.
 typedef ResponseParser<T> = T Function(Uint8List response);
@@ -27,17 +26,17 @@ $ adb shell sqlite3 \
 $ adb shell rm -rf /data/data/org.dasfoo.comicslate/cache/libCachedImageData
 */
 
-class FlutterCachingAPIClient<T> extends BaseCacheManager
-    implements CachingAPIClient<T> {
-  final String cacheName;
+class FlutterCachingAPIClient<T> implements CachingAPIClient<T> {
+  final CacheManager cache;
   final ResponseParser<T> responseParser;
   final _currentlyPrefetching = <Uri, Future<void>>{};
 
   FlutterCachingAPIClient({
     @required this.responseParser,
-    @required this.cacheName,
-  }) : super(cacheName);
+    @required this.cache,
+  });
 
+  @override
   Stream<T> get(
     Uri url, {
     bool allowFromCache = true,
@@ -56,20 +55,21 @@ class FlutterCachingAPIClient<T> extends BaseCacheManager
     if (allowFromCache) {
       // TODO(dotdoom): handle HTTP error codes.
       await for (final fileInfo
-          in getFileStream(url.toString(), headers: headers)) {
+          in cache.getFileStream(url.toString(), headers: headers)) {
         if (fileInfo is FileInfo) {
           print('>> [from:${fileInfo.source}] $url');
           yield responseParser(await fileInfo.file.readAsBytes());
         }
       }
     } else {
-      yield responseParser(await (await downloadFile(url.toString(),
+      yield responseParser(await (await cache.downloadFile(url.toString(),
               authHeaders: headers, force: true))
           .file
           .readAsBytes());
     }
   }
 
+  @override
   void prefetch(Iterable<Uri> urls, {Map<String, String> headers}) {
     for (final url in urls) {
       _currentlyPrefetching.putIfAbsent(url, () async {
@@ -85,6 +85,5 @@ class FlutterCachingAPIClient<T> extends BaseCacheManager
   }
 
   @override
-  Future<String> getFilePath() async =>
-      '${(await getTemporaryDirectory()).path}/$cacheName';
+  Future<void> emptyCache() => cache.emptyCache();
 }
