@@ -8,37 +8,35 @@ description: Official client application for https://comicslate.org/
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.8.0 <3.0.0"
 
 dependencies:
+  built_value:
+  cached_network_image:
+  device_info:
+  firebase_analytics:
   flutter:
     sdk: flutter
-
+  flutter_cache_manager:
   flutter_localizations:
     sdk: flutter
-
-  intl: ^0.16.0
-  http: ^0.12.0
-  shared_preferences: ^0.5.4
-  built_value: ^7.1.0
-  flutter_advanced_networkimage: ^0.7.0
-  flutter_cache_manager: ^1.2.2
-  share: ^0.6.3
-  quiver: ">=2.0.0 <3.0.0"
-  wakelock: ^0.1.4
-  firebase_analytics: ^5.0.2
-  package_info: ^0.4.0
-  url_launcher: ^5.4.5
-  device_info: ^0.4.1
-  provide: ^1.0.2
-  flutter_sentry: ^0.4.0
+  flutter_sentry:
+  http:
+  intl:
+  package_info:
+  provider:
+  quiver:
+  share:
+  shared_preferences:
+  url_launcher:
+  wakelock:
 
 dev_dependencies:
+  build_runner:
+  built_value_generator:
   flutter_test:
     sdk: flutter
-  built_value_generator: ^7.1.0
-  build_runner: ^1.6.1
-  test: ^1.6.2
+  test:
 
 flutter:
   uses-material-design: true

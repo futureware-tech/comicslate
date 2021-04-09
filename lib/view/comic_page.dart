@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:provide/provide.dart';
+import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -80,7 +80,8 @@ class ComicPage extends StatelessWidget {
       ),
       // Get a list of stripsId
       body: FutureBuilder<Iterable<String>>(
-        future: Provide.value<ComicslateClient>(context)
+        future: context
+            .read<ComicslateClient>()
             .getStoryStripsList(
                 ComicPageViewModelWidget.of(context).viewModel.comic)
             .first,
@@ -128,13 +129,13 @@ class ComicPage extends StatelessWidget {
         ],
       ),
       actions: <Widget>[
-        FlatButton(
+        TextButton(
           child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-        FlatButton(
+        TextButton(
           child: Text(
             'Перейти',
             style: TextStyle(color: Theme.of(context).primaryColor),
@@ -184,6 +185,8 @@ class StripPage extends StatefulWidget {
 }
 
 class _StripPageState extends State<StripPage> {
+  static const _kNavigationDuration = Duration(milliseconds: 200);
+
   PageController _controller;
   bool _isOrientationSetup = false;
   Future<int> _lastSeenStrip;
@@ -214,67 +217,92 @@ class _StripPageState extends State<StripPage> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             _controller = PageController(initialPage: snapshot.data);
-            return PageView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-              controller: _controller,
-              itemCount: widget.viewModel.stripIds.length,
-              itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
-                  future: Provide.value<ComicslateClient>(context)
-                      .getStrip(
-                        widget.viewModel.comic,
-                        widget.viewModel.stripIds.elementAt(i),
-                        allowFromCache: _allowCache,
-                        prefetch: widget.viewModel.stripIds.sublist(
-                          max(0, i - 2),
-                          min(widget.viewModel.stripIds.length - 1, i + 5),
-                        ),
-                      )
-                      .first,
-                  builder: (context, stripSnapshot) {
-                    if (stripSnapshot.hasData) {
-                      _allowCache = true;
-                      if (stripSnapshot.data.imageBytes == null) {
-                        var title = stripSnapshot.data.title ?? 'n/a';
-                        if (stripSnapshot.hasError) {
-                          title += ' (${stripSnapshot.error})';
-                        }
-                        return Center(
-                          child: Text(
-                            'Данная страница '
-                            '${widget.viewModel.stripIds.elementAt(i)} еще не '
-                            'поддерживается мобильным приложением: $title.',
-                          ),
-                        );
-                      } else {
-                        if (!_isOrientationSetup) {
-                          setUpOrientation(stripSnapshot.data.imageBytes);
-                        }
-                        widget.viewModel.currentStrip = stripSnapshot.data;
-                        widget.viewModel.currentStripId =
-                            widget.viewModel.stripIds.elementAt(i);
-                        // TODO(ksheremet): Zoomable widget doesn't work
-                        //  in Column
-                        return StripImage(
-                          viewModel: widget.viewModel,
-                        );
-                      }
-                    } else {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                  }),
-              onPageChanged: (index) {
-                FirebaseAnalytics().logViewItem(
-                  itemCategory: widget.viewModel.comic.id,
-                  itemId: index.toString(),
-                  itemName: index.toString(),
-                );
-
-                widget.viewModel.setLastSeenPage(index);
-              },
-            );
+            return Row(children: [
+              Expanded(
+                flex: 10,
+                child: IconButton(
+                  icon: const Icon(Icons.skip_previous),
+                  onPressed: () => _controller.previousPage(
+                    duration: _kNavigationDuration,
+                    curve: Curves.ease,
+                  ),
+                ),
+              ),
+              Expanded(flex: 80, child: buildPageView()),
+              Expanded(
+                flex: 10,
+                child: IconButton(
+                  icon: const Icon(Icons.skip_next),
+                  onPressed: () => _controller.nextPage(
+                    duration: _kNavigationDuration,
+                    curve: Curves.ease,
+                  ),
+                ),
+              ),
+            ]);
           } else {
             return const CircularProgressIndicator();
           }
+        },
+      );
+
+  Widget buildPageView() => PageView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        controller: _controller,
+        // Temporary hack to avoid flickering when switching the pages. This
+        // effectively precaches the next page in PageView until we can specify
+        // cache size manually: https://github.com/flutter/flutter/issues/45632.
+        allowImplicitScrolling: true,
+        itemCount: widget.viewModel.stripIds.length,
+        itemBuilder: (context, i) => FutureBuilder<ComicStrip>(
+            future: context
+                .read<ComicslateClient>()
+                .getStrip(
+                  widget.viewModel.comic,
+                  widget.viewModel.stripIds.elementAt(i),
+                  allowFromCache: _allowCache,
+                  prefetch: widget.viewModel.stripIds.sublist(
+                    max(0, i - 2),
+                    min(widget.viewModel.stripIds.length - 1, i + 5),
+                  ),
+                )
+                .first,
+            builder: (context, stripSnapshot) {
+              if (stripSnapshot.hasData) {
+                _allowCache = true;
+                if (stripSnapshot.data.imageBytes == null) {
+                  var title = stripSnapshot.data.title ?? 'n/a';
+                  if (stripSnapshot.hasError) {
+                    title += ' (${stripSnapshot.error})';
+                  }
+                  return Center(
+                    child: Text(
+                      'Данная страница '
+                      '${widget.viewModel.stripIds.elementAt(i)} еще не '
+                      'поддерживается мобильным приложением: $title.',
+                    ),
+                  );
+                } else {
+                  if (!_isOrientationSetup) {
+                    setUpOrientation(stripSnapshot.data.imageBytes);
+                  }
+                  widget.viewModel.currentStrip = stripSnapshot.data;
+                  widget.viewModel.currentStripId =
+                      widget.viewModel.stripIds.elementAt(i);
+                  return StripImage(viewModel: widget.viewModel);
+                }
+              } else {
+                return const Center(child: CircularProgressIndicator());
+              }
+            }),
+        onPageChanged: (index) {
+          FirebaseAnalytics().logViewItem(
+            itemCategory: widget.viewModel.comic.id,
+            itemId: index.toString(),
+            itemName: index.toString(),
+          );
+
+          widget.viewModel.setLastSeenPage(index);
         },
       );
 

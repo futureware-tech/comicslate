@@ -25,40 +25,46 @@ class _$ComicStripSerializer implements StructuredSerializer<ComicStrip> {
       serializers.serialize(object.shareUrl,
           specifiedType: const FullType(Uri)),
     ];
-    if (object.title != null) {
+    Object value;
+    value = object.title;
+    if (value != null) {
       result
         ..add('title')
-        ..add(serializers.serialize(object.title,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.lastModified != null) {
+    value = object.lastModified;
+    if (value != null) {
       result
         ..add('lastModified')
-        ..add(serializers.serialize(object.lastModified,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(DateTime)));
     }
-    if (object.lastRendered != null) {
+    value = object.lastRendered;
+    if (value != null) {
       result
         ..add('lastRendered')
-        ..add(serializers.serialize(object.lastRendered,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(DateTime)));
     }
-    if (object.author != null) {
+    value = object.author;
+    if (value != null) {
       result
         ..add('author')
-        ..add(serializers.serialize(object.author,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.version != null) {
+    value = object.version;
+    if (value != null) {
       result
         ..add('version')
-        ..add(serializers.serialize(object.version,
-            specifiedType: const FullType(int)));
+        ..add(serializers.serialize(value, specifiedType: const FullType(int)));
     }
-    if (object.imageBytes != null) {
+    value = object.imageBytes;
+    if (value != null) {
       result
         ..add('imageBytes')
-        ..add(serializers.serialize(object.imageBytes,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(Uint8List)));
     }
     return result;
@@ -73,7 +79,7 @@ class _$ComicStripSerializer implements StructuredSerializer<ComicStrip> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'displayUrl':
           result.displayUrl = serializers.deserialize(value,
@@ -145,12 +151,9 @@ class _$ComicStrip extends ComicStrip {
       this.version,
       this.imageBytes})
       : super._() {
-    if (displayUrl == null) {
-      throw new BuiltValueNullFieldError('ComicStrip', 'displayUrl');
-    }
-    if (shareUrl == null) {
-      throw new BuiltValueNullFieldError('ComicStrip', 'shareUrl');
-    }
+    BuiltValueNullFieldError.checkNotNull(
+        displayUrl, 'ComicStrip', 'displayUrl');
+    BuiltValueNullFieldError.checkNotNull(shareUrl, 'ComicStrip', 'shareUrl');
   }
 
   @override
@@ -245,15 +248,16 @@ class ComicStripBuilder implements Builder<ComicStrip, ComicStripBuilder> {
   ComicStripBuilder();
 
   ComicStripBuilder get _$this {
-    if (_$v != null) {
-      _displayUrl = _$v.displayUrl;
-      _shareUrl = _$v.shareUrl;
-      _title = _$v.title;
-      _lastModified = _$v.lastModified;
-      _lastRendered = _$v.lastRendered;
-      _author = _$v.author;
-      _version = _$v.version;
-      _imageBytes = _$v.imageBytes;
+    final $v = _$v;
+    if ($v != null) {
+      _displayUrl = $v.displayUrl;
+      _shareUrl = $v.shareUrl;
+      _title = $v.title;
+      _lastModified = $v.lastModified;
+      _lastRendered = $v.lastRendered;
+      _author = $v.author;
+      _version = $v.version;
+      _imageBytes = $v.imageBytes;
       _$v = null;
     }
     return this;
@@ -261,9 +265,7 @@ class ComicStripBuilder implements Builder<ComicStrip, ComicStripBuilder> {
 
   @override
   void replace(ComicStrip other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComicStrip;
   }
 
@@ -276,8 +278,10 @@ class ComicStripBuilder implements Builder<ComicStrip, ComicStripBuilder> {
   _$ComicStrip build() {
     final _$result = _$v ??
         new _$ComicStrip._(
-            displayUrl: displayUrl,
-            shareUrl: shareUrl,
+            displayUrl: BuiltValueNullFieldError.checkNotNull(
+                displayUrl, 'ComicStrip', 'displayUrl'),
+            shareUrl: BuiltValueNullFieldError.checkNotNull(
+                shareUrl, 'ComicStrip', 'shareUrl'),
             title: title,
             lastModified: lastModified,
             lastRendered: lastRendered,
