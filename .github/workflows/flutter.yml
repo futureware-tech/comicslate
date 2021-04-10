@@ -12,6 +12,10 @@ env:
   GRADLE_OPTS: -Dorg.gradle.daemon=false
   FLUTTER_ROOT: /tmp/flutter
 
+defaults:
+  run:
+    working-directory: flutter
+
 jobs:
   build:
     strategy:
@@ -21,17 +25,15 @@ jobs:
         include:
           - os: macOS-latest
             platform: ios
-            app_artifact_path: "build/ios/iphoneos/Runner.app"
           - os: windows-latest
             platform: android
-            app_artifact_path: "build/app/outputs/apk/debug/app-debug.apk"
           - os: ubuntu-latest
             platform: android
-            app_artifact_path: "build/app/outputs/apk/debug/app-debug.apk"
     runs-on: ${{ matrix.os }}
     steps:
       - name: "Support >260 characters long paths in Git repositories (Windows)"
         run: git config --global core.longpaths true
+        working-directory: .
       - uses: actions/checkout@v1
       - uses: actions/setup-ruby@v1
         with:
@@ -64,22 +66,9 @@ jobs:
       - name: "Check that no source files were modified during build"
         run: bundle exec fastlane run ensure_git_status_clean show_diff:true
 
-      - name: "Upload application artifacts"
-        uses: actions/upload-artifact@v1
-        if: always()
-        with:
-          name: "flutter app (${{ matrix.os }})"
-          path: ${{ matrix.app_artifact_path }}
-      - name: "Upload Pubspec.lock for updating when not having a Mac"
-        uses: actions/upload-artifact@v1
-        if: always() && matrix.platform == 'ios'
-        with:
-          name: Podfile.lock
-          path: ios/Podfile.lock
-
   publish:
     if: >
-      github.repository == 'dasfoo/comicslate' &&
+      github.repository == 'futureware-dev/comicslate' &&
       github.event_name == 'push'
     needs: build
     strategy:
