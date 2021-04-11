@@ -20,11 +20,6 @@ or alternatively using `brew install fastlane`
 fastlane install_dependencies
 ```
 Install or upgrade Flutter and Android SDK licenses
-### install_ci_keys
-```
-fastlane install_ci_keys
-```
-Install CI keys
 ### generate
 ```
 fastlane generate
@@ -35,6 +30,11 @@ Generate files for Intl and built_value and format all files
 fastlane lint
 ```
 Run static analysis on Flutter files
+### install_ci_keys
+```
+fastlane install_ci_keys
+```
+Install Google Services configs for the CI Firebase project
 
 ----
 

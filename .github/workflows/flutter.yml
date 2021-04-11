@@ -68,7 +68,7 @@ jobs:
         if: runner.os == 'Windows'
         run: git add .
       - name: "Check that all files were properly formatted and generated"
-        run: bundle exec fastlane ensure_clean_git
+        run: bundle exec fastlane run ensure_git_status_clean show_diff:true
 
       - uses: actions/setup-java@v1
         if: matrix.platform == 'android'
@@ -88,7 +88,7 @@ jobs:
         working-directory: flutter/ios
         run: pod update
       - name: "Check that no source files were modified during build"
-        run: bundle exec fastlane ensure_clean_git
+        run: bundle exec fastlane run ensure_git_status_clean show_diff:true
 
       - name: "Upload application artifacts"
         uses: actions/upload-artifact@v1
@@ -138,6 +138,8 @@ jobs:
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
       FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
       FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
+      FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}
+      FASTLANE_SESSION: ${{ secrets.FASTLANE_SESSION }}
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -170,7 +172,7 @@ jobs:
           base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS?}"
 
       - if: matrix.platform == 'ios'
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@master
       - name: "Configure GCloud to fetch 'fastlane match' repo"
         if: matrix.platform == 'ios'
         run: >

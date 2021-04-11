@@ -1,4 +1,8 @@
-APP_IDENTIFIER = 'org.dasfoo.comicslate'
+fastlane_require 'fileutils'
+
+APP_IDENTIFIER = JSON.parse(
+  File.read('../android/app/google-services.json')
+)['client'][0]['client_info']['android_client_info']['package_name']
 default_platform(:android)
 
 module SharedValues
@@ -6,7 +10,7 @@ module SharedValues
 end
 
 before_all do |lane, options|
-  if [:build, :publish].include?(lane)
+  if [:build, :distribute, :publish].include?(lane)
     commits_since_last_tag = changelog_from_git_commits(
       quiet: true,
       # One line per commit, which allows us to easily count them.
@@ -78,13 +82,11 @@ lane :install_dependencies do
   flutter_bootstrap(bootstrap_options)
 end
 
-desc 'Install CI keys'
-lane :install_ci_keys do
-end
-
 desc 'Generate files for Intl and built_value and format all files'
 lane :generate do
   flutter_generate(
+    intl_strings_file: 'lib/l10n/app_localizations.dart',
+    intl_strings_locale: 'en_US',
     coverage_all_imports: true,
   )
   flutter(args: %w(format .))
@@ -92,7 +94,39 @@ end
 
 desc 'Run static analysis on Flutter files'
 lane :lint do
-  flutter(args: %w(analyze))
+  # Do not fail on informational findings (like TODO).
+  flutter(args: %w(analyze --no-fatal-infos))
+
+  error_count = 0
+  Dir.chdir('..') do
+    Dir['lib/**/*.dart'].each do |dart_file|
+      if File.read(dart_file).include?('DateTime.now()')
+        UI.error(
+          "- #{dart_file}: use clock.now() instead of DateTime.now()."
+        )
+        error_count += 1
+      end
+    end
+  end
+  UI.user_error!("#{error_count} error(s) found.") if error_count > 0
+end
+
+desc 'Install Google Services configs for the CI Firebase project'
+lane :install_ci_keys do |options|
+  if File.directory?('keys')
+    FileUtils.cp(
+      'keys/ci/google-services.json',
+      '../android/app/google-services.json',
+      verbose: true)
+    FileUtils.cp(
+      'keys/ci/GoogleService-Info.plist',
+      '../ios/Runner/GoogleService-Info.plist',
+      verbose: true)
+    FileUtils.cp(
+      'keys/ci/FirebaseLocalDeveloper.xcconfig',
+      '../ios/Flutter/',
+      verbose: true)
+  end
 end
 
 platform :android do
@@ -107,7 +141,11 @@ platform :android do
   desc 'Build a release AAB and publish it (including Store artifacts).'
   desc 'Set "release" lane key to non-empty value to upload to "alpha" track.'
   lane :publish do |options|
-    aab = flutter_build(build: 'appbundle')
+    # Occasionally build may fail due to a network error.
+    aab = retry_on_exception do
+      flutter_build(build: 'appbundle')
+    end
+
     retry_on_exception do
       supply(
         track: lane_context[SharedValues::PROMOTE_RELEASE] ? 'alpha'
@@ -116,6 +154,18 @@ platform :android do
         aab: aab,
       )
     end
+
+    # This is the standard release name format, used by Sentry.io clients by
+    # default.
+    sentry_release = '%s@%s+%s' % [
+      APP_IDENTIFIER,
+      lane_context[SharedValues::VERSION_NUMBER],
+      lane_context[SharedValues::BUILD_NUMBER],
+    ]
+    project = ENV['GITHUB_REPOSITORY'].split('/').last
+    sh %W(sentry-cli releases --org dasfoo new -p #{project} #{sentry_release})
+    sh %W(sentry-cli releases --org dasfoo set-commits --auto #{sentry_release})
+    sh %W(sentry-cli releases --org dasfoo finalize #{sentry_release})
   end
 end
 
@@ -138,28 +188,36 @@ platform :ios do
     # no effect outside CI.
     setup_travis
 
-    match(
-      type: 'appstore',
-      app_identifier: APP_IDENTIFIER,
-    )
-    # Perform an (otherwise unnecessary) build to:
-    # - add version
-    # - switch to release mode
+    # Pulling in the certificates repository may occasionally fail.
     retry_on_exception do
-      flutter_build
+      match(
+        type: 'appstore',
+        app_identifier: APP_IDENTIFIER,
+      )
+    end
+    FileUtils.cp(
+      'keys/prod/GoogleService-Info.plist',
+      '../ios/Runner/GoogleService-Info.plist',
+      verbose: true) if File.directory?('keys')
+
+    retry_on_exception do
+      flutter_build(build_args: ['--config-only'])
     end
     gym(silent: true, suppress_xcode_output: true)
 
     begin
+      config = {
+        distribute_external: true,
+        # This is supposed to be the latest build, reject builds already
+        # waiting review (only applies to TestFlight reviews, not App Store!).
+        reject_build_waiting_for_review: true,
+        # Changelog is required for TestFlight.
+        changelog: 'Please look for the latest changes at ' +
+            "https://github.com/#{ENV['GITHUB_REPOSITORY']}/commits/master",
+        groups: lane_context[SharedValues::PROMOTE_RELEASE] ? ['alpha']
+                                                            : ['internal'],
+      }
       retry_on_exception do
-        config = {
-          distribute_external: true,
-          # Changelog is required for TestFlight.
-          changelog: 'Look for latest changes at ' +
-                     'https://github.com/dasfoo/comicslate/commits/master',
-          groups: lane_context[SharedValues::PROMOTE_RELEASE] ? ['alpha']
-                                                              : ['internal'],
-        }
         begin
           upload_to_testflight(config)
         rescue => e
@@ -167,16 +225,15 @@ platform :ios do
           # distribute. It is not allowed to upload the binary twice, so retries
           # will fail, but if we can distribute this binary without an error,
           # then we have achieved what we wanted.
-          #
-          # It's only slightly hacky -- pilot does not provide Action interface:
-          # https://github.com/fastlane/fastlane/issues/13612.
           UI.error("upload + distribute failed: #{e}, retrying distribute")
-          config.merge!({
-            ipa: File.expand_path(lane_context[SharedValues::IPA_OUTPUT_PATH]),
+          upload_to_testflight(config.merge(
+            distribute_only: true,
+            # Has to be specified -- otherwise, the latest build is distributed.
+            build_number: lane_context[SharedValues::BUILD_NUMBER].to_s,
+            # When uploading, this value is taken from IPA, but for distribution
+            # it is unknown.
             app_identifier: APP_IDENTIFIER,
-          })
-          fastlane_require 'pilot'
-          Pilot::BuildManager.new.distribute(config)
+          ))
         end
       end
     ensure
