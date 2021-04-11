@@ -110,10 +110,10 @@ jobs:
           path: flutter
 
   publish:
-    if: >
-      startsWith(github.repository, 'futureware-tech/') &&
-      github.event_name == 'push'
-    needs: build
+    #if: >
+    #  startsWith(github.repository, 'futureware-tech/') &&
+    #  github.event_name == 'push'
+    #needs: build
     strategy:
       fail-fast: false
       matrix:
