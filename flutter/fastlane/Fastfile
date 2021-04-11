@@ -78,6 +78,10 @@ lane :install_dependencies do
   flutter_bootstrap(bootstrap_options)
 end
 
+desc 'Install CI keys'
+lane :install_ci_keys do
+end
+
 desc 'Generate files for Intl and built_value and format all files'
 lane :generate do
   flutter_generate(
