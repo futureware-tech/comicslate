@@ -1,0 +1,5 @@
+lane :ensure_clean_git do
+  ensure_git_status_clean(show_diff: true)
+end
+
+# vim: ft=ruby

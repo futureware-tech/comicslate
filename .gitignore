@@ -1,0 +1,3 @@
+/.bundle
+vendor
+/**/fastlane/report.xml
