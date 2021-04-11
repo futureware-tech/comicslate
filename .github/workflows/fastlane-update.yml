@@ -1,0 +1,43 @@
+name: fastlane update
+
+on:
+  schedule:
+    # Every day at 3:04 UTC: https://crontab.guru/#4_3_*_*_*
+    - cron: "4 3 * * *"
+
+jobs:
+  fastlane-update:
+    # Do not run on forks.
+    if: startsWith(github.repository, 'futureware-tech/')
+    env:
+      # The default SDK directory created by fastlane-plugin-flutter is
+      # vendor/flutter under application root, which likely confuses flutter
+      # cocoapods integration. Reroute here, and debug when we have spare time.
+      FLUTTER_ROOT: /tmp/flutter
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+      - name: "Install dependencies"
+        run: |
+          gem environment
+          gem install bundler --no-doc
+          bundle install
+          bundle console <<<RUBY_VERSION
+      - name: "Install artifacts so that Flutter app can be built (for Pods)"
+        working-directory: flutter
+        run: bundle exec fastlane install_ci_keys
+      - name: "Update fastlane"
+        run: bundle update
+      - name: "Update dependencies"
+        run: bundle exec fastlane update
+      - name: "Check for changes and create/update PR"
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: "${{ secrets.FASTLANE_UPDATE_GITHUB_TOKEN }}"
+          commit-message: "[auto] update dependencies"
+          branch: automated-update
+          title: "[auto] update dependencies"
+          labels: auto,dependencies

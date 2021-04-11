@@ -12,10 +12,6 @@ env:
   GRADLE_OPTS: -Dorg.gradle.daemon=false
   FLUTTER_ROOT: /tmp/flutter
 
-defaults:
-  run:
-    working-directory: flutter
-
 jobs:
   build:
     strategy:
@@ -25,15 +21,18 @@ jobs:
         include:
           - os: macOS-latest
             platform: ios
+            app_artifact_path: "flutter/build/ios/iphoneos/Runner.app"
           - os: windows-latest
             platform: android
+            app_artifact_path: "flutter/build/app/outputs/apk/debug/app-debug.apk"
           - os: ubuntu-latest
             platform: android
+            app_artifact_path: "flutter/build/app/outputs/apk/debug/app-debug.apk"
+            upload_coverage: true
     runs-on: ${{ matrix.os }}
     steps:
       - name: "Support >260 characters long paths in Git repositories (Windows)"
         run: git config --global core.longpaths true
-        working-directory: .
       - uses: actions/checkout@v1
       - uses: actions/setup-ruby@v1
         with:
@@ -42,33 +41,77 @@ jobs:
         run: |
           gem install bundler --no-doc
           bundle install --clean --deployment
+      - name: "Override Android SDK path to one that is writeable"
+        if: runner.os == 'Linux'
+        run: |
+          echo ANDROID_SDK_ROOT=/tmp/android >> $GITHUB_ENV
+          echo ANDROID_HOME=/tmp/android >> $GITHUB_ENV
       - name: "Install dependencies"
-        run: bundle exec fastlane install_dependencies
+        working-directory: flutter
+        run: |
+          bundle exec fastlane install_dependencies
+          bundle exec fastlane install_ci_keys
 
       - name: "Generate and lint"
+        working-directory: flutter
         run: |
           bundle exec fastlane generate
           bundle exec fastlane lint
 
       - name: "Run unit tests"
+        working-directory: flutter
         run: bundle exec fastlane run flutter args:test,--coverage
+      - name: "Upload coverage"
+        if: matrix.upload_coverage
+        uses: codecov/codecov-action@v1
       - name: "Workaround for fastlane & Dart generating files with LF"
-        if: startsWith(matrix.os, 'windows')
+        if: runner.os == 'Windows'
         run: git add .
       - name: "Check that all files were properly formatted and generated"
-        run: bundle exec fastlane run ensure_git_status_clean show_diff:true
+        run: bundle exec fastlane ensure_clean_git
 
       - uses: actions/setup-java@v1
         if: matrix.platform == 'android'
         with:
           java-version: 1.8
+      - name: "Install and configure CocoaPods"
+        if: matrix.platform == 'ios'
+        run: |
+          bundle exec pod repo update
+          bundle binstubs cocoapods --force --path "${HOME?}/bin"
+          echo "${HOME?}/bin" >> $GITHUB_PATH
+
       - run: bundle exec fastlane ${{ matrix.platform }} build
+        working-directory: flutter
+      - name: "Update Podfile.lock in case iOS build failed"
+        if: failure() && matrix.platform == 'ios'
+        working-directory: flutter/ios
+        run: pod update
       - name: "Check that no source files were modified during build"
-        run: bundle exec fastlane run ensure_git_status_clean show_diff:true
+        run: bundle exec fastlane ensure_clean_git
+
+      - name: "Upload application artifacts"
+        uses: actions/upload-artifact@v1
+        if: always()
+        with:
+          name: "flutter app (${{ matrix.os }})"
+          path: ${{ matrix.app_artifact_path }}
+
+      - name: "Clean up generated files before packing a snapshot of changes"
+        if: failure() && runner.os != 'Windows'
+        run: git clean -f -x -d
+      - name: >
+          Upload snapshot of source code.
+          To copy over: 'cd project/flutter && unzip -o ~/Downloads/flutter.zip'
+        if: failure() && runner.os != 'Windows'
+        uses: actions/upload-artifact@v1
+        with:
+          name: flutter
+          path: flutter
 
   publish:
     if: >
-      github.repository == 'futureware-dev/comicslate' &&
+      startsWith(github.repository, 'futureware-tech/') &&
       github.event_name == 'push'
     needs: build
     strategy:
@@ -85,50 +128,60 @@ jobs:
       GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-service-account.json
       ANDROID_KEYSTORE_PATH: /tmp/upload.keystore
 
+      # See similar constuction above. GitHub Actions Linux image comes with an
+      # older SDK and its installation directory is not world-writeable.
+      ANDROID_SDK_ROOT: /tmp/android
+      ANDROID_HOME: /tmp/android
+
       CLOUDSDK_CORE_DISABLE_PROMPTS: 1
       MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
       FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
       FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-ruby@v1
         with:
-          ruby-version: 2.5
+          ruby-version: 2.6
       - name: "Install fastlane"
         run: |
           gem install bundler --no-doc
           bundle install --clean --deployment
       - name: "Install dependencies"
+        working-directory: flutter
         run: bundle exec fastlane install_dependencies
 
-      - uses: actions/setup-java@v1
+      - if: matrix.platform == 'android'
+        uses: actions/setup-java@v1
         with:
           java-version: 1.8
-        if: matrix.platform == 'android'
-      - run: >
-          echo '${{ secrets.ANDROID_KEYSTORE_DATA }}' | base64 -d >
-          "${ANDROID_KEYSTORE_PATH?}"
-        if: matrix.platform == 'android'
+      - if: matrix.platform == 'android'
+        run: |
+          echo '${{ secrets.ANDROID_KEYSTORE_DATA }}' |
+            base64 -d > "${ANDROID_KEYSTORE_PATH?}"
 
+          curl -sL https://sentry.io/get-cli/ | bash
+
+      # The credentials are going to be used for both gcloud and Play Store.
       - run: >
           echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_DATA }}' |
           base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS?}"
-      - name: "Install and configure GCloud to fetch 'fastlane match' repo"
+
+      - if: matrix.platform == 'ios'
+        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      - name: "Configure GCloud to fetch 'fastlane match' repo"
+        if: matrix.platform == 'ios'
         run: >
-          curl -sSL https://sdk.cloud.google.com | bash
-
-          ${HOME?}/google-cloud-sdk/bin/gcloud auth activate-service-account
+          gcloud auth activate-service-account
           --key-file "${GOOGLE_APPLICATION_CREDENTIALS?}"
-
-          echo "::add-path::${HOME?}/google-cloud-sdk/bin"
 
           git config --global
           credential.https://source.developers.google.com.helper
           gcloud.sh
-        if: matrix.platform == 'ios'
 
-      - run: >
+      - working-directory: flutter
+        run: >
           bundle exec fastlane ${{ matrix.platform }} publish
           release:$(sed -n -e 's|^refs/tags/||p' <<<$GITHUB_REF)
