@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-const String _supportEmail = 'comicslate@dasfoo.org';
+const String _supportEmail = 'comicslate@futureware.dev';
 
 //https://www.w3schools.com/tags/ref_urlencode.asp
 String _queryEncodingToPercent(String text) => text.replaceAll('+', '%20');
