@@ -44,6 +44,13 @@ Install Google Services configs for the CI Firebase project
 fastlane android build
 ```
 Build a debug APK
+### android distribute
+```
+fastlane android distribute
+```
+Build current source tree in debug mode and distribute it via Firebase
+
+App Distribution
 ### android publish
 ```
 fastlane android publish
