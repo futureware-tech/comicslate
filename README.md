@@ -8,4 +8,4 @@
 
 Official client application for https://comicslate.org/.
 
-[![Build Status](https://github.com/dasfoo/comicslate/workflows/flutter/badge.svg?branch=master)](https://github.com/dasfoo/comicslate/actions?query=workflow%3Aflutter+branch%3Amaster)
+[![Build Status](https://github.com/futureware-tech/comicslate/workflows/flutter/badge.svg?branch=master)](https://github.com/futureware-tech/comicslate/actions?query=workflow%3Aflutter+branch%3Amaster)
