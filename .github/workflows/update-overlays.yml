@@ -28,9 +28,9 @@ jobs:
           path: tmp/overlays
       - run: |
           if [ -r OVERLAYS ]; then
-            while read -r overlay < OVERLAYS; do
+            while read -r overlay; do
               cp -rf "tmp/overlays/${overlay}/." .
-            done
+            done <OVERLAYS
           fi
 
       - run: rm -rf tmp
