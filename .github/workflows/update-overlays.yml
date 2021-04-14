@@ -19,7 +19,9 @@ jobs:
           repository: futureware-tech/template
           # Has to be under the repository directory, otherwise checkout fails.
           path: tmp/template
-      - run: cp -rf "tmp/template/." .
+      - run: |
+          rm -rf "tmp/template/.git"
+          cp -rf "tmp/template/." .
 
       # Copy over repository-specific custom overlay.
       - uses: actions/checkout@v2
