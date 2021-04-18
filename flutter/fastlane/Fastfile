@@ -243,6 +243,7 @@ platform :ios do
     begin
       config = {
         distribute_external: true,
+        notify_external_testers: true,
         # This is supposed to be the latest build, reject builds already
         # waiting review (only applies to TestFlight reviews, not App Store!).
         reject_build_waiting_for_review: true,
