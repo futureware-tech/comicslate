@@ -1,3 +1,60 @@
-/.bundle
+.DS_Store
+.atom/
+build/
+
+# Bundler config
+.bundle/
+
+# Dependencies
+bower_components
+node_modules
 vendor
+
+# Directory with firebase tool cache.
+/firebase/.firebase
+# Firebase config file (e.g. project aliases).
+/firebase/.firebaserc
+# firebase-tools npm package output
+firebase-debug.log
+
+# Intellij
+*.iml
+.idea
+
+# Editor temporary files
+*.swp
+
+#
+# Artifacts created inside flutter/ directory that are specific to our project.
+# We do not edit flutter/.gitignore file on purpose, to avoid diffs when
+# migrating project to a new version.
+#
+
+# Google Play (and other usage) deploy key
+/flutter/android/app/play-store-service-account.json
+
+# Keys for connecting application to Firebase services. We do not version
+# control them because every developer creates their own with "fastlane setup".
+/flutter/android/app/google-services.json
+/flutter/ios/Runner/GoogleService-Info.plist
+
+# https://docs.fastlane.tools/best-practices/source-control/
+# fastlane specific.
 /**/fastlane/report.xml
+# "deliver" action temporary files.
+/flutter/fastlane/Preview.html
+# "scan" action temporary files.
+/flutter/fastlane/test_output
+
+# File created by "flutter generate".
+/flutter/.packages.generated
+
+# Coverage information.
+/flutter/coverage
+/flutter/test/all_imports_for_coverage_test.dart
+
+# Firebase configuration specific to the current developer (for Debug and Profile).
+/flutter/ios/Flutter/FirebaseLocalDeveloper.xcconfig
+
+# Xcode folder with custom IDE settings.
+/flutter/ios/Runner.xcworkspace/xcshareddata
