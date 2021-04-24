@@ -98,7 +98,7 @@ packages:
       name: built_value
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "8.0.4"
+    version: "8.0.5"
   built_value_generator:
     dependency: "direct dev"
     description:
@@ -506,7 +506,7 @@ packages:
       name: path_provider_windows
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.1"
   pedantic:
     dependency: transitive
     description:
