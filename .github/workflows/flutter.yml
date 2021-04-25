@@ -127,6 +127,7 @@ jobs:
       SUPPLY_JSON_KEY: /tmp/gcloud-service-account.json
       GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-service-account.json
       ANDROID_KEYSTORE_PATH: /tmp/upload.keystore
+      APP_STORE_CONNECT_API_KEY_PATH: /tmp/app_store_connect_api_key.json
 
       # See similar constuction above. GitHub Actions Linux image comes with an
       # older SDK and its installation directory is not world-writeable.
@@ -136,10 +137,6 @@ jobs:
       CLOUDSDK_CORE_DISABLE_PROMPTS: 1
       MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-      FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
-      FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
-      FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}
-      FASTLANE_SESSION: ${{ secrets.FASTLANE_SESSION }}
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -170,6 +167,10 @@ jobs:
       - run: >
           echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_DATA }}' |
           base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS?}"
+
+      - run: >
+          echo '${{ secrets.APP_STORE_CONNECT_API_KEY_DATA }}' |
+          base64 -d > "${APP_STORE_CONNECT_API_KEY_PATH?}"
 
       - if: matrix.platform == 'ios'
         uses: google-github-actions/setup-gcloud@master

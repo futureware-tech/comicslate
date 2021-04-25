@@ -7,9 +7,21 @@ jobs:
   update-overlays:
     # Do not run on forks or the template repo itself.
     if: >
-      startsWith(github.repository, 'futureware-tech/') &&
+      (github.repository_owner == 'futureware-tech') &&
       (github.repository != 'futureware-tech/template')
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        use_private_runner:
+          - ${{ contains(fromJSON(
+            '[
+            "futureware-tech/delern",
+            "futureware-tech/fw_ads"
+            ]'), github.repository) }}
+    runs-on: ${{
+      matrix.use_private_runner &&
+      fromJSON('["self-hosted", "macOS"]') ||
+      'ubuntu-latest'
+      }}
     steps:
       - uses: actions/checkout@v2
 
@@ -43,5 +55,7 @@ jobs:
           token: "${{ secrets.FASTLANE_UPDATE_GITHUB_TOKEN }}"
           commit-message: "[auto] update overlays"
           branch: update-overlays
+          delete-branch: true
           title: "[auto] update overlays"
           labels: auto
+          reviewers: dotdoom
