@@ -260,11 +260,13 @@ platform :ios do
           # distribute. It is not allowed to upload the binary twice, so retries
           # will fail, but if we can distribute this binary without an error,
           # then we have achieved what we wanted.
-          UI.error("upload + distribute failed: #{e}, retrying distribute")
+          UI.error("upload + distribute failed: #{e}; retrying distribute")
           upload_to_testflight(config.merge(
             distribute_only: true,
             # Has to be specified -- otherwise, the latest build is distributed.
             build_number: lane_context[SharedValues::BUILD_NUMBER].to_s,
+            # Without specifying this, list presence check is stuck forever.
+            app_version: lane_context[SharedValues::VERSION_NUMBER],
             # When uploading, this value is taken from IPA, but for distribution
             # it is unknown.
             app_identifier: APP_IDENTIFIER,
