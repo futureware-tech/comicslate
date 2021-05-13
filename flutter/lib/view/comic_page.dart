@@ -19,6 +19,7 @@ enum StripAction { refresh, about }
 
 class ComicPage extends StatelessWidget {
   final _pageTextController = TextEditingController();
+  static const _kGoToPageText = 'Перейти на страницу';
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +34,7 @@ class ComicPage extends StatelessWidget {
           IconButton(
             padding: const EdgeInsets.all(8),
             icon: const Icon(Icons.input),
+            tooltip: _kGoToPageText,
             onPressed: () {
               _pageTextController.text = viewModel.currentStripId;
               final allStrips = viewModel.stripIds.length;
@@ -106,7 +108,7 @@ class ComicPage extends StatelessWidget {
     final focusNode = FocusNode();
     FocusScope.of(context).requestFocus(focusNode);
     return AlertDialog(
-      title: const Text('Перейти на страницу'),
+      title: const Text(_kGoToPageText),
       content: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -222,6 +224,8 @@ class _StripPageState extends State<StripPage> {
                 flex: 10,
                 child: IconButton(
                   icon: const Icon(Icons.skip_previous),
+                  tooltip:
+                      MaterialLocalizations.of(context).previousPageTooltip,
                   onPressed: () => _controller.previousPage(
                     duration: _kNavigationDuration,
                     curve: Curves.ease,
@@ -233,6 +237,7 @@ class _StripPageState extends State<StripPage> {
                 flex: 10,
                 child: IconButton(
                   icon: const Icon(Icons.skip_next),
+                  tooltip: MaterialLocalizations.of(context).nextPageTooltip,
                   onPressed: () => _controller.nextPage(
                     duration: _kNavigationDuration,
                     curve: Curves.ease,

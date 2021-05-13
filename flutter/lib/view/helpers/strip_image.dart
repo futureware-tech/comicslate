@@ -9,22 +9,24 @@ class StripImage extends StatelessWidget {
   }) : assert(viewModel != null);
 
   @override
-  Widget build(BuildContext context) {
-    var aboutStrip =
-        '${viewModel.currentStripId} / ${viewModel.stripIds.length}  ';
-    if (viewModel.currentStrip.title != null) {
-      aboutStrip = aboutStrip + viewModel.currentStrip.title;
-    }
-    return InteractiveViewer(
-      minScale: 0.1,
-      maxScale: 5,
-      child: Column(children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5),
-          child: Text(aboutStrip),
-        ),
-        Expanded(child: Image.memory(viewModel.currentStrip.imageBytes)),
-      ]),
-    );
-  }
+  Widget build(BuildContext context) => InteractiveViewer(
+        minScale: 0.1,
+        maxScale: 5,
+        child: Column(children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(
+                  '${viewModel.currentStripId} / ${viewModel.stripIds.length}',
+                ),
+                if (viewModel.currentStrip.title != null)
+                  Text(viewModel.currentStrip.title),
+              ],
+            ),
+          ),
+          Expanded(child: Image.memory(viewModel.currentStrip.imageBytes)),
+        ]),
+      );
 }
