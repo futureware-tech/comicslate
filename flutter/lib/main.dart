@@ -19,7 +19,7 @@ void main() {
   FlutterSentry.wrap(() {
     final client = ComicslateClient(
       language: 'ru',
-      offlineStorage: FlutterCachingAPIClient(
+      offlineStorage: FlutterCachingAPIClient<dynamic>(
         cache: CacheManager(Config('comicslate-client-json-v1')),
         responseParser: (js) => json.decode(utf8.decode(js)),
       ),
@@ -72,12 +72,12 @@ class MyApp extends StatelessWidget {
       );
 }
 
-class AppLocalizationsDelegate extends LocalizationsDelegate {
+class AppLocalizationsDelegate extends LocalizationsDelegate<void> {
   @override
   bool isSupported(Locale locale) => true;
 
   @override
-  Future load(Locale locale) async {
+  Future<void> load(Locale locale) async {
     final name =
         locale.countryCode.isEmpty ? locale.languageCode : locale.toString();
     final localeName = Intl.canonicalizedLocale(name);
@@ -87,5 +87,5 @@ class AppLocalizationsDelegate extends LocalizationsDelegate {
   }
 
   @override
-  bool shouldReload(LocalizationsDelegate old) => false;
+  bool shouldReload(LocalizationsDelegate<void> old) => false;
 }

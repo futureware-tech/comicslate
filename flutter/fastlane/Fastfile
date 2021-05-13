@@ -95,8 +95,7 @@ end
 
 desc 'Run static analysis on Flutter files'
 lane :lint do
-  # Do not fail on informational findings (like TODO).
-  flutter(args: %w(analyze --no-fatal-infos))
+  flutter(args: %w(analyze))
 
   error_count = 0
   Dir.chdir('..') do

@@ -21,7 +21,7 @@ class ComicPageViewModel {
         _doGoToPageController.add(page);
       } else {
         // TODO(ksheremet): show to user that page doesn't exist
-        print('Couldn\'t find $stripId');
+        debugPrint("Couldn't find $stripId");
       }
     });
     _onRefreshStripController.stream.listen((_) {

@@ -132,7 +132,7 @@ class _ComicListBodyState extends State<_ComicListBody> {
     );
     Navigator.push(
         context,
-        MaterialPageRoute(
+        MaterialPageRoute<void>(
             settings: const RouteSettings(name: '/read-comics'),
             builder: (context) => root));
   }
