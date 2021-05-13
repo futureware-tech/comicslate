@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:meta/meta.dart';
+import 'package:pedantic/pedantic.dart';
 
 // TODO(dotdoom): parse HTTP response also for correct encoding.
 typedef ResponseParser<T> = T Function(Uint8List response);
@@ -51,13 +53,13 @@ class FlutterCachingAPIClient<T> implements CachingAPIClient<T> {
     bool allowFromCache = true,
     Map<String, String> headers,
   }) async* {
-    print('Downloading $url, allowFromCache: $allowFromCache');
+    debugPrint('Downloading $url, allowFromCache: $allowFromCache');
     if (allowFromCache) {
       // TODO(dotdoom): handle HTTP error codes.
       await for (final fileInfo
           in cache.getFileStream(url.toString(), headers: headers)) {
         if (fileInfo is FileInfo) {
-          print('>> [from:${fileInfo.source}] $url');
+          debugPrint('>> [from:${fileInfo.source}] $url');
           yield responseParser(await fileInfo.file.readAsBytes());
         }
       }
@@ -78,7 +80,7 @@ class FlutterCachingAPIClient<T> implements CachingAPIClient<T> {
               .last
               .timeout(const Duration(seconds: 10));
         } finally {
-          _currentlyPrefetching.remove(url);
+          unawaited(_currentlyPrefetching.remove(url));
         }
       });
     }

@@ -42,10 +42,10 @@ Future<void> launchEmail(BuildContext context) async {
   final googleGmailUrl = _queryEncodingToPercent(Uri(
           scheme: 'googlegmail',
           path: '/co',
-          queryParameters: {'to': _supportEmail}..addAll(appInfoOptions))
+          queryParameters: <String, String>{'to': _supportEmail}
+            ..addAll(appInfoOptions))
       .toString());
 
-  launchUrl(context, googleGmailUrl);
   try {
     if (Theme.of(context).platform == TargetPlatform.iOS &&
         await canLaunch(googleGmailUrl)) {
@@ -55,7 +55,7 @@ Future<void> launchEmail(BuildContext context) async {
     await launch(mailUrl, forceSafariVC: false);
   } catch (e) {
     // TODO(ksheremet): Show error to user that app is not installed
-    print(e);
+    debugPrint(e.toString());
   }
 }
 
@@ -64,6 +64,6 @@ Future<void> launchUrl(BuildContext context, String url) async {
     await launch(url, forceSafariVC: false);
   } catch (e) {
     // TODO(ksheremet): Show error to user that app is not installed
-    print(e);
+    debugPrint(e.toString());
   }
 }

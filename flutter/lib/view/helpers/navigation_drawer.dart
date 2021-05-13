@@ -16,12 +16,12 @@ class NavigationDrawer extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+              ),
               child: const Text(
                 'Comicslate',
                 style: TextStyle(color: Colors.white, fontSize: 25),
-              ),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
               ),
             ),
             ListTile(
@@ -45,10 +45,10 @@ class NavigationDrawer extends StatelessWidget {
               future: _getAppVersion(),
               builder: (context, snapshot) => AboutListTile(
                 icon: const Icon(Icons.perm_device_information),
-                child: const Text('О приложении'),
                 applicationIcon: Image.asset('images/favicon.webp'),
                 applicationVersion: snapshot.hasData ? snapshot.data : null,
                 applicationLegalese: 'MIT License',
+                child: const Text('О приложении'),
               ),
             ),
           ],

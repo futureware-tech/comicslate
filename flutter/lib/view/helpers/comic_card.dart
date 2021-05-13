@@ -47,7 +47,10 @@ class _ComicsRatingWidgetState extends State<ComicsRatingWidget>
       return Container();
     }
     if (widget.isActive == true) {
-      return RotationTransition(child: _buildStar(), turns: _starController);
+      return RotationTransition(
+        turns: _starController,
+        child: _buildStar(),
+      );
     } else {
       return _buildStar();
     }
@@ -68,7 +71,7 @@ class ComicCard extends StatelessWidget {
   final String title;
   final ComicRatingColor ratingColor;
   final bool isActive;
-  final Function callback;
+  final void Function() callback;
 
   const ComicCard(
       {@required this.imageUrl,

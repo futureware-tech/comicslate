@@ -3,15 +3,16 @@ import 'dart:typed_data';
 
 import 'package:comicslate/models/comic.dart';
 import 'package:comicslate/models/comic_strip.dart';
+import 'package:comicslate/models/serializers.dart';
 import 'package:comicslate/models/storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
-
-import 'serializers.dart';
+import 'package:pedantic/pedantic.dart';
 
 @immutable
 class ComicslateClient {
   final String language;
-  final CachingAPIClient offlineStorage;
+  final CachingAPIClient<dynamic> offlineStorage;
   final CachingAPIClient<Uint8List> prefetchCache;
 
   static final Uri _baseUri = Uri.parse('https://app.comicslate.org/');
@@ -49,14 +50,16 @@ class ComicslateClient {
           allowFromCache: allowFromCache);
 
   Stream<List<Comic>> getComicsList() =>
-      requestJson('comics').cast<List>().map((comics) => comics
-          .map((comic) => serializers.deserializeWith(Comic.serializer, comic))
+      requestJson('comics').cast<List<dynamic>>().map((comics) => comics
+          .map((dynamic comic) =>
+              serializers.deserializeWith(Comic.serializer, comic))
           .where((comic) => comic.firstStripRenders == true)
           .toList());
 
   Stream<List<String>> getStoryStripsList(Comic comic) =>
-      requestJson('comics/${comic.id}/strips')
-          .map((data) => List<String>.from(data['storyStrips']));
+      requestJson('comics/${comic.id}/strips').map((dynamic data) =>
+          List<String>.from((data as Map<String, dynamic>)['storyStrips']
+              as Iterable<dynamic>));
 
   Stream<ComicStrip> getStrip(
     Comic comic,
@@ -64,16 +67,16 @@ class ComicslateClient {
     bool allowFromCache = true,
     List<String> prefetch = const [],
   }) async* {
-    () async {
+    unawaited(() async {
       // Wait a little before prefetching, so that the strip we are currently
       // trying to fetch gets all the bandwidth.
-      await Future.delayed(const Duration(seconds: 3));
+      await Future<void>.delayed(const Duration(seconds: 3));
 
       offlineStorage.prefetch(prefetch.map((prefetchStripId) => _baseUri
           .replace(path: 'comics/${comic.id}/strips/$prefetchStripId')));
       prefetchCache.prefetch(prefetch.map((prefetchStripId) => _baseUri.replace(
           path: 'comics/${comic.id}/strips/$prefetchStripId/render')));
-    }();
+    }());
 
     final stripMetaPath = 'comics/${comic.id}/strips/$stripId';
     await for (final stripJson
@@ -97,10 +100,10 @@ class ComicslateClient {
           yield strip.rebuild((b) => b.imageBytes = imageBytes);
         }
       } on HttpException catch (e) {
-        print('HttpException getting strip: $e');
+        debugPrint('HttpException getting strip: $e');
         yield strip.rebuild((b) => b.title ??= e.message);
       } catch (e) {
-        print('Unclassified error getting strip: $e');
+        debugPrint('Unclassified error getting strip: $e');
         yield strip;
       }
     }

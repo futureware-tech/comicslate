@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:comicslate/models/comic.dart';
 import 'package:comicslate/models/comicslate_client.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:pedantic/pedantic.dart';
 
 class ComicListBloc {
   List<Comic> _comicList;
@@ -23,7 +24,7 @@ class ComicListBloc {
 
     _onEmptyCache.stream.listen((_) async {
       await client.emptyCache();
-      _getComicList(client);
+      await _getComicList(client);
     });
   }
 
@@ -46,7 +47,7 @@ class ComicListBloc {
 
   Future<void> _getComicList(ComicslateClient client) async {
     _comicList = await client.getComicsList().first;
-    FirebaseAnalytics().logViewItemList(itemCategory: '');
+    unawaited(FirebaseAnalytics().logViewItemList(itemCategory: ''));
 
     Map<String, List<Comic>> comics;
     comics = _comicList.fold<Map<String, List<Comic>>>({}, (map, comic) {

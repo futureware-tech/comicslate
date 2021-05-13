@@ -37,7 +37,7 @@ class ComicPage extends StatelessWidget {
               _pageTextController.text = viewModel.currentStripId;
               final allStrips = viewModel.stripIds.length;
               final onGoToPage = viewModel.onGoToPage;
-              showDialog(
+              showDialog<void>(
                 context: context,
                 barrierDismissible: true,
                 builder: (context) =>
@@ -102,7 +102,7 @@ class ComicPage extends StatelessWidget {
   }
 
   Widget _showGoToPageDialog(
-      BuildContext context, int allStrips, Sink onGoToPage) {
+      BuildContext context, int allStrips, Sink<String> onGoToPage) {
     final focusNode = FocusNode();
     FocusScope.of(context).requestFocus(focusNode);
     return AlertDialog(
@@ -130,20 +130,20 @@ class ComicPage extends StatelessWidget {
       ),
       actions: <Widget>[
         TextButton(
-          child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
           onPressed: () {
             Navigator.of(context).pop();
           },
+          child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
         ),
         TextButton(
-          child: Text(
-            'Перейти',
-            style: TextStyle(color: Theme.of(context).primaryColor),
-          ),
           onPressed: () {
             onGoToPage.add(_pageTextController.text);
             Navigator.of(context).pop();
           },
+          child: Text(
+            'Перейти',
+            style: TextStyle(color: Theme.of(context).primaryColor),
+          ),
         ),
       ],
     );
