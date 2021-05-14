@@ -1,3 +1,5 @@
+name: Update overlays
+
 on:
   schedule:
     # Every day at 2:07 UTC: https://crontab.guru/#7_2_*_*_*
