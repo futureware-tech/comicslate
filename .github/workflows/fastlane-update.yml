@@ -17,11 +17,6 @@ jobs:
             "futureware-tech/delern",
             "futureware-tech/fw_ads"
             ]'), github.repository) }}
-    env:
-      # The default SDK directory created by fastlane-plugin-flutter is
-      # vendor/flutter under application root, which likely confuses flutter
-      # cocoapods integration. Reroute here, and debug when we have spare time.
-      FLUTTER_ROOT: /tmp/flutter
     runs-on: ${{
       matrix.use_private_runner &&
       fromJSON('["self-hosted", "macOS"]') ||
@@ -34,6 +29,7 @@ jobs:
           node-version: 10
       - uses: ruby/setup-ruby@v1
         if: ${{ !matrix.use_private_runner }}
+      - uses: subosito/flutter-action@v1
       - name: "Install dependencies"
         run: |
           gem environment
