@@ -10,7 +10,6 @@ on:
 
 env:
   GRADLE_OPTS: -Dorg.gradle.daemon=false
-  FLUTTER_ROOT: /tmp/flutter
 
 jobs:
   build:
@@ -33,7 +32,11 @@ jobs:
     steps:
       - name: "Support >260 characters long paths in Git repositories (Windows)"
         run: git config --global core.longpaths true
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - run: git fetch --tags
+        working-directory: flutter/.flutter
       - uses: actions/setup-ruby@v1
         with:
           ruby-version: 2.6
@@ -99,7 +102,7 @@ jobs:
 
       - name: "Clean up generated files before packing a snapshot of changes"
         if: failure() && runner.os != 'Windows'
-        run: git clean -f -x -d
+        run: git clean -f -x -d && rm -rf flutter/.flutter
       - name: >
           Upload snapshot of source code.
           To copy over: 'cd project/flutter && unzip -o ~/Downloads/flutter.zip'
@@ -140,7 +143,11 @@ jobs:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - run: git fetch --tags
+        working-directory: flutter/.flutter
       - uses: actions/setup-ruby@v1
         with:
           ruby-version: 2.6
