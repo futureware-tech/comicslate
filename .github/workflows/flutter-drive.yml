@@ -28,7 +28,11 @@ jobs:
       - uses: futureware-tech/simulator-action@v1
         with:
           model: ${{ matrix.device }}
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - run: git fetch --tags
+        working-directory: flutter/.flutter
       - name: "Install dependencies"
         run: |
           bundle install --deployment

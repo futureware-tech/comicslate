@@ -33,7 +33,11 @@ jobs:
     steps:
       - name: "Support >260 characters long paths in Git repositories (Windows)"
         run: git config --global core.longpaths true
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - run: git fetch --tags
+        working-directory: flutter/.flutter
       - uses: actions/setup-ruby@v1
         with:
           ruby-version: 2.6
@@ -140,7 +144,11 @@ jobs:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - run: git fetch --tags
+        working-directory: flutter/.flutter
       - uses: actions/setup-ruby@v1
         with:
           ruby-version: 2.6
