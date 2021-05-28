@@ -9,14 +9,15 @@ const String _supportEmail = 'comicslate@futureware.dev';
 String _queryEncodingToPercent(String text) => text.replaceAll('+', '%20');
 
 Future<void> launchEmail(BuildContext context) async {
+  final orientation = MediaQuery.of(context).orientation.toString();
+  // Count physical pixels of device.
+  final screenSize =
+      MediaQuery.of(context).size * MediaQuery.of(context).devicePixelRatio;
+  final platform = Theme.of(context).platform;
   final appInfo = await PackageInfo.fromPlatform();
   final appVersion = appInfo.version;
   final buildNumber = appInfo.buildNumber;
   final appName = appInfo.appName;
-  final orientation = MediaQuery.of(context).orientation.toString();
-  //Count physical pixels of device
-  final screenSize =
-      MediaQuery.of(context).size * MediaQuery.of(context).devicePixelRatio;
 
   // On iPhone Gmail app \n does not work.
   final deviceInfo = (await DeviceInfo.getDeviceInfo())
@@ -47,8 +48,7 @@ Future<void> launchEmail(BuildContext context) async {
       .toString());
 
   try {
-    if (Theme.of(context).platform == TargetPlatform.iOS &&
-        await canLaunch(googleGmailUrl)) {
+    if (platform == TargetPlatform.iOS && await canLaunch(googleGmailUrl)) {
       await launch(googleGmailUrl);
       return;
     }

@@ -68,7 +68,8 @@ end
 desc 'Install or upgrade Flutter and Android SDK licenses'
 lane :install_dependencies do
   bootstrap_options = {
-    flutter_channel: 'stable',
+    # We pin flutter to a specific version, don't want autoupdate during build.
+    flutter_auto_upgrade: false,
   }
 
   if ENV.key?('ANDROID_SDK_ROOT')

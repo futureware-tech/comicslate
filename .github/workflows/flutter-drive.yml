@@ -22,34 +22,32 @@ jobs:
           - "iPhone 11 Pro Max"
           - "iPad Pro (12.9-inch) (4th generation)"
     runs-on: macOS-latest
-    env:
-      FLUTTER_ROOT: /tmp/flutter
     steps:
       - uses: futureware-tech/simulator-action@v1
         with:
           model: ${{ matrix.device }}
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - run: git fetch --tags
+        working-directory: flutter/.flutter
       - name: "Install dependencies"
         run: |
           bundle install --deployment
           cd flutter
           bundle exec fastlane install_dependencies
           bundle exec fastlane install_ci_keys
-      - name: "Pre-build app to unclutter test output"
-        working-directory: flutter
-        run: bundle exec fastlane ios build
 
       - name: "Build and run tests (default error reporting environment)"
         if: github.event_name == 'pull_request'
         working-directory: flutter
         run: >
-          "${FLUTTER_ROOT?}/bin/flutter" drive
-          --target test_driver/main.dart
+          bundle exec fastlane run flutter
+          args:drive,--target,test_driver/main.dart
 
       - name: "Build and run tests (ci error reporting environment)"
         if: github.event_name == 'push'
         working-directory: flutter
         run: >
-          "${FLUTTER_ROOT?}/bin/flutter" drive
-          --dart-define sentry.environment=ci
-          --target test_driver/main.dart
+          bundle exec fastlane run flutter
+          args:drive,--target,test_driver/main.dart,--dart-define,sentry.environment=ci

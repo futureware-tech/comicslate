@@ -24,6 +24,10 @@ jobs:
       }}
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - run: git fetch --tags
+        working-directory: flutter/.flutter
       - uses: actions/setup-node@v1
         with:
           node-version: 10
