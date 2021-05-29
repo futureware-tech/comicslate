@@ -145,6 +145,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
+          # Need history for build number etc.
+          fetch-depth: 0
           submodules: recursive
       - run: git fetch --tags
         working-directory: flutter/.flutter
