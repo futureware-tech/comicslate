@@ -45,6 +45,8 @@ firebase-debug.log
 /flutter/fastlane/Preview.html
 # "scan" action temporary files.
 /flutter/fastlane/test_output
+# fastlane updates the README templates way too often, resulting in CI failures.
+/**/fastlane/README.md
 
 # File created by "flutter generate".
 /flutter/.packages.generated
