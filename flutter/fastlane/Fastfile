@@ -281,6 +281,12 @@ platform :ios do
       if lane_context[SharedValues::PROMOTE_RELEASE]
         retry_on_exception do
           upload_to_app_store(
+            # Publishing to AppStore fails with message
+            # Precheck cannot check In-app purchases with the App Store
+            # Connect API Key
+            # Therefore we set this property to false as described here:
+            # https://github.com/fastlane/fastlane/issues/18250
+            precheck_include_in_app_purchases: false,
             app_identifier: APP_IDENTIFIER,
             overwrite_screenshots: true,
             submit_for_review: true,
